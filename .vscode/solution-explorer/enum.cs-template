@@ -1,0 +1,6 @@
+using System;
+
+namespace {{namespace}} {
+	public enum {{name}} {
+	}
+}
