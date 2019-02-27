@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="*"/>
-    <PackageReference Include="Json.Net" Version="*"/>
-  </ItemGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>netcoreapp3.0</TargetFramework>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="CommandLineParser" Version="*"/>
+		<PackageReference Include="Newtonsoft.Json" Version="*"/>
+	</ItemGroup>
 </Project>
