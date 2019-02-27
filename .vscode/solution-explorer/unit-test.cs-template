@@ -1,0 +1,8 @@
+#nullable enable
+using SCG = System.Collections.Generic;
+using Xunit;
+
+namespace {{namespace}} {
+	public class {{name}} {
+	}
+}
