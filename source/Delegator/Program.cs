@@ -2,12 +2,23 @@
 
 namespace Delegator {
 	enum ExitCode
-	{ Success = 0
+	{ Success
 	, Error
 	}
 	class Program {
-		static ExitCode Main(string[] args) {
-			return ExitCode.Success;
+		static int Main(string[] args) {
+			/*
+			read configuration (from file or default)
+			if current name is configured, then run configured command with passed in arguments
+			otherwise, process arguments & return validity
+			- valid: dispatch command
+				- set name
+				- unset name
+				- reset all
+				- restore
+			- invalid: display help & exit with error
+			 */
+			return (int)ExitCode.Success;
 		}
 	}
 }
