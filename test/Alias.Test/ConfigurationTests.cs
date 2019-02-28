@@ -1,10 +1,11 @@
 #nullable enable
+using SIO = System.IO;
 using SCG = System.Collections.Generic;
 using Xunit;
-using DC = Delegator.Configuration;
+using AC = Alias.Configuration;
 using NJL = Newtonsoft.Json.Linq;
 
-namespace Delegator.Test {
+namespace Alias.Test {
 	public class ConfigurationTests {
 		[Theory]
 		[InlineData("{}")]
@@ -14,15 +15,15 @@ namespace Delegator.Test {
 		[InlineData(@"{ ""binding"" : { ""name"": {} } }")]
 		[InlineData(@"{ ""binding"" : { ""name"": { ""command"": null } } }")]
 		public static void DeserializesToNull(string input) {
-			Assert.Null(DC.Configuration.FromJsonLinq(NJL.JToken.Parse(input)));
+			Assert.Null(AC.Configuration.Deserialize(new SIO.StringReader(input)));
 		}
 		[Fact]
 		public void NonEmptyBindingDeserializes() {
-			var target = DC.Configuration.FromJsonLinq(NJL.JToken.Parse(@"{ ""binding"" : { ""name"": { ""command"": ""value"" } } }"));
+			var target = AC.Configuration.FromJsonLinq(NJL.JToken.Parse(@"{ ""binding"" : { ""name"": { ""command"": ""value"" } } }"));
 			Assert.True
-			( target is DC.Configuration {Binding: SCG.IDictionary<string, DC.CommandEntry> {Count: 1} binding}
+			( target is AC.Configuration {Binding: SCG.IDictionary<string, AC.CommandEntry> {Count: 1} binding}
 		 && binding.TryGetValue("name", out var actual)
-		 && actual is DC.CommandEntry {Command: "value"}
+		 && actual is AC.CommandEntry {Command: "value"}
 			);
 			/* Assert.IsType<DC.Configuration>(target);
 			var binding = target!.Binding;

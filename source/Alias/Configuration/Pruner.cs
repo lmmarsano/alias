@@ -2,7 +2,7 @@ using S = System;
 using SCG = System.Collections.Generic;
 using System.Linq;
 
-namespace Delegator.Configuration {
+namespace Alias.Configuration {
 	/**
 	 * <summary>
 	 * Operation to fold over a recursive data structure containing <c cref='SCG.IEnumerable{T}'>enumerables over T</c>.

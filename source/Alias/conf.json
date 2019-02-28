@@ -1,0 +1,26 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "urn:lmmarsano:Alias/v0",
+	"title": "Alias Configuration",
+	"description": "Runtime settings for the Alias application.",
+	"definitions": {
+		"nonBlank": {
+			"$id": "#nonBlank",
+			"type": "string",
+			"pattern": "\\S"
+		}
+	},
+	"type": "object",
+	"properties": {
+		"binding": {
+			"description": "Name to command assignments.",
+			"type": "object",
+			"propertyNames": { "$ref": "#nonBlank" },
+			"additionalProperties": {
+				"type": "object",
+				"properties": { "command": { "$ref": "#nonBlank" } },
+				"required": [ "command" ]
+			}
+		}
+	}
+}

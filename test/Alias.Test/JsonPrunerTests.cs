@@ -1,10 +1,10 @@
 #nullable enable
 using SCG = System.Collections.Generic;
 using Xunit;
-using DC = Delegator.Configuration;
+using AC = Alias.Configuration;
 using NJL = Newtonsoft.Json.Linq;
 
-namespace Delegator.Test {
+namespace Alias.Test {
 	public class JsonPrunerTests {
 		[Theory]
 		[InlineData("null", "null")]
@@ -17,7 +17,7 @@ namespace Delegator.Test {
 		public void PrunedJsonEquals(string before, string after)
 		=> Assert.True(
 		   	NJL.JToken.DeepEquals
-		   	( DC.JsonPruner.Transform(NJL.JToken.Parse(before))
+		   	( AC.JsonPruner.Transform(NJL.JToken.Parse(before))
 		   	, NJL.JToken.Parse(after)
 		   	)
 		   );

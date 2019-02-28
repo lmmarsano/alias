@@ -1,6 +1,6 @@
 ﻿using S = System;
 
-namespace Delegator {
+namespace Alias {
 	enum ExitCode
 	{ Success
 	, Error
