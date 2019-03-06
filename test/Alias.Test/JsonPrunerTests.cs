@@ -1,5 +1,4 @@
 #nullable enable
-using SCG = System.Collections.Generic;
 using Xunit;
 using AC = Alias.Configuration;
 using NJL = Newtonsoft.Json.Linq;

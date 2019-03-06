@@ -44,7 +44,7 @@ namespace Alias.Configuration {
 		 * </summary>
 		 * <param name="jToken">JSON Linq object to convert.</param>
 		 * <returns>The corresponding <c cref='Configuration'>Configuration</c> or null for empty configuration.</returns>
-		 */
+		 * <exception cref="UnhandledJsonTokenException">An item with unhandled runtime type derived from <see cref='NJL.JContainer'/> was encountered inside <paramref name="jToken"/>.</exception>		 */
 		public static Configuration? FromJsonLinq(NJL.JToken jToken) {
 			var pruned = JsonPruner.Transform(jToken);
 			return JsonPruner.Filter(pruned)
@@ -53,11 +53,11 @@ namespace Alias.Configuration {
 		}
 		/**
 		 * <summary>
-		 * Deserialize a <c cref='Configuration'>Configuration</c> object from <c cref='SIO.TextReader'>text input stream</c>.
+		 * Deserialize a <see cref='Configuration'/> object from <c cref='SIO.TextReader'>text input stream</c>.
 		 * </summary>
 		 * <param name="reader">Text input stream to deserialize.</param>
-		 * <returns>A configuration or <c>null</c> for empty configuration.</returns>
-		 */
+		 * <returns>A configuration or <see cref="null"/> for empty configuration.</returns>
+		 * <exception cref="UnhandledJsonTokenException">An item with unhandled runtime type derived from <see cref='NJL.JContainer'/> was encountered as a JSON token read from <paramref name="reader"/>.</exception>		 */
 		public static Configuration? Deserialize(SIO.TextReader reader) {
 			using (var jsonReader = new NJ.JsonTextReader(reader)) {
 				return FromJsonLinq(NJL.JToken.ReadFrom(jsonReader, Converter.JsonLoadSettings));

@@ -17,7 +17,7 @@ namespace Alias.Configuration {
 		 * </summary>
 		 * <param name="item">JSON Linq token to prune.</param>
 		 * <returns>Pruned JSON Linq token.</returns>
-		 * <exception cref="UnhandledJsonTokenException">An item with unhandled runtime type derived from <c cref='NJL.JContainer'>NJL.JContainer</c> was encountered inside <c cref='jToken'>jToken</c>.</exception>
+		 * <exception cref="UnhandledJsonTokenException">An item with unhandled runtime type derived from <see cref='NJL.JContainer'/> was encountered inside <paramref name="jToken"/>.</exception>
 		 */
 		public static S.Func<NJL.JToken, NJL.JToken> Transform { get; }
 		= (new Pruner<NJL.JToken>(Factory, Filter)).Transform;
