@@ -9,10 +9,11 @@ namespace Alias.Test {
 		[InlineData("null", "null")]
 		[InlineData("{}", "{}")]
 		[InlineData("[]", "[]")]
-		[InlineData(@"{""name"": 0}", @"{""name"": 0}")]
 		[InlineData("[{}]", "[]")]
 		[InlineData(@"{""name"": null}", "{}")]
 		[InlineData(@"{""name"": []}", "{}")]
+		[InlineData(@"{""name"": """"}", @"{""name"": """"}")]
+		[InlineData(@"{""name"": 0}", @"{""name"": 0}")]
 		public void PrunedJsonEquals(string before, string after)
 		=> Assert.True(
 		   	NJL.JToken.DeepEquals

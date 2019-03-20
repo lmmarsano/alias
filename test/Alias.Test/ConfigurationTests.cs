@@ -8,7 +8,7 @@ using NJL = Newtonsoft.Json.Linq;
 namespace Alias.Test {
 	public class ConfigurationTests {
 		[Theory]
-		[InlineData("{}")]
+		[InlineData(@"{}")]
 		[InlineData(@"{ ""binding"" : null }")]
 		[InlineData(@"{ ""binding"" : {} }")]
 		[InlineData(@"{ ""binding"" : { ""name"": null } }")]
@@ -25,16 +25,6 @@ namespace Alias.Test {
 		 && binding.TryGetValue("name", out var actual)
 		 && actual is AC.CommandEntry {Command: "value"}
 			);
-			/* Assert.IsType<DC.Configuration>(target);
-			var binding = target!.Binding;
-			Assert.IsType<SCG.Dictionary<string, DC.CommandEntry>>(binding);
-			var expected = new DC.CommandEntry("value");
-			Assert.Equal(1, binding!.Count);
-			if (binding!.TryGetValue("name", out var actual)) {
-				Assert.Equal(expected, actual);
-			} else {
-				Assert.True(false, binding.ToString());
-			} */
 		}
 	}
 }
