@@ -76,7 +76,7 @@ namespace Functional {
 		 * <typeparam name="TOut">Image type the <paramref name="selector"/> possibly returns.</typeparam>
 		 * <returns>An enumerable of images the map successfully returned.</returns>
 		 */
-		public static SCG.IEnumerable<TOut> SelectMaybe<TIn, TOut>(this SCG.IEnumerable<TIn> @this, S.Func<TIn, Maybe<TOut>> selector)
+		public static SCG.IEnumerable<TOut> SelectMaybe<TIn, TOut>(this SCG.IEnumerable<TIn> @this, S.Func<TIn, Maybe<TOut>> selector) where TOut: object
 		=> @this.Select(selector).OfType<Just<TOut>>().Select(x => x.Value);
 		/**
 		 * <summary>
@@ -103,6 +103,30 @@ namespace Functional {
 		public static TResult Using<TDisposable, TResult>(this TDisposable @this, S.Func<TDisposable, TResult> map) where TDisposable: S.IDisposable => Disposable.Using(@this, map);
 		/**
 		 * <summary>
+		 * Convert to <see cref="Result{T}"/> by mapping nulls to <see cref="Error{T}"/>.
+		 * </summary>
+		 * <param name="onNull">Error value map for null.</param>
+		 * <typeparam name="T">Non-nullable reference.</typeparam>
+		 * <returns><see cref="Error{T}"/> if null, otherwise <see cref="Ok{T}"/> current value.</returns>
+		 */
+		public static Result<T> ToResult<T>(this T? @this, S.Func<S.Exception> onNull) where T : class
+		=> @this is T value
+		 ? (Result<T>)value
+		 : onNull();
+		/**
+		 * <summary>
+		 * Convert to <see cref="Result{T}"/> by mapping missing values to <see cref="Error{T}"/>.
+		 * </summary>
+		 * <param name="onNull">Error value map for missing value.</param>
+		 * <typeparam name="T">Value type.</typeparam>
+		 * <returns><see cref="Ok{T}"/> if current value is any, otherwise <see cref="Error{T}"/>.</returns>
+		 */
+		public static Result<T> ToResult<T>(this T? @this, S.Func<S.Exception> onNull) where T : struct
+		=> @this is T value
+		 ? (Result<T>)value
+		 : onNull();
+		/**
+		 * <summary>
 		 * Evaluate to result.
 		 * </summary>
 		 * <returns>Result of successful evaluation (<see cref="Nothing"/>) or error.</returns>
@@ -122,7 +146,7 @@ namespace Functional {
 		 * <typeparam name="T">The function’s image type.</typeparam>
 		 * <returns>Result of successful evaluation or error.</returns>
 		 */
-		public static Result<T> Try<T>(this S.Func<T> @this) => Try(@this);
+		public static Result<T> Try<T>(this S.Func<T> @this) where T: object => Try(@this);
 		/**
 		 * <summary>
 		 * Evaluate to result.
@@ -131,6 +155,33 @@ namespace Functional {
 		 * <typeparam name="T">The function’s image type.</typeparam>
 		 * <returns>Result of successful evaluation or error.</returns>
 		 */
-		public static Result<T> Try<T>(this S.Func<T> @this, S.Func<S.Exception, S.Exception> errorMap) => Try(@this, errorMap);
+		public static Result<T> Try<T>(this S.Func<T> @this, S.Func<S.Exception, S.Exception> errorMap)
+		where T: object => Try(@this, errorMap);
+		/**
+		 * <summary>
+		 * Convert to <see cref="Either{TLeft, TRight}"/> by mapping nulls to <see cref="Left{TLeft, TRight}"/>.
+		 * </summary>
+		 * <param name="onNull">Left value map for null.</param>
+		 * <typeparam name="TLeft">Non-nullable type.</typeparam>
+		 * <typeparam name="TRight">Non-nullable reference.</typeparam>
+		 * <returns><see cref="Left{TLeft, TRight}"/> if null, otherwise <see cref="Right{TLeft, TRight}"/> current value.</returns>
+		 */
+		public static Either<TLeft, TRight> ToEither<TLeft, TRight>(this TRight? @this, S.Func<TLeft> onNull) where TLeft: object where TRight: class
+		=> @this is TRight value
+		 ? (Either<TLeft, TRight>)value
+		 : onNull();
+		/**
+		 * <summary>
+		 * Convert to <see cref="Either{TLeft, TRight}"/> by mapping missing values to <see cref="Left{TLeft, TRight}"/>.
+		 * </summary>
+		 * <param name="onNull">Left value map for missing value.</param>
+		 * <typeparam name="TLeft">Non-nullable type.</typeparam>
+		 * <typeparam name="TRight">Value type.</typeparam>
+		 * <returns><see cref="Right{TLeft, TRight}"/> if current value is any, otherwise <see cref="Left{TLeft, TRight}"/>.</returns>
+		 */
+		public static Either<TLeft, TRight> ToEither<TLeft, TRight>(this TRight? @this, S.Func<TLeft> onNull) where TLeft: object where TRight : struct
+		=> @this is TRight value
+		 ? (Either<TLeft, TRight>)value
+		 : onNull();
 	}
 }

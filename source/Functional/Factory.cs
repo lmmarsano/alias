@@ -2,12 +2,18 @@
 
 namespace Functional {
 	public static class Factory {
-		public static Maybe<T> Maybe<T>(Nothing _) => _;
-		public static Maybe<T> Maybe<T>(T value) => value;
-		public static Result<T> Result<T>(S.Exception exception) => exception;
-		public static Result<T> Result<T>(T value) => value;
-		public static Either<TLeft, TRight> Either<TLeft, TRight>(TLeft value) => value;
-		public static Either<TLeft, TRight> Either<TLeft, TRight>(TRight value) => value;
+		public static Maybe<T> Maybe<T>(Nothing _) where T: object => _;
+		public static Maybe<T> Maybe<T>(T value) where T: object => value;
+		public static Result<T> Result<T>(S.Exception exception) where T: object => exception;
+		public static Result<T> Result<T>(T value) where T: object => value;
+		public static Either<TLeft, TRight> Either<TLeft, TRight>(TLeft value)
+		where TLeft: object
+		where TRight: object
+		=> value;
+		public static Either<TLeft, TRight> Either<TLeft, TRight>(TRight value)
+		where TLeft: object
+		where TRight: object
+		=> value;
 		/**
 		 * <summary>
 		 * Evaluate <paramref name="function"/> to result.
@@ -47,7 +53,7 @@ namespace Functional {
 		 * <typeparam name="T"><paramref name="function"/>’s image type.</typeparam>
 		 * <returns>Result of successful evaluation or error.</returns>
 		 */
-		public static Result<T> Try<T>(S.Func<T> function) {
+		public static Result<T> Try<T>(S.Func<T> function) where T: object {
 			try {
 				return function();
 			} catch (S.Exception error) {
@@ -63,7 +69,8 @@ namespace Functional {
 		 * <typeparam name="T"><paramref name="function"/>’s image type.</typeparam>
 		 * <returns>Result of successful evaluation or error.</returns>
 		 */
-		public static Result<T> Try<T>(S.Func<T> function, S.Func<S.Exception, S.Exception> errorMap) {
+		public static Result<T> Try<T>(S.Func<T> function, S.Func<S.Exception, S.Exception> errorMap)
+		where T: object {
 			try {
 				return function();
 			} catch (S.Exception error) {

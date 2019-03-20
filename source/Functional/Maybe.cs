@@ -26,7 +26,7 @@ namespace Functional {
 		 * <typeparam name="TResult">Type returned by <paramref name="selector"/>.</typeparam>
 		 * <returns>A <see cref="Maybe{TResult}"/> whose optional element is any input element’s transform image.</returns>
 		 */
-		public abstract Maybe<TResult> Select<TResult>(S.Func<T, TResult> selector);
+		public abstract Maybe<TResult> Select<TResult>(S.Func<T, TResult> selector) where TResult: object;
 		/**
 		 * <summary>
 		 * Project and flatten the optional element.
@@ -35,7 +35,24 @@ namespace Functional {
 		 * <typeparam name="TResult">Type of the optional element returned by <paramref name="selector"/>.</typeparam>
 		 * <returns>A <see cref="Maybe{TResult}"/> whose optional element is any returned from the transform function.</returns>
 		 */
-		public abstract Maybe<TResult> SelectMany<TResult>(S.Func<T, Maybe<TResult>> selector);
+		public abstract Maybe<TResult> SelectMany<TResult>(S.Func<T, Maybe<TResult>> selector) where TResult: object;
+		/**
+		 * <summary>
+		 * Filters a <see cref='Maybe{T}'/> of values based on a predicate.
+		 * </summary>
+		 * <param name="predicate">A function to test each element for a condition.</param>
+		 * <returns>A <see cref='Maybe{T}'/> that contains elements from the input sequence that satisfy the condition.</returns>
+		 */
+		public abstract Maybe<T> Where(S.Func<T, bool> predicate);
+		/**
+		 * <summary>
+		 * Sequential composition: replace current value, if any, with <paramref name="next"/>.
+		 * </summary>
+		 * <param name="next">The next value.</param>
+		 * <typeparam name="TResult">Next internal type.</typeparam>
+		 * <returns>Next value or <see cref='Nothing{TResult}'/>.</returns>
+		 */
+		public abstract Maybe<TResult> Combine<TResult>(Maybe<TResult> next) where TResult: object;
 		/**
 		 * <summary>
 		 * Extract the optional value or a default alternative.
@@ -76,7 +93,7 @@ namespace Functional {
 	 * A present value.
 	 * </summary>
 	 */
-	public sealed class Just<T>: Maybe<T>, S.IEquatable<Just<T>> {
+	public sealed class Just<T>: Maybe<T>, S.IEquatable<Just<T>> where T: object {
 		public static implicit operator Just<T>(T value) => new Just<T>(value);
 		public static implicit operator T(Just<T> just) => just.Value;
 		public static bool operator ==(Just<T> a, Just<T> b)
@@ -96,8 +113,17 @@ namespace Functional {
 		public override SCG.IEnumerator<T> GetEnumerator() {
 			yield return Value;
 		}
+		/// <inheritdoc/>
 		public override Maybe<TResult> Select<TResult>(S.Func<T, TResult> map) => map(Value);
+		/// <inheritdoc/>
 		public override Maybe<TResult> SelectMany<TResult>(S.Func<T, Maybe<TResult>> map) => map(Value);
+		/// <inheritdoc/>
+		public override Maybe<T> Where(S.Func<T, bool> predicate)
+		=> predicate(Value)
+		 ? (Maybe<T>)this
+		 : Nothing.Value;
+		/// <inheritdoc/>
+		public override Maybe<TResult> Combine<TResult>(Maybe<TResult> next) => next;
 		public override T Reduce(T alternative) => Value;
 		public override T Reduce(S.Func<T> alternative) => Value;
 		public override Maybe<TResult> OfType<TResult>()
@@ -119,7 +145,7 @@ namespace Functional {
 	 * An absent value.
 	 * </summary>
 	 */
-	public sealed class Nothing<T>: Maybe<T>, S.IEquatable<Nothing<T>> {
+	public sealed class Nothing<T>: Maybe<T>, S.IEquatable<Nothing<T>> where T: object {
 		/**
 		 * <summary>
 		 * Only instance of <see cref="Nothing{T}"/>.
@@ -133,8 +159,14 @@ namespace Functional {
 		public override SCG.IEnumerator<T> GetEnumerator() {
 			yield break;
 		}
+		/// <inheritdoc/>
 		public override Maybe<TResult> Select<TResult>(S.Func<T, TResult> map) => Nothing.Value;
+		/// <inheritdoc/>
 		public override Maybe<TResult> SelectMany<TResult>(S.Func<T, Maybe<TResult>> map) => Nothing.Value;
+		/// <inheritdoc/>
+		public override Maybe<T> Where(S.Func<T, bool> predicate) => this;
+		/// <inheritdoc/>
+		public override Maybe<TResult> Combine<TResult>(Maybe<TResult> next) => Nothing.Value;
 		public override T Reduce(T alternative) => alternative;
 		public override T Reduce(S.Func<T> alternative) => alternative();
 		public override Maybe<TResult> OfType<TResult>() => Nothing.Value;

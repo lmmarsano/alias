@@ -24,7 +24,15 @@ namespace Functional {
 		 * <typeparam name="TResult">The map’s image type.</typeparam>
 		 * <returns>A <see cref="Result{TResult}"/> whose possible element is any input element’s map projection.</returns>
 		 */
-		public abstract Result<TResult> Select<TResult>(S.Func<T, TResult> map);
+		public abstract Result<TResult> Select<TResult>(S.Func<T, TResult> map) where TResult: object;
+		/**
+		 * <summary>
+		 * Project the possible error.
+		 * </summary>
+		 * <param name="map">The map to apply to the possible error.</param>
+		 * <returns>A <see cref="Result{TResult}"/> whose possible error is a map projection.</returns>
+		 */
+		public abstract Result<T> SelectError(S.Func<S.Exception, S.Exception> map);
 		/**
 		 * <summary>
 		 * Project and flatten the possible value.
@@ -33,7 +41,33 @@ namespace Functional {
 		 * <typeparam name="TResult">The map’s possible image type.</typeparam>
 		 * <returns>A <see cref="Result{TResult}"/> whose value is any input element’s map projection.</returns>
 		 */
-		public abstract Result<TResult> SelectMany<TResult>(S.Func<T, Result<TResult>> map);
+		public abstract Result<TResult> SelectMany<TResult>(S.Func<T, Result<TResult>> map) where TResult: object;
+		/**
+		 * <summary>
+		 * Sequential composition: replace current value, if any, with <paramref name="next"/>.
+		 * </summary>
+		 * <param name="next">The next value.</param>
+		 * <typeparam name="TResult">Next internal type.</typeparam>
+		 * <returns>Next value or <see cref='Error{TResult}'/>.</returns>
+		 */
+		public abstract Result<TResult> Combine<TResult>(Result<TResult> next) where TResult: object;
+		/**
+		 * <summary>
+		 * Filters a <see cref='Result{T}'/> of values based on a predicate.
+		 * </summary>
+		 * <param name="predicate">A function to test each element for a condition.</param>
+		 * <param name="onError">An error map for values that fail <paramref name="predicate"/>.</param>
+		 * <returns>A <see cref='Result{T}'/> that contains elements from the input sequence that satisfy the condition.</returns>
+		 */
+		public abstract Result<T> Where(S.Func<T, bool> predicate, S.Func<T, S.Exception> onError);
+		/**
+		 * <summary>
+		 * Handle <see cref='Error{T}'/>s.
+		 * </summary>
+		 * <param name="handler">Exception handler.</param>
+		 * <returns>Current value if <see cref='Ok{T}'/>, otherwise, the image of <paramref name="handler"/>.</returns>
+		 */
+		public abstract Result<T> Catch(S.Func<Error<T>, Result<T>> handler);
 		/**
 		 * <summary>
 		 * Extract the possible value or a default alternative.
@@ -50,7 +84,15 @@ namespace Functional {
 		 * <returns>The possible element or fallback mapped from error.</returns>
 		 */
 		public abstract T Reduce(S.Func<S.Exception, T> alternative);
-		public abstract Result<TResult> OfType<TResult>() where TResult: object;
+		/**
+		 * <summary>
+		 * Filter values of <see cref="Result{TResult}"/> based on a specified type.
+		 * </summary>
+		 * <param name="onError">Maps Ok type to Error type when Ok is filtered out.</param>
+		 * <typeparam name="TResult">Type to filter on.</typeparam>
+		 * <returns>A <see cref="Result{TResult}"/> that contains the values from input of type <typeparamref name="TResult"/>.</returns>
+		 */
+		public abstract Result<TResult> OfType<TResult>(S.Func<T, S.Exception> onError) where TResult: object;
 		public abstract SCG.IEnumerator<T> GetEnumerator();
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 		public abstract bool Equals(Result<T> other);
@@ -60,7 +102,7 @@ namespace Functional {
 	 * The successful value.
 	 * </summary>
 	 */
-	public sealed class Ok<T>: Result<T>, S.IEquatable<Ok<T>> {
+	public sealed class Ok<T>: Result<T>, S.IEquatable<Ok<T>> where T: object {
 		public static implicit operator Ok<T>(T value) => new Ok<T>(value);
 		public static implicit operator T(Ok<T> value) => value.Value;
 		public static bool operator ==(Ok<T> a, Ok<T> b)
@@ -77,8 +119,21 @@ namespace Functional {
 		public Ok(T value) {
 			Value = value;
 		}
+		/// <inheritdoc/>
 		public override Result<TResult> Select<TResult>(S.Func<T, TResult> map) => map(Value);
+		/// <inheritdoc/>
+		public override Result<T> SelectError(S.Func<S.Exception, S.Exception> map) => this;
+		/// <inheritdoc/>
 		public override Result<TResult> SelectMany<TResult>(S.Func<T, Result<TResult>> map) => map(Value);
+		/// <inheritdoc/>
+		public override Result<T> Where(S.Func<T, bool> predicate, S.Func<T, S.Exception> onError)
+		=> predicate(Value)
+		 ? (Result<T>)this
+		 : onError(Value);
+		/// <inheritdoc/>
+		public override Result<TResult> Combine<TResult>(Result<TResult> next) => next;
+		/// <inheritdoc/>
+		public override Result<T> Catch(S.Func<Error<T>, Result<T>> handler) => this;
 		public override T Reduce(T alternative) => Value;
 		public override T Reduce(S.Func<S.Exception, T> alternative) => Value;
 		public bool Equals(Ok<T> other) => Value!.Equals(other.Value);
@@ -90,10 +145,10 @@ namespace Functional {
 		public override SCG.IEnumerator<T> GetEnumerator() {
 			yield return Value;
 		}
-		public override Result<TResult> OfType<TResult>()
+		public override Result<TResult> OfType<TResult>(S.Func<T, S.Exception> onError)
 		=> Value is TResult result
 		 ? (Result<TResult>)result
-		 : new S.InvalidCastException($"Unable to cast from {typeof(T)} to {typeof(TResult)}");
+		 : onError(Value);
 		public override string ToString() => $"Ok<{typeof(T)}>({Value})";
 	}
 	/**
@@ -101,7 +156,7 @@ namespace Functional {
 	 * The error.
 	 * </summary>
 	 */
-	public sealed class Error<T>: Result<T>, S.IEquatable<Error<T>> {
+	public sealed class Error<T>: Result<T>, S.IEquatable<Error<T>> where T: object {
 		public static implicit operator Error<T>(S.Exception value) => new Error<T>(value);
 		public static implicit operator S.Exception(Error<T> value) => value.Value;
 		public static bool operator ==(Error<T> a, Error<T> b)
@@ -118,8 +173,18 @@ namespace Functional {
 		public Error(S.Exception value) {
 			Value = value;
 		}
+		/// <inheritdoc/>
 		public override Result<TResult> Select<TResult>(S.Func<T, TResult> map) => Value;
+		/// <inheritdoc/>
+		public override Result<T> SelectError(S.Func<S.Exception, S.Exception> map) => map(Value);
+		/// <inheritdoc/>
 		public override Result<TResult> SelectMany<TResult>(S.Func<T, Result<TResult>> map) => Value;
+		/// <inheritdoc/>
+		public override Result<T> Where(S.Func<T, bool> predicate, S.Func<T, S.Exception> onError) => this;
+		/// <inheritdoc/>
+		public override Result<TResult> Combine<TResult>(Result<TResult> next) => Value;
+		/// <inheritdoc/>
+		public override Result<T> Catch(S.Func<Error<T>, Result<T>> handler) => handler(Value);
 		public override T Reduce(T alternative) => alternative;
 		public override T Reduce(S.Func<S.Exception, T> alternative) => alternative(Value);
 		public bool Equals(Error<T> other) => Value.Equals(other.Value);
@@ -131,7 +196,7 @@ namespace Functional {
 		public override SCG.IEnumerator<T> GetEnumerator() {
 			yield break;
 		}
-		public override Result<TResult> OfType<TResult>() => Value;
+		public override Result<TResult> OfType<TResult>(S.Func<T, S.Exception> onError) => Value;
 		public override string ToString() => $"Error<{typeof(T)}>({Value})";
 	}
 }
