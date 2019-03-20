@@ -18,7 +18,13 @@
 			"propertyNames": { "$ref": "#nonBlank" },
 			"additionalProperties": {
 				"type": "object",
-				"properties": { "command": { "$ref": "#nonBlank" } },
+				"properties": {
+					"command": { "$ref": "#nonBlank" },
+					"arguments": {
+						"type": "string",
+						"items": { "$ref": "#nonBlank" }
+					}
+				},
 				"required": [ "command" ]
 			}
 		}

@@ -2,6 +2,17 @@
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>netcoreapp3.0</TargetFramework>
+		<Authors>Luis Marsano</Authors>
+		<Product>Alias</Product>
+		<PackageId>Alias</PackageId>
+		<NeutralLanguage>en</NeutralLanguage>
+		<Description>Custom commands: make an executable for any command.</Description>
+		<Copyright>GNU GPL 3.0</Copyright>
+		<PackageLicenseUrl>https://github.com/lmmarsano/alias/raw/master/LICENSE</PackageLicenseUrl>
+		<PackageProjectUrl>https://github.com/lmmarsano/alias/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/lmmarsano/alias/</RepositoryUrl>
+		<RepositoryType>Git</RepositoryType>
+		<PackageTags>console</PackageTags>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="CommandLineParser" Version="2.4.3" />
@@ -9,6 +20,6 @@
 		<PackageReference Include="System.Security.Permissions" Version="4.5.0" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\Functional\Functional.csproj" />
+		<ProjectReference Include="..\Functional\Functional.csproj" />
 	</ItemGroup>
 </Project>

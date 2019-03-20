@@ -6,6 +6,7 @@ using System.Linq;
 using NJ = Newtonsoft.Json;
 using Name = System.String;
 using Command = System.String;
+using Arguments = System.String;
 using NJL = Newtonsoft.Json.Linq;
 
 namespace Alias.Configuration {
@@ -65,22 +66,33 @@ namespace Alias.Configuration {
 		}
 	}
 	public class CommandEntry {
-		[NJ.JsonProperty("command")]
 		/**
 		<summary>
 			Command to execute.
 		</summary>
-		<value>A commandline with arguments.</value>
+		<value>A command without arguments.</value>
 		*/
+		[NJ.JsonProperty("command")]
 		public Command Command { get; set; }
+		/**
+		<summary>
+			Command arguments.
+		</summary>
+		<value>Arguments for a command.</value>
+		*/
+		[NJ.JsonProperty("arguments")]
+		public Arguments? Arguments { get; set; }
 		/**
 		<summary>
 			Initialize a <c cref='CommandEntry'>command entry</c>.
 		</summary>
 		<param name="command">A commandline with arguments.</param>
 		*/
-		public CommandEntry(Command command) {
+		public CommandEntry(Command command, Arguments? arguments) {
 			Command = command.Trim();
+			Arguments = string.IsNullOrWhiteSpace(arguments)
+			          ? null
+			          : arguments.Trim();
 		}
 		public bool Equals(CommandEntry commandEntry)
 		=> Command == commandEntry.Command;
