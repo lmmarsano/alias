@@ -1,16 +1,31 @@
+using S = System;
 using Xunit;
 
 namespace Functional.Test {
 	public class EitherTest {
-		static Either<bool, int> LeftBoolInt(bool value)
-		=> value;
-		static Either<bool, int> RightBoolInt(int value)
-		=> value;
-		[Fact]
-		public void ToStringTest() {
-			Assert.Equal($"Left<{typeof(bool)}, {typeof(int)}>({true})", LeftBoolInt(true).ToString());
-			Assert.Equal($"Right<{typeof(bool)}, {typeof(int)}>({0})", RightBoolInt(0).ToString());
-		}
+		public static TheoryData<string, Either<bool, int>> ToStringData { get; }
+		= new TheoryData<string, Either<bool, int>>
+		  { {$"Left<{typeof(bool)}, {typeof(int)}>({true})", LeftBoolInt(true)}
+			, {$"Right<{typeof(bool)}, {typeof(int)}>({0})", RightBoolInt(0)}
+			};
+		public static TheoryData<S.Type, Either<bool, int>, bool> WhereData { get; }
+		= new TheoryData<S.Type, Either<bool, int>, bool>
+		  { {typeof(Right<bool, int>), RightBoolInt(0), true}
+			, {typeof(Left<bool, int>), RightBoolInt(0), false}
+			, {typeof(Left<bool, int>), LeftBoolInt(false), true}
+			, {typeof(Left<bool, int>), LeftBoolInt(false), false}
+			};
+		public static TheoryData<S.Type, Either<bool, int>> CombineData { get; }
+		= new TheoryData<S.Type, Either<bool, int>>
+		  { {typeof(Right<bool, int>), Factory.Either<bool, Nothing>(Nothing.Value).Combine(RightBoolInt(0))}
+			, {typeof(Left<bool, int>), RightBoolInt(0).Combine(LeftBoolInt(false))}
+			, {typeof(Left<bool, int>), LeftBoolInt(false).Combine(RightBoolInt(0))}
+			};
+		static Either<bool, int> LeftBoolInt(bool value) => value;
+		static Either<bool, int> RightBoolInt(int value) => value;
+		[Theory]
+		[MemberData(nameof(ToStringData))]
+		public void ToStringTest(string expected, Either<bool, int> sut) => Assert.Equal(expected, sut.ToString());
 		[Fact]
 		public void EqualsTest() {
 			Assert.True(LeftBoolInt(true) == LeftBoolInt(true));
@@ -63,12 +78,35 @@ namespace Functional.Test {
 			Assert.True(RightBoolInt(0).ReduceLeft(x => true));
 		}
 		[Fact]
-		public void LeftMapLeftTest() {
-			Assert.True(LeftBoolInt(false).MapLeft(x => true).ReduceLeft(false));
+		public void LeftSelectLeftTest() {
+			Assert.True(LeftBoolInt(false).SelectLeft(x => true).ReduceLeft(false));
 		}
 		[Fact]
-		public void RightMapLeftTest() {
-			Assert.True(RightBoolInt(0).MapLeft(x => false).ReduceLeft(true));
+		public void RightSelectLeftTest() {
+			Assert.True(RightBoolInt(0).SelectLeft(x => false).ReduceLeft(true));
+		}
+		[Fact]
+		public void LeftSelectManyTest() {
+			Assert.True(LeftBoolInt(true).SelectMany(x => RightBoolInt(0)).ReduceLeft(false));
+		}
+		[Fact]
+		public void RightSelectManyTest() {
+			Assert.Equal(1, RightBoolInt(0).SelectMany(x => RightBoolInt(1)).ReduceRight(0));
+		}
+		[Theory]
+		[MemberData(nameof(WhereData))]
+		public void WhereTest(S.Type type, Either<bool, int> value, bool filter)
+		=> Assert.IsType(type, value.Where(x => filter, x => false));
+		[Theory]
+		[MemberData(nameof(CombineData))]
+		public void CombineTest(S.Type expected, Either<bool, int> sut) => Assert.IsType(expected, sut);
+		[Fact]
+		public void LeftCatchTest() {
+			Assert.True(LeftBoolInt(false).Catch(x => RightBoolInt(0)).ReduceLeft(true));
+		}
+		[Fact]
+		public void RightCatchTest() {
+			Assert.Equal(0, RightBoolInt(0).Catch(x => RightBoolInt(1)).ReduceRight(1));
 		}
 		[Fact]
 		public void LeftEmpty() {
@@ -77,6 +115,20 @@ namespace Functional.Test {
 		[Fact]
 		public void RightSingle() {
 			Assert.Single(RightBoolInt(0));
+		}
+		[Fact]
+		public void RightOfType() {
+			var Right0 = RightBoolInt(0);
+			Assert.Equal(Right0, Right0.OfType<int>(x => false));
+			Assert.Equal((Left<bool, bool>)true, Right0.OfType<bool>(x => true));
+		}
+		[Fact]
+		public void LeftOfType() {
+			var leftFalse = LeftBoolInt(false);
+			Assert.Equal(leftFalse, leftFalse.OfType<int>(x => true));
+			var conversion = leftFalse.OfType<bool>(x => true);
+			Assert.IsType<Left<bool, bool>>(conversion);
+			Assert.Equal((Left<bool, bool>)false, conversion);
 		}
 	}
 }

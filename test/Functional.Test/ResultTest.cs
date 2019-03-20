@@ -3,15 +3,35 @@ using S = System;
 
 namespace Functional.Test {
 	public class ResultTest {
-		static Result<bool> OkBool(bool value)
-		=> value;
-		static Result<bool> ErrorBool
-		=> new S.Exception();
-		[Fact]
-		public void ToStringTest() {
-			Assert.Equal($"Error<{typeof(bool)}>({new System.Exception()})", ErrorBool.ToString());
-			Assert.Equal($"Ok<{typeof(bool)}>(True)", OkBool(true).ToString());
-		}
+		public static TheoryData<string, Result<bool>> ToStringData { get; }
+		= new TheoryData<string, Result<bool>>
+		  { {$"Error<{typeof(bool)}>({new System.Exception()})", ErrorBool}
+		  , {$"Ok<{typeof(bool)}>(True)", OkBool(true)}
+		  };
+		public static TheoryData<S.Type, Result<bool>> SelectErrorData { get; }
+		= new TheoryData<S.Type, Result<bool>>
+		  { {typeof(Ok<bool>), OkBool(false)}
+			, {typeof(Error<bool>), ErrorBool}
+			};
+		public static TheoryData<S.Type, Result<bool>, bool> WhereData { get; }
+		= new TheoryData<S.Type, Result<bool>, bool>
+		  { {typeof(Ok<bool>), OkBool(false), true}
+			, {typeof(Error<bool>), OkBool(false), false}
+			, {typeof(Error<bool>), ErrorBool, true}
+			, {typeof(Error<bool>), ErrorBool, false}
+			};
+		public static TheoryData<S.Type, Result<bool>> CombineData { get; }
+		= new TheoryData<S.Type, Result<bool>>
+		  { {typeof(Ok<bool>), Factory.Result(0).Combine(OkBool(true))}
+		  , {typeof(Error<bool>), OkBool(true).Combine(ErrorBool)}
+		  , {typeof(Error<bool>), ErrorBool.Combine(OkBool(true))}
+		  };
+		static Result<bool> OkBool(bool value) => value;
+		static Result<bool> ErrorBool => new S.Exception();
+		static S.Type ErrorType<T>(Result<T> result) where T: object => ((Error<T>)result).Value.GetType();
+		[Theory]
+		[MemberData(nameof(ToStringData))]
+		public void ToStringTest(string expected, Result<bool> sut) => Assert.Equal(expected, sut.ToString());
 		[Fact]
 		public void EqualsTest() {
 			Assert.True(OkBool(true) == OkBool(true));
@@ -57,12 +77,58 @@ namespace Functional.Test {
 			Assert.True(ErrorBool.Reduce(x => true));
 		}
 		[Fact]
-		public void OkMapTest() {
+		public void OkSelectTest() {
 			Assert.True(OkBool(false).Select(x => true).Reduce(false));
 		}
 		[Fact]
-		public void ErrorMapTest() {
+		public void ErrorSelectTest() {
 			Assert.True(ErrorBool.Select(x => false).Reduce(true));
+		}
+		[Theory]
+		[MemberData(nameof(SelectErrorData))]
+		public void SelectErrorTest(S.Type type, Result<bool> value)
+		=> Assert.IsType(type, value.SelectError(x => x));
+		[Fact]
+		public void SelectErrorMap()
+		=> Assert.IsType<S.ArgumentException>(((Error<bool>)ErrorBool.SelectError(x => new S.ArgumentException())).Value);
+		[Fact]
+		public void OkSelectManyTest() {
+			Assert.True(OkBool(false).SelectMany(x => OkBool(true)).Reduce(false));
+		}
+		[Fact]
+		public void ErrorSelectManyTest() {
+			Assert.True(ErrorBool.SelectMany(x => OkBool(false)).Reduce(true));
+		}
+		[Theory]
+		[MemberData(nameof(WhereData))]
+		public void WhereTest(S.Type type, Result<bool> value, bool filter)
+		=> Assert.IsType(type, value.Where(x => filter, x => new S.Exception()));
+		[Theory]
+		[MemberData(nameof(CombineData))]
+		public void CombineTest(S.Type expected, Result<bool> sut)
+		=> Assert.IsType(expected, sut);
+		[Fact]
+		public void OkCatchTest() {
+			Assert.True(OkBool(true).Catch(x => OkBool(false)).Reduce(false));
+		}
+		[Fact]
+		public void ErrorCatchTest() {
+			Assert.True(ErrorBool.Catch(x => OkBool(true)).Reduce(false));
+		}
+		[Fact]
+		public void OkOfType() {
+			var okTrue = OkBool(true);
+			Assert.Equal(okTrue, okTrue.OfType<bool>(x => new S.Exception()));
+			Assert.IsType<Error<int>>(okTrue.OfType<int>(x => new S.Exception()));
+		}
+		[Fact]
+		public void ErrorOfType() {
+			var error = new S.NotImplementedException();
+			var original = ErrorType(ErrorBool);
+			Assert.Same(original, ErrorType(ErrorBool.OfType<bool>(x => error)));
+			var conversion = ErrorBool.OfType<int>(x => error);
+			Assert.IsType<Error<int>>(conversion);
+			Assert.Same(original, ErrorType(conversion));
 		}
 		[Fact]
 		public void OkSingle() {

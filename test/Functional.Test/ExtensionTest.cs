@@ -78,5 +78,21 @@ namespace Functional.Test {
 			Assert.Equal((Result<bool>)exception, ((S.Func<bool>)(() => throw exception)).Try());
 			Assert.Equal((Result<Nothing>)exception, ((S.Action)(() => throw exception)).Try());
 		}
+		[Fact]
+		public void NullToError() {
+			Assert.IsType<Error<Nothing>>(((Nothing?)null).ToResult(() => new S.Exception()));
+		}
+		[Fact]
+		public void ValueToOk() {
+			Assert.IsType<Ok<Nothing>>(Nothing.Value.ToResult(() => new S.Exception()));
+		}
+		[Fact]
+		public void NullToLeft() {
+			Assert.IsType<Left<S.Exception, Nothing>>(((Nothing?)null).ToEither(() => new S.Exception()));
+		}
+		[Fact]
+		public void ValueToRight() {
+			Assert.IsType<Right<S.Exception, Nothing>>(Nothing.Value.ToEither(() => new S.Exception()));
+		}
 	}
 }
