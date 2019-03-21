@@ -29,9 +29,9 @@ namespace Alias {
 	abstract class FileException : SIO.IOException {
 		/**
 		 * <summary>
-		 * File path triggering IO exception.
+		 * File jsonPath triggering IO exception.
 		 * </summary>
-		 * <value>A file path.</value>
+		 * <value>A file jsonPath.</value>
 		 */
 		public string FilePath { get; }
 		/**
@@ -65,17 +65,17 @@ namespace Alias {
 		public TerminalFileException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(filePath, type, message, innerException) { }
 		public static TerminalFileException CurrentDirectoryUnavailable(string configurationFilePath, S.Exception error)
 		=> new TerminalFileException(configurationFilePath, SSP.FileIOPermissionAccess.PathDiscovery, @"Current directory unavailable.", error);
-		public static TerminalFileException InaccessiblePath(string path, S.Exception error)
-		=> new TerminalFileException(path, SSP.FileIOPermissionAccess.PathDiscovery, @"Inaccessible file path.", error);
-		public static S.Func<S.Exception, TerminalFileException> ReadErrorMap(string path)
-		=> error => new TerminalFileException(path, SSP.FileIOPermissionAccess.Read, @"Unable to open file for reading.", error);
+		public static TerminalFileException InaccessiblePath(string jsonPath, S.Exception error)
+		=> new TerminalFileException(jsonPath, SSP.FileIOPermissionAccess.PathDiscovery, @"Inaccessible file jsonPath.", error);
+		public static S.Func<S.Exception, TerminalFileException> ReadErrorMap(string jsonPath)
+		=> error => new TerminalFileException(jsonPath, SSP.FileIOPermissionAccess.Read, @"Unable to open file for reading.", error);
 	}
 	/**
 	 * <summary>
 	 * Error deserializing file.
 	 * </summary>
 	 */
-	class DeserialException : SIO.IOException, ITerminalException {
+	class DeserialException : S.InvalidOperationException, ITerminalException {
 		public IFileInfo File { get; }
 		public DeserialException(IFileInfo file) {
 			File = file;
@@ -88,6 +88,25 @@ namespace Alias {
 		}
 		public static S.Func<S.Exception, DeserialException> FailureMap(IFileInfo file)
 		=> error => new DeserialException(file, @"Deserialization failure.", error);
+	}
+	/**
+	 * <summary>
+	 * Error operating serializer.
+	 * </summary>
+	 */
+	class SerializerException : S.InvalidOperationException, ITerminalException {
+		public string JsonPath { get; }
+		public SerializerException(string jsonPath) {
+			JsonPath = jsonPath;
+		}
+		public SerializerException(string jsonPath, string message) : base(message) {
+			JsonPath = jsonPath;
+		}
+		public SerializerException(string jsonPath, string message, S.Exception innerException) : base(message, innerException) {
+			JsonPath = jsonPath;
+		}
+		public static SerializerException Failure(string jsonPath, S.Exception error)
+		=> new SerializerException(jsonPath, @"Serializer failure.", error);
 	}
 	/**
 	 * <summary>

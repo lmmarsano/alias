@@ -48,10 +48,10 @@ namespace Alias.Test {
 			&& actual is AC.CommandEntry { Command: "command", Arguments: "arguments" }
 			);
 		}
-		static AC.Configuration ToConfiguration(SCG.IEnumerable<(string, string, string?)> entries)
+		static AC.Configuration ToConfiguration(SCG.IEnumerable<(string Alias, string Command, string? Arguments)> entries)
 		=> new AC.Configuration
 		   ( entries
-		     .Select(tuple => new SCG.KeyValuePair<string, AC.CommandEntry>(tuple.Item1, new AC.CommandEntry(tuple.Item2, tuple.Item3)))
+		     .Select(tuple => new SCG.KeyValuePair<string, AC.CommandEntry>(tuple.Alias, new AC.CommandEntry(tuple.Command, tuple.Arguments)))
 		     .ToDictionary(kv => kv.Key, kv => kv.Value)
 		   );
 		public static TheoryData<string, AC.Configuration> SerializationData
