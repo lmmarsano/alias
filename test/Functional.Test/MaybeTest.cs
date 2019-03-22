@@ -54,8 +54,8 @@ namespace Functional.Test {
 		public void ReduceTest(Maybe<bool> maybe, bool alternative) {
 			Assert.True(maybe.Reduce(alternative));
 			Assert.True(maybe.Reduce(() => alternative));
-			Assert.True(maybe.Reduce(_ => !alternative, alternative));
-			Assert.True(maybe.Reduce(_ => !alternative, () => alternative));
+			Assert.True(maybe.Reduce(alternative, _ => !alternative));
+			Assert.True(maybe.Reduce(() => alternative, _ => !alternative));
 		}
 		public static TheoryData<Maybe<bool>, bool> SelectData
 		= new TheoryData<Maybe<bool>, bool>
