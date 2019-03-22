@@ -73,20 +73,20 @@ namespace Functional {
 		 * <summary>
 		 * Map the optional value by case.
 		 * </summary>
-		 * <param name="map">Map for <see cref='Just{T}'/> values.</param>
 		 * <param name="alternative">Image for nothing.</param>
+		 * <param name="map">Map for <see cref='Just{T}'/> values.</param>
 		 * <returns>The <paramref name="map"/> image or <paramref name="alternative"/>.</returns>
 		 */
-		public abstract TResult Reduce<TResult>(S.Func<T, TResult> map, TResult alternative);
+		public abstract TResult Reduce<TResult>(TResult alternative, S.Func<T, TResult> map);
 		/**
 		 * <summary>
 		 * Lazily map the optional value by case.
 		 * </summary>
-		 * <param name="map">Map for <see cref='Just{T}'/> values.</param>
 		 * <param name="alternative">Function producing image for nothing.</param>
+		 * <param name="map">Map for <see cref='Just{T}'/> values.</param>
 		 * <returns>The <paramref name="map"/> image or <paramref name="alternative"/> image.</returns>
 		 */
-		public abstract TResult Reduce<TResult>(S.Func<T, TResult> map, S.Func<TResult> alternative);
+		public abstract TResult Reduce<TResult>(S.Func<TResult> alternative, S.Func<T, TResult> map);
 		public abstract SCG.IEnumerator<T> GetEnumerator();
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 		/**
@@ -144,8 +144,8 @@ namespace Functional {
 		public override Maybe<TResult> Combine<TResult>(Maybe<TResult> next) => next;
 		public override T Reduce(T alternative) => Value;
 		public override T Reduce(S.Func<T> alternative) => Value;
-		public override TResult Reduce<TResult>(S.Func<T, TResult> map, TResult alternative) => map(Value);
-		public override TResult Reduce<TResult>(S.Func<T, TResult> map, S.Func<TResult> alternative) => map(Value);
+		public override TResult Reduce<TResult>(TResult alternative, S.Func<T, TResult> map) => map(Value);
+		public override TResult Reduce<TResult>(S.Func<TResult> alternative, S.Func<T, TResult> map) => map(Value);
 		public override Maybe<TResult> OfType<TResult>()
 		=> Value is TResult result
 		 ? (Maybe<TResult>)result
@@ -189,8 +189,8 @@ namespace Functional {
 		public override Maybe<TResult> Combine<TResult>(Maybe<TResult> next) => Nothing.Value;
 		public override T Reduce(T alternative) => alternative;
 		public override T Reduce(S.Func<T> alternative) => alternative();
-		public override TResult Reduce<TResult>(S.Func<T, TResult> map, TResult alternative) => alternative;
-		public override TResult Reduce<TResult>(S.Func<T, TResult> map, S.Func<TResult> alternative) => alternative();
+		public override TResult Reduce<TResult>(TResult alternative, S.Func<T, TResult> map) => alternative;
+		public override TResult Reduce<TResult>(S.Func<TResult> alternative, S.Func<T, TResult> map) => alternative();
 		public override Maybe<TResult> OfType<TResult>() => Nothing.Value;
 		public bool Equals(Nothing<T> other) => true;
 		public override bool Equals(Maybe<T> other) => Equals((object) other);
