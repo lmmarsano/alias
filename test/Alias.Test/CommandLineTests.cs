@@ -59,16 +59,7 @@ namespace Alias.Test {
 		[Fact]
 		public void ParseEmptyTest() {
 			var parse = Parse(new[] { @"set", @"name", @"", @"" });
-			if ( parse is F.Ok<Option.AbstractOption> ok
-			  && ok.Value is Option.Set { Command: var command, Arguments: SCG.IEnumerable<string> arguments }
-			   ) {
-				Assert.Empty(command);
-				Assert.Single(arguments);
-				Assert.Empty(arguments.First());
-			} else {
-				Assert.IsType<F.Ok<Option.AbstractOption>>(parse);
-				Assert.True(false);
-			}
+			Assert.IsType<F.Error<Option.AbstractOption>>(parse);
 		}
 	}
 }

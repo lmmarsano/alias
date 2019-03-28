@@ -1,10 +1,13 @@
 #nullable enable
 using S = System;
 using SCG = System.Collections.Generic;
+using STT = System.Threading.Tasks;
 using System.Linq;
 using Xunit;
-using ATF = Alias.Test.Fixture;
 using M = Moq;
+using F = Functional;
+using static Functional.Extension;
+using ATF = Alias.Test.Fixture;
 
 namespace Alias.Test {
 	using Arguments = SCG.IEnumerable<string>;
@@ -43,7 +46,7 @@ namespace Alias.Test {
 		M.Mock<IEffect> MockEffect { get; } = new M.Mock<IEffect>();
 		[Theory]
 		[MemberData(nameof(EntryData))]
-		public void EntryTest(ExitCode expectedExitCode, string expectedOut, string expectedError, string name, Arguments arguments) {
+		public async STT.Task EntryTest(ExitCode expectedExitCode, string expectedOut, string expectedError, string name, Arguments arguments) {
 			using var fake = new ATF.FakeConfiguration(
 @"{ ""binding"":
   { ""bound"":
@@ -53,7 +56,7 @@ namespace Alias.Test {
   }
 }");
 			using var environment = new ATF.FakeEnvironment(name, arguments, fake.Mock.Object, MockEffect.Object, string.Empty, S.Environment.CurrentDirectory, string.Empty, string.Empty);
-			Assert.Equal(expectedExitCode, Program.Entry(() => environment));
+			Assert.Equal(expectedExitCode, await Program.Entry(() => environment));
 			Assert.Equal(expectedOut, environment.StreamOut.ToString());
 			Assert.Equal(expectedError, environment.StreamError.ToString());
 		}

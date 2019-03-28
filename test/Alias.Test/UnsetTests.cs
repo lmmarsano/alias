@@ -1,11 +1,13 @@
 #nullable enable
 using SIO = System.IO;
 using SCG = System.Collections.Generic;
+using STT = System.Threading.Tasks;
 using System.Linq;
 using Xunit;
-using F = Functional;
 using M = Moq;
+using F = Functional;
 using AO = Alias.Option;
+using AT = Alias.Test;
 using Name = System.String;
 
 namespace Alias.Test {
@@ -20,11 +22,11 @@ namespace Alias.Test {
 		public void CtorTest(Name name) => Assert.Equal(name, new AO.Unset(name).Name);
 		[Theory]
 		[MemberData(nameof(InvalidData)), MemberData(nameof(ValidData))]
-		public void UnsetTest(Name name) {
+		public async STT.Task UnsetTest(Name name) {
 			var mock = new M.Mock<IOperation>();
 			var option = new AO.Unset(name);
-			mock.Setup(op => op.Unset(M.It.IsAny<AO.Unset>())).Returns(ExitCode.Success);
-			Assert.Equal(ExitCode.Success, option.Operate(mock.Object));
+			mock.Setup(op => op.Unset(M.It.IsAny<AO.Unset>())).Returns(AT.Fixture.FakeTasks.ExitSuccess);
+			Assert.Equal(ExitCode.Success, await AT.Utility.FromOk(option.Operate(mock.Object)));
 			mock.Verify(op => op.Unset(option));
 		}
 		[Theory]

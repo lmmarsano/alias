@@ -1,11 +1,14 @@
 #nullable enable
 using SCG = System.Collections.Generic;
-using AO = Alias.Option;
-using AC = Alias.Configuration;
+using STT = System.Threading.Tasks;
+using System.Linq;
 using Xunit;
 using M = Moq;
 using F = Functional;
-using System.Linq;
+using AT = Alias.Test;
+using static Alias.Test.Utility;
+using AO = Alias.Option;
+using AC = Alias.Configuration;
 using Command = System.String;
 using Argument = System.String;
 
@@ -54,18 +57,15 @@ namespace Alias.Option.Test {
 		= new TheoryData<uint>{1, 2, 3, 4};
 		[Theory]
 		[MemberData(nameof(OperateData))]
-		public void OperateTest(uint index) {
+		public async STT.Task OperateTest(uint index) {
 			var mock = new M.Mock<IOperation>();
 			var maybeOption = AO.External.Parse(Configuration, $@"alias{index}");
 			Assert.IsType<F.Just<AO.External>>(maybeOption);
-			maybeOption.Select
-			( option => {
-					mock.Setup(op => op.External(M.It.IsAny<AO.External>())).Returns(ExitCode.Success);
-			    Assert.Equal(ExitCode.Success, option.Operate(mock.Object));
-			    mock.Verify(op => op.External(option));
-					return F.Nothing.Value;
-				}
-			);
+			var option = ((F.Just<AO.External>)maybeOption).Value;
+			mock.Setup(op => op.External(M.It.IsAny<AO.External>()))
+			.Returns(AT.Fixture.FakeTasks.ExitSuccess);
+			Assert.Equal(ExitCode.Success, await AT.Utility.FromOk(option.Operate(mock.Object)));
+			mock.Verify(op => op.External(option));
 		}
 	}
 }

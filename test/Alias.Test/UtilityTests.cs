@@ -1,6 +1,7 @@
 #nullable enable
 using SIO = System.IO;
 using Xunit;
+using A = Alias;
 using F = Functional;
 
 namespace Alias.Test {
@@ -34,19 +35,19 @@ namespace Alias.Test {
 		[Theory]
 		[MemberData(nameof(ValidateFileNameAcceptsData))]
 		public void ValidateFileNameAccepts(string fileName)
-		=> Assert.IsType<F.Ok<string>>(Utility.ValidateFileName(fileName));
+		=> Assert.IsType<F.Ok<string>>(A.Utility.ValidateFileName(fileName));
 		[Theory]
 		[MemberData(nameof(ValidateFileNameRejectsData))]
 		public void ValidateFileNameRejects(string fileName)
-		=> Assert.IsType<F.Error<string>>(Utility.ValidateFileName(fileName));
+		=> Assert.IsType<F.Error<string>>(A.Utility.ValidateFileName(fileName));
 		[Theory]
 		[MemberData(nameof(ValidatePathAcceptsData))]
 		public void ValidatePathAccepts(string fileName)
-		=> Assert.IsType<F.Ok<string>>(Utility.ValidatePath(fileName));
+		=> Assert.IsType<F.Ok<string>>(A.Utility.ValidatePath(fileName));
 		[Theory]
 		[MemberData(nameof(ValidatePathRejectsData))]
 		public void ValidatePathRejects(string fileName)
-		=> Assert.IsType<F.Error<string>>(Utility.ValidatePath(fileName));
+		=> Assert.IsType<F.Error<string>>(A.Utility.ValidatePath(fileName));
 		public static TheoryData<string, string> SafeQuoteData { get; }
 		= new TheoryData<string, string>
 		  { {@""" """, @" "}
@@ -59,6 +60,6 @@ namespace Alias.Test {
 			};
 		[Theory]
 		[MemberData(nameof(SafeQuoteData))]
-		public void SafeQuoteTest(string expected, string input) => Assert.Equal(expected, Utility.SafeQuote(input));
+		public void SafeQuoteTest(string expected, string input) => Assert.Equal(expected, A.Utility.SafeQuote(input));
 	}
 }

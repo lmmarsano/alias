@@ -10,7 +10,7 @@ namespace Alias.Test.Fixture {
 		public FakeConfiguration(string text) {
 			StreamReader = new SIO.StreamReader(MemoryStream = new SIO.MemoryStream(new S.Text.UTF8Encoding().GetBytes(text)));
 			Mock.Setup(fileInfo => fileInfo.Exists).Returns(true);
-			Mock.Setup(fileInfo => fileInfo.OpenText()).Returns(new SIO.StreamReader(new SIO.MemoryStream(new S.Text.UTF8Encoding().GetBytes(text))));
+			Mock.Setup(fileInfo => fileInfo.OpenAsync(M.It.IsAny<SIO.FileMode>(), M.It.IsAny<SIO.FileAccess>(), M.It.IsAny<SIO.FileShare>())).Returns(new SIO.MemoryStream(new S.Text.UTF8Encoding().GetBytes(text)));
 		}
 		private bool allowDisposal = true;
 		protected virtual void Dispose(bool disposing) {

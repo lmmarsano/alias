@@ -1,11 +1,13 @@
 #nullable enable
 using SIO = System.IO;
 using SCG = System.Collections.Generic;
+using STT = System.Threading.Tasks;
 using System.Linq;
 using Xunit;
+using M = Moq;
 using F = Functional;
 using static Functional.Extension;
-using M = Moq;
+using AT = Alias.Test;
 using AO = Alias.Option;
 using Name = System.String;
 using Command = System.String;
@@ -37,11 +39,11 @@ namespace Alias.Test {
 		}
 		[Theory]
 		[MemberData(nameof(InvalidData)), MemberData(nameof(ValidData))]
-		public void SetTest(Name name, Command command, Arguments arguments) {
+		public async STT.Task SetTest(Name name, Command command, Arguments arguments) {
 			var mock = new M.Mock<IOperation>();
 			var option = new AO.Set(name, command, arguments);
-			mock.Setup(op => op.Set(M.It.IsAny<AO.Set>())).Returns(ExitCode.Success);
-			Assert.Equal(ExitCode.Success, option.Operate(mock.Object));
+			mock.Setup(op => op.Set(M.It.IsAny<AO.Set>())).Returns(AT.Fixture.FakeTasks.ExitSuccess);
+			Assert.Equal(ExitCode.Success, await AT.Utility.FromOk(option.Operate(mock.Object)));
 			mock.Verify(op => op.Set(option));
 		}
 		[Theory]

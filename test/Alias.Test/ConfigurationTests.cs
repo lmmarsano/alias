@@ -2,6 +2,7 @@
 using S = System;
 using SIO = System.IO;
 using SCG = System.Collections.Generic;
+using STT = System.Threading.Tasks;
 using Xunit;
 using System.Linq;
 using AC = Alias.Configuration;
@@ -9,7 +10,7 @@ using NJL = Newtonsoft.Json.Linq;
 
 namespace Alias.Test {
 	public class ConfigurationTests {
-		static readonly string _newline = @"
+		const string _newline = @"
 ";
 		public static string NormalizeLineEnd(string input)
 		=> _newline == S.Environment.NewLine
@@ -87,9 +88,17 @@ namespace Alias.Test {
 		[Theory]
 		[MemberData(nameof(SerializationData))]
 		public void Serializes(string expected, AC.Configuration sut) {
-			var writer = new SIO.StringWriter();
+			using var writer = new SIO.StringWriter();
 			sut.Serialize(writer);
 			Assert.Equal(expected, writer.ToString());
 		}
+		// FIXME uncomment when SerializeAsync is possible
+		/* [Theory]
+		[MemberData(nameof(SerializationData), Skip="Not yet possible")]
+		public async STT.Task SerializesAsync(string expected, AC.Configuration sut) {
+			using var writer = new SIO.StringWriter();
+			await sut.SerializeAsync(writer);
+			Assert.Equal(expected, writer.ToString());
+		} */
 	}
 }
