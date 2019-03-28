@@ -47,15 +47,19 @@ namespace Alias.Test {
 		[Theory]
 		[MemberData(nameof(EntryData))]
 		public async STT.Task EntryTest(ExitCode expectedExitCode, string expectedOut, string expectedError, string name, Arguments arguments) {
-			using var fake = new ATF.FakeConfiguration(
+			var fake = new ATF.FakeTextFile
+			( string.Empty
+			, string.Empty
+			,
 @"{ ""binding"":
   { ""bound"":
     { ""command"": ""name""
     , ""arguments"": ""from configuration""
     }
   }
-}");
-			using var environment = new ATF.FakeEnvironment(name, arguments, fake.Mock.Object, MockEffect.Object, string.Empty, S.Environment.CurrentDirectory, string.Empty, string.Empty);
+}"
+			);
+			using var environment = new ATF.FakeEnvironment(new ATF.FakeFile(name, string.Empty).Mock.Object, arguments, fake.Mock.Object, MockEffect.Object, S.Environment.CurrentDirectory, string.Empty);
 			Assert.Equal(expectedExitCode, await Program.Entry(() => environment));
 			Assert.Equal(expectedOut, environment.StreamOut.ToString());
 			Assert.Equal(expectedError, environment.StreamError.ToString());

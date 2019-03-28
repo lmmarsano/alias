@@ -7,6 +7,7 @@ using Name = System.String;
 namespace Alias.Test.Fixture {
 	using Arguments = SCG.IEnumerable<string>;
 	class FakeEnvironment : IEnvironment, S.IDisposable {
+		public IFileInfo ApplicationFile { get; }
 		public string ApplicationDirectory { get; }
 		public string ApplicationName { get; }
 		public SCG.IEnumerable<string> Arguments { get; }
@@ -17,16 +18,16 @@ namespace Alias.Test.Fixture {
 		public SIO.TextWriter StreamOut { get; } = new SIO.StringWriter();
 		public SIO.TextWriter StreamError { get; } = new SIO.StringWriter();
 		public IEffect Effect { get; }
-		public IFileInfo ApplicationFile => throw new S.NotImplementedException();
 		bool allowDisposal = true;
-		public FakeEnvironment(Name applicationName, Arguments arguments, IFileInfo configurationFile, IEffect effect, Path applicationDirectory, Path workingDirectory, Path configurationFilePath, string input) {
+		public FakeEnvironment(IFileInfo applicationFile, Arguments arguments, IFileInfo configurationFile, IEffect effect, Path workingDirectory, string input) {
 			Arguments = arguments;
-			ApplicationName = applicationName;
+			ApplicationFile = applicationFile;
+			ApplicationName = applicationFile.Name;
 			ConfigurationFile = configurationFile;
 			Effect = effect;
-			ApplicationDirectory = applicationDirectory;
+			ApplicationDirectory = applicationFile.DirectoryName;
 			WorkingDirectory = workingDirectory;
-			ConfigurationFilePath = configurationFilePath;
+			ConfigurationFilePath = configurationFile.FullName;
 			StreamIn = new SIO.StringReader(input);
 		}
 		protected virtual void Dispose(bool disposing) {
