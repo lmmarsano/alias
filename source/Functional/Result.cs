@@ -2,6 +2,7 @@
 using System.Collections;
 using S = System;
 using SCG = System.Collections.Generic;
+using STT = System.Threading.Tasks;
 
 namespace Functional {
 	/**
@@ -16,6 +17,8 @@ namespace Functional {
 		public static implicit operator Result<T>(S.Exception exception) => new Error<T>(exception);
 		public static bool operator ==(Result<T> a, Result<T> b) => object.Equals(a, b);
 		public static bool operator !=(Result<T> a, Result<T> b) => !(a == b);
+		/// <summary>Result as task.</summary>
+		public abstract STT.Task<T> ToTask { get; }
 		/**
 		 * <summary>
 		 * Project the possible value.
@@ -93,6 +96,15 @@ namespace Functional {
 		 * <returns>A <see cref="Result{TResult}"/> that contains the values from input of type <typeparamref name="TResult"/>.</returns>
 		 */
 		public abstract Result<TResult> OfType<TResult>(S.Func<T, S.Exception> onError) where TResult: object;
+		/**
+		 * <summary>
+		 * Asynchronously map a possible value to a possible result.
+		 * </summary>
+		 * <param name="map">Asynchronous map.</param>
+		 * <typeparam name="TResult">Type of possible result value.</typeparam>
+		 * <returns>A task yielding possible value.</returns>
+		 */
+		public abstract STT.Task<Result<TResult>> TraverseAsync<TResult>(S.Func<T, STT.Task<TResult>> map) where TResult: object;
 		public abstract SCG.IEnumerator<T> GetEnumerator();
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 		public abstract bool Equals(Result<T> other);
@@ -116,6 +128,7 @@ namespace Functional {
 		 * <value>The successful value.</value>
 		 */
 		public T Value { get; }
+		public override STT.Task<T> ToTask => STT.Task.FromResult(Value);
 		public Ok(T value) {
 			Value = value;
 		}
@@ -150,6 +163,8 @@ namespace Functional {
 		 ? (Result<TResult>)result
 		 : onError(Value);
 		public override string ToString() => $"Ok<{typeof(T)}>({Value})";
+		public override STT.Task<Result<TResult>> TraverseAsync<TResult>(S.Func<T, STT.Task<TResult>> map)
+		=> map(Value).ToResultAsync();
 	}
 	/**
 	 * <summary>
@@ -170,6 +185,7 @@ namespace Functional {
 		 * <value>The error.</value>
 		 */
 		public S.Exception Value { get; }
+		public override STT.Task<T> ToTask => STT.Task.FromException<T>(Value);
 		public Error(S.Exception value) {
 			Value = value;
 		}
@@ -198,5 +214,7 @@ namespace Functional {
 		}
 		public override Result<TResult> OfType<TResult>(S.Func<T, S.Exception> onError) => Value;
 		public override string ToString() => $"Error<{typeof(T)}>({Value})";
+		public override STT.Task<Result<TResult>> TraverseAsync<TResult>(S.Func<T, STT.Task<TResult>> map)
+		=> STT.Task.FromResult<Result<TResult>>(Value);
 	}
 }

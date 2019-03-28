@@ -1,4 +1,6 @@
 ﻿using S = System;
+using SL = System.Linq;
+using STT = System.Threading.Tasks;
 
 namespace Functional {
 	public static class Factory {
@@ -14,6 +16,42 @@ namespace Functional {
 		where TLeft: object
 		where TRight: object
 		=> value;
+		/**
+		 * <summary>
+		 * Convert a task throwing exceptions to a task returning results.
+		 * </summary>
+		 * <param name="task">A task.</param>
+		 * <typeparam name="T">A non-nullable type.</typeparam>
+		 * <returns>A task returning results.</returns>
+		 */
+		public static STT.Task<Result<T>> ResultAsync<T>(STT.Task<T> task)
+		where T: object
+		=> task.ContinueWith
+		   ( (task)
+		     => task.Status switch
+		        { STT.TaskStatus.RanToCompletion => (Result<T>)task.Result
+		        , STT.TaskStatus.Canceled => new S.AggregateException(SL.Enumerable.Prepend(SL.Enumerable.Empty<STT.TaskCanceledException>(), new STT.TaskCanceledException(task)))
+						, _ => task.Exception
+		        }
+		   );
+		/**
+		 * <summary>
+		 * Convert a task throwing exceptions to a task returning results.
+		 * </summary>
+		 * <param name="task">A task.</param>
+		 * <param name="onFailure">An map from unsuccessful tasks to results.</param>
+		 * <typeparam name="T">A non-nullable type.</typeparam>
+		 * <returns>A task returning results.</returns>
+		 */
+		public static STT.Task<Result<T>> ResultAsync<T>(STT.Task<T> task, S.Func<STT.Task<T>, Result<T>> onFailure)
+		where T: object
+		=> task.ContinueWith
+		   ( (task)
+		     => task.Status switch
+		        { STT.TaskStatus.RanToCompletion => (Result<T>)task.Result
+		        , _ => onFailure(task)
+		        }
+		   );
 		/**
 		 * <summary>
 		 * Evaluate <paramref name="function"/> to result.

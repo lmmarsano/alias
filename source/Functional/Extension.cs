@@ -1,5 +1,8 @@
 ﻿using S = System;
 using SCG = System.Collections.Generic;
+using ST = System.Threading;
+using STT = System.Threading.Tasks;
+using static System.Threading.Tasks.TaskExtensions;
 using System.Linq;
 
 namespace Functional {
@@ -127,6 +130,27 @@ namespace Functional {
 		 : onNull();
 		/**
 		 * <summary>
+		 * Convert a task throwing exceptions to a task returning results.
+		 * </summary>
+		 * <param name="@this">A task.</param>
+		 * <typeparam name="T">A non-nullable type.</typeparam>
+		 * <returns>A task returning results.</returns>
+		 */
+		public static STT.Task<Result<T>> ToResultAsync<T>(this STT.Task<T> @this) where T: object
+		=> Factory.ResultAsync(@this);
+		/**
+		 * <summary>
+		 * Convert a task throwing exceptions to a task returning results.
+		 * </summary>
+		 * <param name="@this">A task.</param>
+		 * <param name="onFailure">An map from unsuccessful tasks to results.</param>
+		 * <typeparam name="T">A non-nullable type.</typeparam>
+		 * <returns>A task returning results.</returns>
+		 */
+		public static STT.Task<Result<T>> ToResultAsync<T>(this STT.Task<T> @this, S.Func<STT.Task<T>, Result<T>> onFailure) where T: object
+		=> Factory.ResultAsync(@this, onFailure);
+		/**
+		 * <summary>
 		 * Evaluate to result.
 		 * </summary>
 		 * <returns>Result of successful evaluation (<see cref="Nothing"/>) or error.</returns>
@@ -183,5 +207,123 @@ namespace Functional {
 		=> @this is TRight value
 		 ? (Either<TLeft, TRight>)value
 		 : onNull();
+		/**
+		 * <summary>
+		 * Map successful task values to tasks and flatten.
+		 * </summary>
+		 * <param name="@this">Task yielding a value.</param>
+		 * <param name="map">Map from task result to task.</param>
+		 * <typeparam name="T">Type of value task yields.</typeparam>
+		 * <typeparam name="TResult">Type of values map images yield.</typeparam>
+		 * <returns>For successful task, task yielding value map image yields. Otherwise, an unsuccessful task.</returns>
+		 */
+		public static STT.Task<TResult> SelectManyAsync<T, TResult>(this STT.Task<T> @this, S.Func<T, STT.Task<TResult>> map)
+		where T: object
+		where TResult: object
+		=> @this.SelectAsync(map).Unwrap();
+		/**
+		 * <summary>
+		 * Follow successful task with a next task.
+		 * </summary>
+		 * <param name="@this">A task.</param>
+		 * <param name="next">Task to follow.</param>
+		 * <typeparam name="T">Type of values next task yields.</typeparam>
+		 * <returns>If current task is successful, the next task follows. Otherwise, the current task remains.</returns>
+		 */
+		public static STT.Task<T> CombineAsync<T>(this STT.Task @this, STT.Task<T> next)
+		where T: object
+		=> @this.ContinueWith
+		   ( task => {
+		     	task.GetAwaiter().GetResult();
+		     	return next;
+		     }
+		   , STT.TaskContinuationOptions.NotOnCanceled
+		   ).Unwrap();
+		/**
+		 * <summary>
+		 * Follow successful task with a next task.
+		 * </summary>
+		 * <param name="@this">A task.</param>
+		 * <param name="next">Task to follow.</param>
+		 * <returns>If current task is successful, the next task follows. Otherwise, the current task remains.</returns>
+		 */
+		public static STT.Task CombineAsync(this STT.Task @this, STT.Task next)
+		=> @this.ContinueWith
+		   ( task => {
+		     	task.GetAwaiter().GetResult();
+		     	return next;
+		     }
+		   , STT.TaskContinuationOptions.NotOnCanceled
+		   ).Unwrap();
+		/**
+		 * <summary>
+		 * Map successful task values.
+		 * </summary>
+		 * <param name="@this">Task yielding a value.</param>
+		 * <param name="map">Map for successful task value.</param>
+		 * <typeparam name="T">Type of value task yields.</typeparam>
+		 * <typeparam name="TResult">Map image type.</typeparam>
+		 * <returns>For successful task, task yielding map image. Otherwise, an unsuccessful task.</returns>
+		 */
+		public static STT.Task<TResult> SelectAsync<T, TResult>(this STT.Task<T> @this, S.Func<T, TResult> map)
+		where T: object
+		where TResult: object
+		=> @this.ContinueWith((STT.Task<T> task) => map(task.Result), STT.TaskContinuationOptions.NotOnCanceled);
+		/**
+		 * <summary>
+		 * Map exceptions in faulted or cancelled tasks to tasks and flatten.
+		 * </summary>
+		 * <param name="@this">A task.</param>
+		 * <param name="map">Map from aggregate exceptions to tasks.</param>
+		 * <typeparam name="T">Type task yields.</typeparam>
+		 * <returns>For successful tasks, the same task. Otherwise, the image for the exception resulting from the unsuccessful task.</returns>
+		 */
+		public static STT.Task<T> CatchAsync<T>(this STT.Task<T> @this, S.Func<S.AggregateException, STT.Task<T>> map)
+		where T: object
+		=> @this.ContinueWith
+		   ( (STT.Task<T> task)
+		     => task.IsCompletedSuccessfully
+		      ? task
+		      : map
+		        ( task.Exception
+		       ?? new S.AggregateException
+		          ( Enumerable.Append
+		            ( Enumerable.Empty<STT.TaskCanceledException>()
+		            , new STT.TaskCanceledException(task)
+		            )
+		          )
+		        )
+		   )
+		   .Unwrap();
+		/**
+		 * <summary>
+		 * Map exceptions in unsuccessful tasks.
+		 * </summary>
+		 * <param name="@this">Task.</param>
+		 * <param name="map">Exception map.</param>
+		 * <typeparam name="T">Type of value task yields.</typeparam>
+		 * <returns>For successful task, no change. Otherwise, task faulting with mapped exception.</returns>
+		 */
+		public static STT.Task<T> SelectErrorAsync<T>(this STT.Task<T> @this, S.Func<S.AggregateException, S.Exception> map)
+		where T: object
+		=> @this.CatchAsync(error => STT.Task.FromException<T>(map(error)));
+		/**
+		 * <summary>
+		 * Filter task by yielded value, mapping rejected tasks to faulted tasks.
+		 * </summary>
+		 * <param name="@this">Task to filter.</param>
+		 * <param name="predicate">Function returning true for accepted task values.</param>
+		 * <param name="onError">Map from rejected value to aggregate exception.</param>
+		 * <typeparam name="T">Type of value task yields.</typeparam>
+		 * <returns>Filtered task.</returns>
+		 */
+		public static STT.Task<T> WhereAsync<T>(this STT.Task<T> @this, S.Func<T, bool> predicate, S.Func<T, S.AggregateException> onError)
+		where T: object
+		=> @this.SelectManyAsync
+		   ( result
+		     => predicate(result)
+		      ? @this
+		      : STT.Task.FromException<T>(onError(result))
+		   );
 	}
 }
