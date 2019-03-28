@@ -1,5 +1,6 @@
 ﻿using S = System;
 using SCG = System.Collections.Generic;
+using STT = System.Threading.Tasks;
 using CL = CommandLine;
 using F = Functional;
 using static Functional.Extension;
@@ -81,6 +82,6 @@ namespace Alias.Option {
 		public override int GetHashCode() => S.HashCode.Combine(Name, Command, Arguments);
 		/// <inheritdoc/>
 		/// <exception cref='ExternalOperationException'>External command fails to run.</exception>
-		public override F.Result<ExitCode> Operate(IOperation operation) => operation.Set(this);
+		public override F.Result<STT.Task<ExitCode>> Operate(IOperation operation) => operation.Set(this);
 	}
 }

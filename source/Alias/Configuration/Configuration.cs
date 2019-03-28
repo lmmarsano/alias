@@ -2,6 +2,7 @@
 using S = System;
 using SCG = System.Collections.Generic;
 using SIO = System.IO;
+using STT = System.Threading.Tasks;
 using System.Linq;
 using NJ = Newtonsoft.Json;
 using Name = System.String;
@@ -59,9 +60,22 @@ namespace Alias.Configuration {
 		 * <returns>A configuration or <see cref="null"/> for empty configuration.</returns>
 		 * <exception cref="UnhandledJsonTokenException">An item with unhandled runtime type derived from <see cref='NJL.JContainer'/> was encountered as a JSON token read from <paramref name="reader"/>.</exception>
 		 */
+		// TODO deprecate
 		public static Configuration? Deserialize(SIO.TextReader reader) {
 			using var jsonReader = new NJ.JsonTextReader(reader);
 			return FromJsonLinq(NJL.JToken.ReadFrom(jsonReader, Converter.JsonLoadSettings));
+		}
+		/**
+		 * <summary>
+		 * Asynchronously deserialize a <see cref='Configuration'/> object from <see cref='SIO.TextReader'/>.
+		 * </summary>
+		 * <param name="reader">Text input stream to deserialize.</param>
+		 * <returns>A configuration or <see cref="null"/> for empty configuration.</returns>
+		 * <exception cref="UnhandledJsonTokenException">An item with unhandled runtime type derived from <see cref='NJL.JContainer'/> was encountered as a JSON token read from <paramref name="reader"/>.</exception>
+		 */
+		public static async STT.Task<Configuration?> DeserializeAsync(SIO.TextReader reader) {
+			using var jsonReader = new NJ.JsonTextReader(reader);
+			return FromJsonLinq(await NJL.JToken.ReadFromAsync(jsonReader, Converter.JsonLoadSettings));
 		}
 		/**
 		 * <summary>
@@ -70,9 +84,22 @@ namespace Alias.Configuration {
 		 * <param name="writer">Text output stream to serialize to.</param>
 		 * <exception cref="SerializerException">Configuration could not be serialized.</exception>
 		 */
+		// TODO deprecate
 		public void Serialize(SIO.TextWriter writer) {
 			using var jsonWriter = Converter.ToJsonWriter(writer);
 			Converter.JsonSerializer.Serialize(jsonWriter, this);
+		}
+		/**
+		 * <summary>
+		 * Asynchronously serialize a <see cref='Configuration'/> object to <see cref='SIO.TextWriter'/>.
+		 * </summary>
+		 * <param name="writer">Asynchronous text output stream to serialize to.</param>
+		 * <exception cref="SerializerException">Configuration could not be serialized.</exception>
+		 */
+		// FIXME when NewtonSoft provides JsonSerializer.SerializeAsync
+		async STT.Task SerializeAsync(SIO.TextWriter writer) {
+			using var jsonWriter = Converter.ToJsonWriter(writer);
+			await NJL.JToken.FromObject(this).WriteToAsync(jsonWriter);
 		}
 	}
 	/**
@@ -109,6 +136,13 @@ namespace Alias.Configuration {
 			          ? null
 			          : arguments.Trim();
 		}
+		/// <inheritdoc/>
+		public override string ToString()
+		=> Utility.SafeQuote(Command)
+		 + ( string.IsNullOrWhiteSpace(Arguments)
+		   ? string.Empty
+		   : @" " + Arguments
+		   );
 		public bool Equals(CommandEntry commandEntry)
 		=> Command == commandEntry.Command
 		&& Arguments == commandEntry.Arguments;

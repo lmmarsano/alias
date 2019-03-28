@@ -1,4 +1,5 @@
 ﻿using S = System;
+using STT = System.Threading.Tasks;
 using CL = CommandLine;
 using Name = System.String;
 using F = Functional;
@@ -45,6 +46,6 @@ namespace Alias.Option {
 		/// <inheritdoc/>
 		public override int GetHashCode() => Name.GetHashCode();
 		/// <inheritdoc/>
-		public override F.Result<ExitCode> Operate(IOperation operation) => operation.Unset(this);
+		public override F.Result<STT.Task<ExitCode>> Operate(IOperation operation) => operation.Unset(this);
 	}
 }

@@ -1,16 +1,19 @@
 ﻿using S = System;
 using SIO = System.IO;
 using SCG = System.Collections.Generic;
-using SSP = System.Security.Permissions;
+using SRA = System.Reflection.Assembly;
+using F = Functional;
 
 namespace Alias {
 	class Environment: IEnvironment {
 		/// <summary>Default configuration file name.</summary>
-		const string ConfigurationFileName = @"alias.conf";
+		const string _configurationFileName = @"alias.conf";
 		/// <inheritdoc/>
 		public string ApplicationDirectory { get; }
 		/// <inheritdoc/>
 		public string ApplicationName { get; }
+		/// <inheritdoc/>
+		public IFileInfo ApplicationFile { get; }
 		/// <inheritdoc/>
 		public string ConfigurationFilePath { get; }
 		/// <inheritdoc/>
@@ -30,7 +33,7 @@ namespace Alias {
 		/**
 		 * <summary>Initialize properties about the application path and name, configuration path and file  information, and main arguments.</summary>
 		 * <param name="arguments">Main arguments.</param>
-		 * <exception cref="TerminalFileException">Configuration file information failure or current directory  failure.</exception>
+		 * <exception cref="TerminalFileException">Failure accessing application/configuration file information or current directory.</exception>
 		 */
 		public Environment(SCG.IEnumerable<string> arguments) {
 			try {
@@ -38,16 +41,13 @@ namespace Alias {
 			} catch (System.Exception error) {
 				throw TerminalFileException.CurrentDirectoryUnavailable(ConfigurationFilePath, error);
 			}
-			var appDomain = S.AppDomain.CurrentDomain;
-			// Accessing appDomain's properties shouldn't raise exceptions: CurrentDomain is always loaded.
-			ApplicationDirectory = appDomain.BaseDirectory;
-			ConfigurationFilePath = SIO.Path.Combine(ApplicationDirectory, ConfigurationFileName);
-			try {
-				ConfigurationFile = new FileInfo(ConfigurationFilePath);
-			} catch (S.Exception error) {
-				throw TerminalFileException.InaccessiblePath(ConfigurationFilePath, error);
-			}
-			ApplicationName = SIO.Path.GetFileNameWithoutExtension(appDomain.FriendlyName);
+			var appPath = SRA.GetEntryAssembly().Location;
+			// Accessing the assembly’s properties shouldn’t raise exceptions: shouldn’t be dynamic.
+			ApplicationFile = GetFileInfo(appPath);
+			ApplicationDirectory = SIO.Path.GetDirectoryName(appPath);
+			ConfigurationFilePath = SIO.Path.Combine(ApplicationDirectory, _configurationFileName);
+			ConfigurationFile = GetFileInfo(ConfigurationFilePath);
+			ApplicationName = SIO.Path.GetFileName(appPath);
 			Arguments = arguments;
 		}
 		/**
@@ -63,5 +63,31 @@ namespace Alias {
 			StreamOut = streamOut;
 			StreamError = streamError;
 		}
+		/**
+		 * <summary>
+		 * Get file information.
+		 * </summary>
+		 * <param name="path">Path to file.</param>
+		 * <exception cref='TerminalFileException'>Inaccessible path.</exception>
+		 * <returns>File information.</returns>
+		 */
+		FileInfo GetFileInfo(string path) {
+			try {
+				return new FileInfo(path);
+			} catch (S.Exception error) {
+				throw TerminalFileException.InaccessiblePath(path, error);
+			}
+		}
+		/**
+		 * <summary>
+		 * Get an error stream from environment with default fallback.
+		 * </summary>
+		 * <param name="maybeEnvironment">Optional environment.</param>
+		 * <returns>An error output stream.</returns>
+		 */
+		public static SIO.TextWriter GetErrorStream(F.Maybe<IEnvironment> maybeEnvironment)
+		=> maybeEnvironment is F.Just<IEnvironment> just
+		 ? just.Value.StreamError
+		 : S.Console.Error;
 	}
 }

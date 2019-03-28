@@ -1,6 +1,5 @@
-using S = System;
+using STT = System.Threading.Tasks;
 using F = Functional;
-using Functional;
 
 namespace Alias.Option {
 #pragma warning disable CS0660, CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode() Object.Equals(object o)
@@ -14,7 +13,7 @@ namespace Alias.Option {
 		 * </summary>
 		 * <value>Result of validation: the options or error.</value>
 		 */
-		public virtual Result<AbstractOption> Validation => Factory.Result<AbstractOption>(this);
+		public virtual F.Result<AbstractOption> Validation => F.Factory.Result<AbstractOption>(this);
 		/**
 		 * <summary>
 		 * Execute command given by options.
@@ -22,6 +21,6 @@ namespace Alias.Option {
 		 * <param name="operation">Execution operations.</param>
 		 * <returns>Result of exit code from command or error.</returns>
 		 */
-		public abstract F.Result<ExitCode> Operate(IOperation operation);
+		public abstract F.Result<STT.Task<ExitCode>> Operate(IOperation operation);
 	}
 }

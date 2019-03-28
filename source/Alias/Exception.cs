@@ -7,6 +7,8 @@ using F = Functional;
 using static Functional.Extension;
 
 namespace Alias {
+	using System.Threading.Tasks;
+	using Alias.Configuration;
 	using Alias.Option;
 	using Arguments = SCG.IEnumerable<string>;
 	/**
@@ -14,7 +16,9 @@ namespace Alias {
 	 * Interface for exceptions originating from <c cref='Alias'>Alias</c>.
 	 * </summary>
 	 */
-	interface IException { }
+	interface IException {
+		string Message { get; }
+	}
 	/**
 	 * <summary>
 	 * Interface for exceptions terminating program.
@@ -26,12 +30,12 @@ namespace Alias {
 	 * Error attempting to access file.
 	 * </summary>
 	 */
-	abstract class FileException : SIO.IOException {
+	abstract class FileException : SIO.IOException, ITerminalException {
 		/**
 		 * <summary>
-		 * File jsonPath triggering IO exception.
+		 * File path triggering IO exception.
 		 * </summary>
-		 * <value>A file jsonPath.</value>
+		 * <value>A file path.</value>
 		 */
 		public string FilePath { get; }
 		/**
@@ -65,10 +69,12 @@ namespace Alias {
 		public TerminalFileException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(filePath, type, message, innerException) { }
 		public static TerminalFileException CurrentDirectoryUnavailable(string configurationFilePath, S.Exception error)
 		=> new TerminalFileException(configurationFilePath, SSP.FileIOPermissionAccess.PathDiscovery, @"Current directory unavailable.", error);
-		public static TerminalFileException InaccessiblePath(string jsonPath, S.Exception error)
-		=> new TerminalFileException(jsonPath, SSP.FileIOPermissionAccess.PathDiscovery, @"Inaccessible file jsonPath.", error);
-		public static S.Func<S.Exception, TerminalFileException> ReadErrorMap(string jsonPath)
-		=> error => new TerminalFileException(jsonPath, SSP.FileIOPermissionAccess.Read, @"Unable to open file for reading.", error);
+		public static TerminalFileException InaccessiblePath(string path, S.Exception error)
+		=> new TerminalFileException(path, SSP.FileIOPermissionAccess.PathDiscovery, @"Inaccessible file path.", error);
+		public static S.Func<S.Exception, TerminalFileException> ReadErrorMap(string path)
+		=> error => new TerminalFileException(path, SSP.FileIOPermissionAccess.Read, @"Unable to open file for reading.", error);
+		public static S.Func<S.Exception, S.Exception> WriteErrorMap(string path)
+		=> error => new TerminalFileException(path, SSP.FileIOPermissionAccess.Write, @"Unable to create or write file.", error);
 	}
 	/**
 	 * <summary>
@@ -171,10 +177,14 @@ namespace Alias {
 		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type) : base(filePath, type) { }
 		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type, string message) : base(filePath, type, message) { }
 		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(filePath, type, message, innerException) { }
-		public static OperationIOException FileExists(string destination)
-		=> new OperationIOException(destination, SSP.FileIOPermissionAccess.Write, "File already exists.");
+		public static S.Func<S.Exception, OperationIOException> ReadErrorMap(string destination)
+		=> error => new OperationIOException(destination, SSP.FileIOPermissionAccess.Read, "Unable to open file for reading.", error);
+		public static S.Func<S.Exception, OperationIOException> CreateErrorMap(string destination)
+		=> error => new OperationIOException(destination, SSP.FileIOPermissionAccess.Write, "Unable to create file for writing.", error);
 		public static S.Func<S.Exception, OperationIOException> CopyErrorMap(string destination)
 		=> error => new OperationIOException(destination, SSP.FileIOPermissionAccess.Write, "File copy error.", error);
+		public static S.Func<S.Exception, OperationIOException> DeleteErrorMap(string destination)
+		=> error => new OperationIOException(destination, SSP.FileIOPermissionAccess.Write, "Unable to access file for deletion.", error);
 	}
 	/**
 	 * <summary>

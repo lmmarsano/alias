@@ -1,7 +1,8 @@
 using S = System;
 using SCG = System.Collections.Generic;
-using AC = Alias.Configuration;
+using STT = System.Threading.Tasks;
 using System.Linq;
+using AC = Alias.Configuration;
 using F = Functional;
 using static Functional.Extension;
 using Command = System.String;
@@ -69,6 +70,6 @@ namespace Alias.Option {
 		=> configuration.Binding.TryGetValue(alias)
 		   .Select(commandEntry => new External(alias, commandEntry.Command, commandEntry.Arguments.ToMaybe()));
 		/// <inheritdoc/>
-		public override F.Result<ExitCode> Operate(IOperation operation) => operation.External(this);
+		public override F.Result<STT.Task<ExitCode>> Operate(IOperation operation) => operation.External(this);
 	}
 }

@@ -66,6 +66,9 @@ namespace Alias {
 		/// <inheritdoc/>
 		public SIO.FileStream Open(SIO.FileMode mode) => _fileInfo.Open(mode);
 		/// <inheritdoc/>
+		public SIO.Stream OpenAsync(SIO.FileMode mode, SIO.FileAccess access, SIO.FileShare share=SIO.FileShare.Read)
+		=> Effect.GetFileStream(FullName, mode, access, share);
+		/// <inheritdoc/>
 		public SIO.FileStream OpenRead() => _fileInfo.OpenRead();
 		/// <inheritdoc/>
 		public SIO.StreamReader OpenText() => _fileInfo.OpenText();

@@ -191,6 +191,21 @@ namespace Alias {
 		SIO.FileStream Open(SIO.FileMode mode, SIO.FileAccess access, SIO.FileShare share);
 		/**
 		 * <summary>
+		 * Opens an asynchronous file stream in the specified mode with read, write, or read/write access and the specified sharing option.
+		 * </summary>
+		 * <param name="mode">A System.IO.FileMode constant specifying the mode (for example, Open or Append) in which to open the file.</param>
+		 * <param name="access">A System.IO.FileAccess constant specifying whether to open the file with Read, Write, or ReadWrite file access.</param>
+		 * <param name="share">A System.IO.FileShare constant specifying the type of access other FileStream objects have to this file.</param>
+		 * <returns>A System.IO.FileStream object opened with the specified mode, access, and sharing options.</returns>
+		 * <exception cref='S.Security.SecurityException: The caller does not have the required permission.'></exception>
+		 * <exception cref='SIO.FileNotFoundException'>The file is not found.</exception>
+		 * <exception cref='S.UnauthorizedAccessException'>path is read-only or is a directory.</exception>
+		 * <exception cref='SIO.DirectoryNotFoundException'>The specified path is invalid, such as being on an unmapped drive.</exception>
+		 * <exception cref='SIO.IOException'>The file is already open.</exception>
+		 */
+		SIO.Stream OpenAsync(SIO.FileMode mode, SIO.FileAccess access, SIO.FileShare share=SIO.FileShare.Read);
+		/**
+		 * <summary>
 		 * Opens a file in the specified mode.
 		 * </summary>
 		 * <param name="mode">A System.IO.FileMode constant specifying the mode (for example, Open or Append) in which to open the file.</param>

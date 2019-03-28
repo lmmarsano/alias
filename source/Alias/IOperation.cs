@@ -1,6 +1,6 @@
+using STT = System.Threading.Tasks;
 using AO = Alias.Option;
 using F = Functional;
-using Functional;
 
 namespace Alias {
 	/**
@@ -9,11 +9,11 @@ namespace Alias {
 	 * </summary>
 	 */
 	interface IOperation {
-		F.Result<ExitCode> External(AO.External external);
-		F.Result<ExitCode> Set(AO.Set options);
-		F.Result<ExitCode> Reset(AO.Reset options);
-		F.Result<ExitCode> Unset(AO.Unset options);
-		F.Result<ExitCode> Restore(AO.Restore options);
-		F.Result<ExitCode> List(AO.List options);
+		F.Result<STT.Task<ExitCode>> External(AO.External external);
+		F.Result<STT.Task<ExitCode>> Set(AO.Set options);
+		F.Result<STT.Task<ExitCode>> Reset(AO.Reset options);
+		F.Result<STT.Task<ExitCode>> Unset(AO.Unset options);
+		F.Result<STT.Task<ExitCode>> Restore(AO.Restore options);
+		F.Result<STT.Task<ExitCode>> List(AO.List options);
 	}
 }

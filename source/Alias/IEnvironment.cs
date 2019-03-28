@@ -1,15 +1,17 @@
 ﻿using SCG = System.Collections.Generic;
 using SIO = System.IO;
+using F = Functional;
 
 namespace Alias {
 	interface IEnvironment {
 		/// <summary>Path to the application’s parent directory.</summary>
 		string ApplicationDirectory { get; }
 		/**
-		 * <summary>The application’s base file name.</summary>
-		 * <value>The application’s file name without the last file extension (if any).</value>
+		 * <summary>The application’s file name.</summary>
 		 */
 		string ApplicationName { get; }
+		/// <summary>Application file information.</summary>
+		IFileInfo ApplicationFile { get; }
 		/**
 		 * <summary>Command arguments.</summary>
 		 * <value>Arguments passed from main invocation.</value>
