@@ -1,4 +1,5 @@
 using S = System;
+using STT = System.Threading.Tasks;
 using Xunit;
 
 namespace Functional.Test {
@@ -23,15 +24,24 @@ namespace Functional.Test {
 		public void GetsDisposable() {
 			var disposable = new FakeDisposable();
 			Assert.Same(disposable, Disposable.Using(disposable, x => x));
+			Assert.Same(disposable, Disposable.UsingMap((FakeDisposable x) => x)(disposable));
 		}
 		[Fact]
 		public void AppliesMap() {
-			Assert.True(Disposable.Using(new FakeDisposable(), x => true));
+			var disposable = new FakeDisposable();
+			Assert.True(Disposable.Using(disposable, x => true));
+			Assert.True(Disposable.UsingMap((FakeDisposable x) => true)(disposable));
 		}
 		[Fact]
 		public void Disposes() {
 			var disposalState = new DisposalState();
 			Disposable.Using(new FakeDisposable(disposalState), x => x);
+			Assert.True(disposalState.IsDisposed);
+		}
+		[Fact]
+		public void MapDisposes() {
+			var disposalState = new DisposalState();
+			Disposable.UsingMap((FakeDisposable x) => x)(new FakeDisposable(disposalState));
 			Assert.True(disposalState.IsDisposed);
 		}
 	}

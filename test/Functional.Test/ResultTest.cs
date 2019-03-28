@@ -1,5 +1,7 @@
 using Xunit;
 using S = System;
+using STT = System.Threading.Tasks;
+using System.Linq;
 
 namespace Functional.Test {
 	public class ResultTest {
@@ -61,6 +63,10 @@ namespace Functional.Test {
 			Assert.IsNotType<Error<bool>>(result);
 		}
 		[Fact]
+		public void OkToTask() => Assert.True(OkBool(true).ToTask.Result);
+		[Fact]
+		public void ErrorToTask() => Assert.Single<S.Exception>(ErrorBool.ToTask.Exception.InnerExceptions);
+		[Fact]
 		public void OkReduceTest() {
 			Assert.True(OkBool(true).Reduce(false));
 		}
@@ -94,6 +100,7 @@ namespace Functional.Test {
 		[Fact]
 		public void OkSelectManyTest() {
 			Assert.True(OkBool(false).SelectMany(x => OkBool(true)).Reduce(false));
+			Assert.True(OkBool(false).SelectMany(x => ErrorBool).Reduce(true));
 		}
 		[Fact]
 		public void ErrorSelectManyTest() {
@@ -138,5 +145,25 @@ namespace Functional.Test {
 		public void ErrorEmpty() {
 			Assert.Empty(ErrorBool);
 		}
+		public static TheoryData<Result<bool>, STT.Task<bool>, bool> TraverseAsyncData {
+			get {
+				var okFalse = OkBool(false);
+				var taskTrue = ExtensionTest.SuccessfulBoolAsync(true);
+				return new TheoryData<Result<bool>, STT.Task<bool>, bool>
+				       { {okFalse, taskTrue, false}
+				       , {okFalse, ExtensionTest.CancelledBoolAsync, true}
+				       , {okFalse, ExtensionTest.FaultedBoolAsync, true}
+				       , {ErrorBool, taskTrue, true}
+				       , {ErrorBool, ExtensionTest.CancelledBoolAsync, true}
+				       , {ErrorBool, ExtensionTest.FaultedBoolAsync, true}
+				       };
+			}
+		}
+		[Theory]
+		[MemberData(nameof(TraverseAsyncData))]
+		public STT.Task TraverseAsyncTest(Result<bool> result, STT.Task<bool> task, bool alternative)
+		=> result
+		   .TraverseAsync(value => task)
+		   .ContinueWith(task => Assert.True(task.Result.Reduce(alternative)));
 	}
 }
