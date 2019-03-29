@@ -72,9 +72,11 @@ namespace Alias {
 		public static TerminalFileException InaccessiblePath(string path, S.Exception error)
 		=> new TerminalFileException(path, SSP.FileIOPermissionAccess.PathDiscovery, @"Inaccessible file path.", error);
 		public static S.Func<S.Exception, TerminalFileException> ReadErrorMap(string path)
-		=> error => new TerminalFileException(path, SSP.FileIOPermissionAccess.Read, @"Unable to open file for reading.", error);
+		=> (error)
+		=> new TerminalFileException(path, SSP.FileIOPermissionAccess.Read, @"Unable to open file for reading.", error);
 		public static S.Func<S.Exception, S.Exception> WriteErrorMap(string path)
-		=> error => new TerminalFileException(path, SSP.FileIOPermissionAccess.Write, @"Unable to create or write file.", error);
+		=> (error)
+		=> new TerminalFileException(path, SSP.FileIOPermissionAccess.Write, @"Unable to create or write file.", error);
 	}
 	/**
 	 * <summary>
@@ -93,7 +95,8 @@ namespace Alias {
 			File = file;
 		}
 		public static S.Func<S.Exception, DeserialException> FailureMap(IFileInfo file)
-		=> error => new DeserialException(file, @"Deserialization failure.", error);
+		=> (error)
+		=> new DeserialException(file, @"Deserialization failure.", error);
 	}
 	/**
 	 * <summary>
@@ -178,13 +181,23 @@ namespace Alias {
 		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type, string message) : base(filePath, type, message) { }
 		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(filePath, type, message, innerException) { }
 		public static S.Func<S.Exception, OperationIOException> ReadErrorMap(string destination)
-		=> error => new OperationIOException(destination, SSP.FileIOPermissionAccess.Read, "Unable to open file for reading.", error);
+		=> (error)
+		=> new OperationIOException(destination, SSP.FileIOPermissionAccess.Read, "Unable to open file for reading.", error);
 		public static S.Func<S.Exception, OperationIOException> CreateErrorMap(string destination)
-		=> error => new OperationIOException(destination, SSP.FileIOPermissionAccess.Write, "Unable to create file for writing.", error);
+		=> (error)
+		=> new OperationIOException(destination, SSP.FileIOPermissionAccess.Write, "Unable to create file for writing.", error);
 		public static S.Func<S.Exception, OperationIOException> CopyErrorMap(string destination)
-		=> error => new OperationIOException(destination, SSP.FileIOPermissionAccess.Write, "File copy error.", error);
+		=> (error)
+		=> new OperationIOException(destination, SSP.FileIOPermissionAccess.Write, "File copy error.", error);
 		public static S.Func<S.Exception, OperationIOException> DeleteErrorMap(string destination)
-		=> error => new OperationIOException(destination, SSP.FileIOPermissionAccess.Write, "Unable to access file for deletion.", error);
+		=> (error)
+		=> new OperationIOException(destination, SSP.FileIOPermissionAccess.Write, "Unable to access file for deletion.", error);
+	}
+	class HelpException: S.Exception, INonTerminalException {
+		public static HelpException HelpRequest { get; } = new HelpException(@"Help requested.");
+		public HelpException() {}
+		public HelpException(string message): base(message) {}
+		public HelpException(string message, S.Exception inner): base(message, inner) {}
 	}
 	/**
 	 * <summary>
@@ -228,7 +241,8 @@ namespace Alias {
 		 * <returns>A map from originating exceptions to exceptions for invalid alias names.</returns>
 		 */
 		public static S.Func<S.Exception,InvalidOptionException> InvalidAliasName(string class_, string property, string value)
-		=> (error) => new InvalidOptionException(class_, property, value, @"Invalid alias name.", error);
+		=> (error)
+		=> new InvalidOptionException(class_, property, value, @"Invalid alias name.", error);
 	}
 	/**
 	 * <summary>
@@ -254,7 +268,8 @@ namespace Alias {
 			Arguments = arguments;
 		}
 		public static S.Func<S.Exception, UnparsableOptionException> UnparsableMap(Arguments arguments)
-		=> error => new UnparsableOptionException(arguments, _message, error);
+		=> (error)
+		=> new UnparsableOptionException(arguments, _message, error);
 		public static UnparsableOptionException Unparsable(Arguments arguments)
 		=> new UnparsableOptionException(arguments, _message);
 	}
@@ -308,7 +323,7 @@ namespace Alias {
 		 */
 		public static S.Func<S.Exception, ExternalOperationException> GetRunFailureMap(Option.External option, F.Maybe<string> maybeArgumentLine)
 		=> (inner)
-		   => new ExternalOperationException(option, maybeArgumentLine, @"Unable to run external command.", inner);
+		=> new ExternalOperationException(option, maybeArgumentLine, @"Unable to run external command.", inner);
 	}
 	/**
 	 * <summary>
@@ -329,13 +344,40 @@ namespace Alias {
 		}
 		/**
 		 * <summary>
-		 * Create an exception map for run failures.
+		 * Create an exception map for output failures.
 		 * </summary>
 		 * <param name="option">The list command options.</param>
-		 * <returns>An exception map from original exception to exception indicating run failure.</returns>
+		 * <returns>An exception map from original exception to exception indicating output failure.</returns>
 		 */
-		public static S.Func<S.Exception, ListOperationException> GetRunFailureMap(Option.List option)
+		public static S.Func<S.Exception, ListOperationException> OutputFailureMap(Option.List option)
 		=> (inner)
-		   => new ListOperationException(option, @"Unable to run list command.", inner);
+		=> new ListOperationException(option, @"Unable to output list command.", inner);
+	}
+	/**
+	 * <summary>
+	 * Exception for unset command failure.
+	 * </summary>
+	 */
+	class UnsetOperationException: S.Exception, IOperationException<Option.Unset> {
+		/// <inheritdoc/>
+		public Unset Option { get; }
+		public UnsetOperationException(Unset option) {
+			Option = option;
+		}
+		public UnsetOperationException(Unset option, string message): base(message) {
+			Option = option;
+		}
+		public UnsetOperationException(Unset option, string message, S.Exception inner): base(message, inner) {
+			Option = option;
+		}
+		/**
+		 * <summary>
+		 * Create an exception for non-existent aliases.
+		 * </summary>
+		 * <param name="option">The unset command options.</param>
+		 * <returns>An exception for non-existent aliases.</returns>
+		 */
+		public static UnsetOperationException AliasUndefined(Option.Unset option)
+		=> new UnsetOperationException(option, $@"Unable to remove non-existent alias: {option.Name}.");
 	}
 }

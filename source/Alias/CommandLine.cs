@@ -1,6 +1,7 @@
 ﻿using S = System;
 using SCG = System.Collections.Generic;
 using SIO = System.IO;
+using System.Linq;
 using CL = CommandLine;
 using CommandLine;
 using AO = Alias.Option;
@@ -9,6 +10,7 @@ using Functional;
 
 namespace Alias {
 	class CommandLine {
+		readonly SCG.ISet<string> _helpTokens = new SCG.HashSet<string> {@"help", @"-h", @"--help"};
 		/**
 		 * <summary>
 		 * The <see cref='SIO.TextWriter'/> used for help method output. null disables help screen.
@@ -36,13 +38,14 @@ namespace Alias {
 		public F.Result<AO.AbstractOption> Parse(SCG.IEnumerable<string> arguments)
 		=> F.Factory.Try
 		   ( ()
-		     => /* CL.Parser.Default */new CL.Parser((parserSettings) => parserSettings.HelpWriter = HelpWriter).ParseArguments<Option.List, Option.Reset, Option.Restore, Option.Set, Option.Unset>(arguments)
+		     => new CL.Parser((parserSettings) => parserSettings.HelpWriter = HelpWriter).ParseArguments<Option.List, Option.Reset, Option.Restore, Option.Set, Option.Unset>(arguments)
 		   , UnparsableOptionException.UnparsableMap(arguments)
 		   )
 		   .SelectMany
 		    ( result
 		      => result switch
 		         { CL.Parsed<object> parsed => ((AO.AbstractOption)parsed.Value).Validation
+		         , _ when arguments.Intersect(_helpTokens).Any() => HelpException.HelpRequest // FIXME is there a better way? check demo
 		         , _ => F.Factory.Result<AO.AbstractOption>(UnparsableOptionException.Unparsable(arguments))
 		         }
 		    );
