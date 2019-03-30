@@ -24,7 +24,7 @@ namespace Alias {
 	 * Interface for exceptions terminating program.
 	 * </summary>
 	 */
-	interface ITerminalException : IException { }
+	interface ITerminalException : IException {}
 	/**
 	 * <summary>
 	 * Error attempting to access file.
@@ -60,13 +60,23 @@ namespace Alias {
 	}
 	/**
 	 * <summary>
+	 * Default switch branches that should never happen.
+	 * </summary>
+	 */
+	class UnhandledCaseException: S.NotImplementedException, ITerminalException {
+		UnhandledCaseException(string message): base(message) {}
+		public static UnhandledCaseException Error { get; }
+		= new UnhandledCaseException(@"Unhandled case encountered: the program cannot continue.");
+	}
+	/**
+	 * <summary>
 	 * Program terminating error attempting to access file.
 	 * </summary>
 	 */
 	class TerminalFileException : FileException, ITerminalException {
-		public TerminalFileException(string filePath, SSP.FileIOPermissionAccess type) : base(filePath, type) { }
-		public TerminalFileException(string filePath, SSP.FileIOPermissionAccess type, string message) : base(filePath, type, message) { }
-		public TerminalFileException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(filePath, type, message, innerException) { }
+		public TerminalFileException(string filePath, SSP.FileIOPermissionAccess type) : base(filePath, type) {}
+		public TerminalFileException(string filePath, SSP.FileIOPermissionAccess type, string message) : base(filePath, type, message) {}
+		public TerminalFileException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(filePath, type, message, innerException) {}
 		public static TerminalFileException CurrentDirectoryUnavailable(string configurationFilePath, S.Exception error)
 		=> new TerminalFileException(configurationFilePath, SSP.FileIOPermissionAccess.PathDiscovery, @"Current directory unavailable.", error);
 		public static TerminalFileException InaccessiblePath(string path, S.Exception error)
@@ -170,19 +180,22 @@ namespace Alias {
 	 * Interface for exceptions not requiring program termination.
 	 * </summary>
 	 */
-	interface INonTerminalException : IException { }
+	interface INonTerminalException : IException {}
 	/**
 	 * <summary>
 	 * Error attempting to access file not requiring program termination.
 	 * </summary>
 	 */
 	class OperationIOException : FileException, INonTerminalException {
-		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type) : base(filePath, type) { }
-		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type, string message) : base(filePath, type, message) { }
-		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(filePath, type, message, innerException) { }
+		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type) : base(filePath, type) {}
+		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type, string message) : base(filePath, type, message) {}
+		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(filePath, type, message, innerException) {}
 		public static S.Func<S.Exception, OperationIOException> ReadErrorMap(string destination)
 		=> (error)
 		=> new OperationIOException(destination, SSP.FileIOPermissionAccess.Read, "Unable to open file for reading.", error);
+		public static S.Func<S.Exception, OperationIOException> WriteErrorMap(string destination)
+		=> (error)
+		=> new OperationIOException(destination, SSP.FileIOPermissionAccess.Write, "Unable to write configuration file.", error);
 		public static S.Func<S.Exception, OperationIOException> CreateErrorMap(string destination)
 		=> (error)
 		=> new OperationIOException(destination, SSP.FileIOPermissionAccess.Write, "Unable to create file for writing.", error);
