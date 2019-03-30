@@ -132,6 +132,9 @@ namespace Functional {
 		public Ok(T value) {
 			Value = value;
 		}
+		public void Deconstruct(out T value) {
+			value = Value;
+		}
 		/// <inheritdoc/>
 		public override Result<TResult> Select<TResult>(S.Func<T, TResult> map) => map(Value);
 		/// <inheritdoc/>
@@ -188,6 +191,9 @@ namespace Functional {
 		public override STT.Task<T> ToTask => STT.Task.FromException<T>(Value);
 		public Error(S.Exception value) {
 			Value = value;
+		}
+		public void Deconstruct(out S.Exception value) {
+			value = Value;
 		}
 		/// <inheritdoc/>
 		public override Result<TResult> Select<TResult>(S.Func<T, TResult> map) => Value;

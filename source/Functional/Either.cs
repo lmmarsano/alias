@@ -149,6 +149,9 @@ namespace Functional {
 		public Left(TLeft value) {
 			Value = value;
 		}
+		public void Deconstruct(out TLeft value) {
+			value = Value;
+		}
 		public override Either<TRight, TLeft> Swap => Value;
 		public override Either<TLeftResult, TRight> SelectLeft<TLeftResult>(S.Func<TLeft, TLeftResult> map) => map(Value);
 		public override Either<TLeftResult, TRight> Catch<TLeftResult>(S.Func<TLeft, Either<TLeftResult, TRight>> map) => map(Value);
@@ -172,9 +175,9 @@ namespace Functional {
 		=> obj is Left<TLeft, TRight> left
 		&& Equals(left);
 		public override int GetHashCode()
-		=> Value is null
-		 ? 0
-		 : Value.GetHashCode();
+		=> Value is {}
+		 ? Value.GetHashCode()
+		 : 0;
 		public override SCG.IEnumerator<TRight> GetEnumerator() {
 			yield break;
 		}
@@ -203,6 +206,9 @@ namespace Functional {
 		public TRight Value { get; }
 		public Right(TRight value) {
 			Value = value;
+		}
+		public void Deconstruct(out TRight value) {
+			value = Value;
 		}
 		public override Either<TRight, TLeft> Swap => Value;
 		public override Either<TLeftResult, TRight> SelectLeft<TLeftResult>(S.Func<TLeft, TLeftResult> map) => Value;

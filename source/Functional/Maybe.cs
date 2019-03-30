@@ -128,6 +128,9 @@ namespace Functional {
 		public Just(T value) {
 			Value = value;
 		}
+		public void Deconstruct(out T value) {
+			value = Value;
+		}
 		public override SCG.IEnumerator<T> GetEnumerator() {
 			yield return Value;
 		}
@@ -174,6 +177,7 @@ namespace Functional {
 		 */
 		public static Nothing<T> Value { get; } = new Nothing<T>();
 		Nothing() {}
+		public void Deconstruct() {}
 		public static implicit operator Nothing<T>(Nothing _) => Nothing<T>.Value;
 		public static implicit operator Nothing(Nothing<T> _) => Nothing.Value;
 		public override SCG.IEnumerator<T> GetEnumerator() {
@@ -212,6 +216,7 @@ namespace Functional {
 		 */
 		public static Nothing Value { get; } = new Nothing();
 		Nothing() {}
+		public void Deconstruct() {}
 		/**
 		 * <summary>
 		 * Always <see cref="true"/>.
