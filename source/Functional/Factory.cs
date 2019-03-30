@@ -115,5 +115,44 @@ namespace Functional {
 				return errorMap(error);
 			}
 		}
+		/**
+		 * <summary>
+		 * Map <paramref name="function"/> to a result returning function.
+		 * </summary>
+		 * <param name="function">Function to map.</param>
+		 * <typeparam name="T"><paramref name="function"/>’s domain.</typeparam>
+		 * <typeparam name="TResult"><paramref name="function"/>’s codomain.</typeparam>
+		 * <returns>Function that returns results instead of throwing errors.</returns>
+		 */
+		public static S.Func<T, Result<TResult>> TryMap<T, TResult>(S.Func<T, TResult> function)
+		where TResult: object
+		=> (value)
+		=> {
+			try {
+				return function(value);
+			} catch (S.Exception error) {
+				return error;
+			}
+		};
+		/**
+		 * <summary>
+		 * Map <paramref name="function"/> to a result returning function.
+		 * </summary>
+		 * <param name="function">Function to map.</param>
+		 * <param name="errorMap">Error mapper.</param>
+		 * <typeparam name="T"><paramref name="function"/>’s domain.</typeparam>
+		 * <typeparam name="TResult"><paramref name="function"/>’s codomain.</typeparam>
+		 * <returns>Function that returns results instead of throwing errors.</returns>
+		 */
+		public static S.Func<T, Result<TResult>> TryMap<T, TResult>(S.Func<T, TResult> function, S.Func<S.Exception, S.Exception> errorMap)
+		where TResult: object
+		=> (value)
+		=> {
+			try {
+				return function(value);
+			} catch (S.Exception error) {
+				return errorMap(error);
+			}
+		};
 	}
 }
