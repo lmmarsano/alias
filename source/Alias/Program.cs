@@ -44,22 +44,23 @@ namespace Alias {
 		   (taskMaybeConfiguration => WithMaybeConfiguration(environment, taskMaybeConfiguration))
 		   .Reduce(ErrorRenderMap(F.Factory.Maybe(environment), F.Nothing.Value));
 		private static F.Result<STT.Task<F.Maybe<AC.Configuration>>> TryGetConfiguration(IFileInfo file)
-		=> F.Factory.Try
-		    ( () => file.OpenAsync(SIO.FileMode.Open, SIO.FileAccess.Read)
-		    , TerminalFileException.ReadErrorMap(file.FullName)
-		    )
-		   .SelectMany
-		    ( fileStream
-		      => F.Factory.Try
-		          ( () => new SIO.StreamReader(fileStream)
-		          , TerminalFileException.ReadErrorMap(file.FullName)
-		          )
-		         .Catch(result => {
-		          	fileStream.Dispose();
-		          	return result;
-		          })
-		         .Select(DeserializeMap(fileStream))
-		    );
+		=> F.Factory.Try(() => file.OpenAsync(SIO.FileMode.Open, SIO.FileAccess.Read)) switch
+			 { F.Ok<SIO.Stream>(var fileStream)
+		     => F.Factory.Try
+		         ( () => new SIO.StreamReader(fileStream)
+		         , TerminalFileException.ReadErrorMap(file.FullName)
+		         )
+		        .Catch(result => {
+		         	fileStream.Dispose();
+		         	return result;
+		         })
+		        .Select(DeserializeMap(fileStream))
+		   , F.Error<SIO.Stream>(var error)
+		     => error is SIO.FileNotFoundException _
+		      ? F.Factory.Result(STT.Task.FromResult((F.Maybe<AC.Configuration>)F.Nothing.Value))
+		      : TerminalFileException.ReadErrorMap(file.FullName)(error)
+		   , _ => throw UnhandledCaseException.Error
+		   };
 		static S.Func<SIO.TextReader, STT.Task<F.Maybe<AC.Configuration>>> DeserializeMap(SIO.Stream fileStream)
 		=> async textReader => {
 			using (fileStream)
