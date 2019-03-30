@@ -122,6 +122,16 @@ namespace Alias {
 		SIO.FileStream Create();
 		/**
 		 * <summary>
+		 * Creates a write-only stream to a new file, replacing any existing file.
+		 * </summary>
+		 * <returns>A write-only unshared System.IO.Stream object for a new file.</returns>
+		 * <exception cref='S.UnauthorizedAccessException'>The file name is hidden or a directory.</exception>
+		 * <exception cref='SIO.IOException'>The disk is read-only.</exception>
+		 * <exception cref='S.Security.SecurityException'>The caller does not have the required permission.</exception>
+		 */
+		SIO.Stream CreateStream(); // TODO eliminate when async serialization becomes possible.
+		/**
+		 * <summary>
 		 * Creates a System.IO.StreamWriter that writes a new text file.
 		 * </summary>
 		 * <returns>A new StreamWriter.</returns>

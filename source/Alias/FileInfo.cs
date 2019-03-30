@@ -3,7 +3,8 @@ using SIO = System.IO;
 
 namespace Alias {
 	/// <inheritdoc/>
-	class FileInfo : IFileInfo {
+	/// <remarks>Wrapper class around <see cref='SIO.FileInfo'/> facilitates testing.</remarks>
+	class FileInfo: IFileInfo {
 		readonly SIO.FileInfo _fileInfo;
 		/**
 		 * <summary>
@@ -49,6 +50,8 @@ namespace Alias {
 		=> new FileInfo(_fileInfo.CopyTo(destinationFileName, overwrite));
 		/// <inheritdoc/>
 		public SIO.FileStream Create() => _fileInfo.Create();
+		/// <inheritdoc/>
+		public SIO.Stream CreateStream() => _fileInfo.Create();
 		/// <inheritdoc/>
 		public SIO.StreamWriter CreateText() => _fileInfo.CreateText();
 		/// <inheritdoc/>
