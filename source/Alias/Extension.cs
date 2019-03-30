@@ -1,4 +1,5 @@
 using S = System;
+using SD = System.Diagnostics;
 using STT = System.Threading.Tasks;
 using SCG = System.Collections.Generic;
 using F = Functional;
@@ -62,5 +63,39 @@ namespace Alias {
 		 */
 		public static F.Result<STT.Task> SelectErrorNested(this F.Result<STT.Task> @this, S.Func<S.Exception, S.Exception> errorMap)
 		=> @this.SelectError(errorMap).Select(task => task.SelectErrorAsync(errorMap));
+		/**
+		 * <summary>
+		 * Run process asynchronously.
+		 * </summary>
+		 * <param name="@this">Process to run.</param>
+		 * <returns>Task of a running process resulting in an exit code.</returns>
+		 * <inheritdoc cref='SD.Process.Start' select='exception'/>
+		 */
+		public static STT.Task<int> RunAsync(this SD.Process @this) {
+			var taskCompletionSource = new STT.TaskCompletionSource<int>();
+			@this.EnableRaisingEvents = true;
+			@this.Exited += (sender, eventArgs) => {
+				taskCompletionSource.TrySetResult(@this.ExitCode);
+			};
+			if (!@this.Start() && @this.HasExited) {
+				taskCompletionSource.TrySetResult(@this.ExitCode);
+			}
+			return taskCompletionSource.Task;
+		}
+		/**
+		 * <summary>
+		 * Return started task.
+		 * </summary>
+		 * <param name="@this">Task.</param>
+		 * <typeparam name="T">Task type.</typeparam>
+		 * <returns>Started task.</returns>
+		 */
+		public static T StartAsync<T>(this T @this)
+		where T : STT.Task {
+			if (@this.Status == STT.TaskStatus.Created) {
+				@this.Start();
+			}
+			return @this;
+		}
 	}
 }

@@ -1,7 +1,6 @@
 using S = System;
 using SIO = System.IO;
 using SCG = System.Collections.Generic;
-using SD = System.Diagnostics;
 using STT = System.Threading.Tasks;
 using STRE = System.Text.RegularExpressions;
 using F = Functional;
@@ -10,6 +9,12 @@ using System.Linq;
 
 namespace Alias {
 	static class Utility {
+		/**
+		 * <summary>
+		 * Task yielding <see cref='ExitCode.Success'/>.
+		 * </summary>
+		 */
+		public static STT.Task<ExitCode> TaskExitSuccess { get; } = STT.Task.FromResult(ExitCode.Success);
 		/**
 		 * <summary>
 		 * Set of filenames to reject.
@@ -61,14 +66,14 @@ namespace Alias {
 		 */
 		public static F.Result<string> ValidateFileName(string fileName)
 		=> fileName
-		   .ToResult(() => new S.ArgumentNullException(nameof(fileName), @"Null file name."))
+			 .ToResult(() => new S.ArgumentNullException(nameof(fileName), @"Null file name."))
 			 .Where
-			  ( fileName => !(string.IsNullOrWhiteSpace(fileName) || IllegalFileNames.Contains(fileName))
-			  , fileName => new S.ArgumentException(@"Invalid file name.", nameof(fileName))
-			  )
-		   .Combine(F.Factory.Try(() => SIO.Path.GetFileName(fileName)))
+				( fileName => !(string.IsNullOrWhiteSpace(fileName) || IllegalFileNames.Contains(fileName))
+				, fileName => new S.ArgumentException(@"Invalid file name.", nameof(fileName))
+				)
+			 .Combine(F.Factory.Try(() => SIO.Path.GetFileName(fileName)))
 			 .Where
-			  ( name => name == fileName
+				( name => name == fileName
 				, fileName => new S.ArgumentException(@"Invalid file name.", nameof(fileName))
 				)
 			 ;
@@ -81,46 +86,13 @@ namespace Alias {
 		 */
 		// escape \ preceding " https://docs.microsoft.com/en-us/dotnet/api/system.environment.getcommandlineargs?view=netframework-4.7.2#remarks
 		public static string SafeQuote(string value) {
-			var partial = value.Contains('"')
-			            ? QuoteRegEx.Replace(value, @"$1$1\""")
-			            : value;
+			var partial
+			= value.Contains('"')
+			? QuoteRegEx.Replace(value, @"$1$1\""")
+			: value;
 			return partial.Any(char.IsWhiteSpace)
-		       ? $@"""{EndBackslashRegEx.Replace(partial, @"$1$1")}"""
-		       : partial;
-		}
-		/**
-		 * <summary>
-		 * Run process asynchronous.
-		 * </summary>
-		 * <param name="@this">Process to run.</param>
-		 * <returns>Task of a running process resulting in an exit code.</returns>
-		 * <inheritdoc cref='SD.Process.Start' select='exception'/>
-		 */
-		public static STT.Task<int> RunAsync(this SD.Process @this) {
-			var taskCompletionSource = new STT.TaskCompletionSource<int>();
-			@this.EnableRaisingEvents = true;
-			@this.Exited += (sender, eventArgs) => {
-				taskCompletionSource.TrySetResult(@this.ExitCode);
-			};
-			if (!@this.Start()) {
-				taskCompletionSource.TrySetResult(@this.ExitCode);
-			}
-			return taskCompletionSource.Task;
-		}
-		/**
-		 * <summary>
-		 * Return started task.
-		 * </summary>
-		 * <param name="@this">Task.</param>
-		 * <typeparam name="T">Task type.</typeparam>
-		 * <returns>Started task.</returns>
-		 */
-		public static T StartAsync<T>(this T @this)
-		where T: STT.Task {
-			if (@this.Status == STT.TaskStatus.Created) {
-				@this.Start();
-			}
-			return @this;
+			     ? $@"""{EndBackslashRegEx.Replace(partial, @"$1$1")}"""
+			     : partial;
 		}
 	}
 }
