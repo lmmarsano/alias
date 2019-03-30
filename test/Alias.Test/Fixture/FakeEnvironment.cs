@@ -1,43 +1,42 @@
+using S = System;
 using SCG = System.Collections.Generic;
 using SIO = System.IO;
-using S = System;
+using M = Moq;
 using Path = System.String;
 using Name = System.String;
 
 namespace Alias.Test.Fixture {
 	using Arguments = SCG.IEnumerable<string>;
-	class FakeEnvironment : IEnvironment, S.IDisposable {
-		public IFileInfo ApplicationFile { get; }
-		public string ApplicationDirectory { get; }
-		public string ApplicationName { get; }
-		public SCG.IEnumerable<string> Arguments { get; }
-		public string ConfigurationFilePath { get; }
-		public IFileInfo ConfigurationFile { get; }
-		public string WorkingDirectory { get; }
+	class FakeEnvironment : S.IDisposable {
+		bool _allowDisposal = true;
+		public M.Mock<IEnvironment> Mock = new M.Mock<IEnvironment>();
 		public SIO.TextReader StreamIn { get; }
 		public SIO.TextWriter StreamOut { get; } = new SIO.StringWriter();
 		public SIO.TextWriter StreamError { get; } = new SIO.StringWriter();
-		public IEffect Effect { get; }
-		bool allowDisposal = true;
-		public FakeEnvironment(IFileInfo applicationFile, Arguments arguments, IFileInfo configurationFile, IEffect effect, Path workingDirectory, string input) {
-			Arguments = arguments;
-			ApplicationFile = applicationFile;
-			ApplicationName = applicationFile.Name;
-			ConfigurationFile = configurationFile;
-			Effect = effect;
-			ApplicationDirectory = applicationFile.DirectoryName;
-			WorkingDirectory = workingDirectory;
-			ConfigurationFilePath = configurationFile.FullName;
+		public FakeEnvironment(string input) {
 			StreamIn = new SIO.StringReader(input);
+			Mock.Setup(env => env.StreamIn).Returns(StreamIn);
+			Mock.Setup(env => env.StreamOut).Returns(StreamOut);
+			Mock.Setup(env => env.StreamError).Returns(StreamError);
+		}
+		public FakeEnvironment(IFileInfo applicationFile, Arguments arguments, IFileInfo configurationFile, IEffect effect, Path workingDirectory, string input): this(input) {
+			Mock.Setup(env => env.Arguments).Returns(arguments);
+			Mock.Setup(env => env.ApplicationFile).Returns(applicationFile);
+			Mock.Setup(env => env.ApplicationName).Returns(applicationFile.Name);
+			Mock.Setup(env => env.ConfigurationFile).Returns(configurationFile);
+			Mock.Setup(env => env.Effect).Returns(effect);
+			Mock.Setup(env => env.ApplicationDirectory).Returns(applicationFile.DirectoryName);
+			Mock.Setup(env => env.WorkingDirectory).Returns(workingDirectory);
+			Mock.Setup(env => env.ConfigurationFilePath).Returns(configurationFile.FullName);
 		}
 		protected virtual void Dispose(bool disposing) {
-			if (allowDisposal) {
+			if (_allowDisposal) {
 				if (disposing) {
 					foreach (var item in new S.IDisposable[] {StreamIn, StreamOut, StreamError}) {
 						item.Dispose();
 					}
 				}
-				allowDisposal = false;
+				_allowDisposal = false;
 			}
 		}
 		public void Dispose() => Dispose(true);

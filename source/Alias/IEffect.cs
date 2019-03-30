@@ -19,10 +19,11 @@ namespace Alias {
 		 * <summary>
 		 * Delete file.
 		 * </summary>
-		 * <param name="files">Fil information.</param>
+		 * <param name="files">File information.</param>
 		 * <returns>Task yielding nothing result.</returns>
+		 * <exception cref='OperationIOException'>Unable to access file for deletion.</exception>
 		 */
-		F.Result<STT.Task> DeleteFile(FileInfo file);
+		F.Result<STT.Task> DeleteFile(IFileInfo file);
 		/**
 		 * <summary>
 		 * Write configuration to file.
@@ -30,7 +31,8 @@ namespace Alias {
 		 * <param name="configuration">Alias configuration.</param>
 		 * <param name="file">Configuration file.</param>
 		 * <returns>Resulting task to write configuration.</returns>
-		 * <exception cref="SerializerException">Configuration could not be serialized.</exception>
+		 * <exception cref="OperationIOException">Unable to write configuration to file.</exception>
+		 * <exception cref="SerializerException">Unable to serialize configuration.</exception>
 		 */
 		F.Result<STT.Task> WriteConfiguration(AC.Configuration configuration, IFileInfo file);
 		/**
@@ -40,27 +42,18 @@ namespace Alias {
 		 * <param name="file">File to copy.</param>
 		 * <param name="destination">Destination to copy file to.</param>
 		 * <returns>Result of task to copy file.</returns>
-		 * <exception cref='OperationIOException'>Destination exists or copy failed.</exception>
+		 * <exception cref='OperationIOException'>Unable to read source, create destination, or perform copy.</exception>
 		 */
 		F.Result<STT.Task> CopyFile(IFileInfo file, string destination);
-		/**
-		 * <summary>
-		 * Run command from working directory.
-		 * </summary>
-		 * <param name="workingDirectory">New process’s working directory.</param>
-		 * <param name="command">Command for new process.</param>
-		 * <returns>Task returning command’s exit code result.</returns>
-		 */
-		F.Result<STT.Task<ExitCode>> RunCommand(WorkingDirectory workingDirectory, Command command);
 		/**
 		 * <summary>
 		 * Run command with arguments from working directory.
 		 * </summary>
 		 * <param name="workingDirectory">New process’s working directory.</param>
 		 * <param name="command">Command for new process.</param>
-		 * <param name="arguments">Command’s arguments.</param>
+		 * <param name="maybeArguments">Optional command arguments.</param>
 		 * <returns>Command’s exit code.</returns>
 		 */
-		F.Result<STT.Task<ExitCode>> RunCommand(WorkingDirectory workingDirectory, Command command, Arguments arguments);
+		F.Result<STT.Task<ExitCode>> RunCommand(WorkingDirectory workingDirectory, Command command, F.Maybe<Arguments> maybeArguments);
 	}
 }

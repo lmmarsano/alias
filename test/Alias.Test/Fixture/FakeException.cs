@@ -1,9 +1,18 @@
 using S = System;
+using M = Moq;
 
 namespace Alias.Test.Fixture {
-	public class FakeException: S.Exception, ITerminalException {
-		public FakeException() {}
-		public FakeException(string message): base(message) {}
-		public FakeException(string message, S.Exception inner): base(message, inner) {}
+	public class FakeException<T> where T: FakeIException {
+		public M.Mock<T> Mock { get; }
+		public FakeException(string message) {
+			Mock = new M.Mock<T>(message);
+			Mock.Setup(error => error.Message).Returns(message);
+		}
+	}
+	public class FakeIException : S.Exception, IException {
+		public FakeIException(string message): base(message) {}
+	}
+	public class FakeITerminalException : FakeIException, ITerminalException {
+		public FakeITerminalException(string message): base(message) {}
 	}
 }

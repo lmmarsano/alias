@@ -4,6 +4,7 @@ using SD = System.Diagnostics;
 using STT = System.Threading.Tasks;
 using static System.Threading.Tasks.TaskExtensions;
 using F = Functional;
+using static Functional.Extension;
 using AC = Alias.Configuration;
 using Command = System.String;
 using Arguments = System.String;
@@ -65,10 +66,11 @@ namespace Alias {
 		}
 		/**
 		 * <summary>
-		 * Run command from working directory.
+		 * Run command with optional arguments from working directory.
 		 * </summary>
 		 * <param name="workingDirectory">New process’s working directory.</param>
 		 * <param name="command">Command for new process.</param>
+		 * <param name="maybeArguments">Optional command arguments.</param>
 		 * <returns>Command’s exit code.</returns>
 		 * <exception cref='S.InvalidOperationException'>No file name was specified in <paramref name="command"/>.</exception>
 		 * <exception cref='S.ObjectDisposedException'>The process object has already been disposed.</exception>
@@ -81,29 +83,10 @@ namespace Alias {
 		 * </exception>
 		 * <exception cref='S.PlatformNotSupportedException'>Method not supported on operating systems without shell support such as Nano Server (.NET Core only).</exception>
 		 */
-		public F.Result<STT.Task<ExitCode>> RunCommand(WorkingDirectory workingDirectory, Command command)
-		=> RunProcessAsync(new SD.ProcessStartInfo(command) { WorkingDirectory = workingDirectory });
-		/**
-		 * <summary>
-		 * Run command with arguments from working directory.
-		 * </summary>
-		 * <param name="workingDirectory">New process’s working directory.</param>
-		 * <param name="command">Command for new process.</param>
-		 * <param name="arguments">Command’s arguments.</param>
-		 * <returns>Command’s exit code.</returns>
-		 * <exception cref='S.InvalidOperationException'>No file name was specified in <paramref name="command"/>.</exception>
-		 * <exception cref='S.ObjectDisposedException'>The process object has already been disposed.</exception>
-		 * <exception cref='SIO.FileNotFoundException'>The file specified in the <paramref name="command"/> could not be found.</exception>
-		 * <exception cref='S.ComponentModel.Win32Exception'>
-		 * <list>
-		 * <item><description>An error occurred when opening the associated file.</description></item>
-		 * <item><description>The sum of the length of the arguments and the length of the full path to the process exceeds 2080. The error message associated with this exception can be one of the following: 'The data area passed to a system call is too small.' or 'Access is denied.'</description></item>
-		 * </list>
-		 * </exception>
-		 * <exception cref='S.PlatformNotSupportedException'>Method not supported on operating systems without shell support such as Nano Server (.NET Core only).</exception>
-		 */
-		public F.Result<STT.Task<ExitCode>> RunCommand(WorkingDirectory workingDirectory, Command command, Arguments arguments)
-		=> RunProcessAsync(new SD.ProcessStartInfo(command, arguments) { WorkingDirectory = workingDirectory });
+		public F.Result<STT.Task<ExitCode>> RunCommand(WorkingDirectory workingDirectory, Command command, F.Maybe<Arguments> maybeArguments)
+		=> maybeArguments is F.Just<Arguments>(var arguments)
+		 ? RunProcessAsync(new SD.ProcessStartInfo(command, arguments) { WorkingDirectory = workingDirectory })
+		 : RunProcessAsync(new SD.ProcessStartInfo(command) { WorkingDirectory = workingDirectory });
 		/**
 		 * <summary>
 		 * Create a file stream. Default: asynchronous, available for shared reading.
@@ -163,38 +146,46 @@ namespace Alias {
 		          	return error;
 		          })
 		         .SelectMany
-		          ( destinationStream
-		            => F.Factory.Try
-		               ( async () => {
-		                 	using (source)
-		                 	using (destinationStream) {
-		                 		await source.CopyToAsync(destinationStream).ConfigureAwait(false);
-		                 	}
-		                 }
-		               , OperationIOException.CopyErrorMap(destination)
-		               )
+		          ( F.Factory.TryMap
+		            ( async (SIO.FileStream destinationStream) => {
+		              	using (source)
+		              	using (destinationStream) {
+		              		await source.CopyToAsync(destinationStream).ConfigureAwait(false);
+		              	}
+		              }
+		            , OperationIOException.CopyErrorMap(destination)
+		            )
 		          )
 		    );
 		/// <inheritdoc/>
-		public F.Result<STT.Task> DeleteFile(FileInfo file) {
-			throw new S.NotImplementedException();
-			return F.Factory.Try
-			( ()
-			  => GetFileStream(file.FullName, SIO.FileMode.Open, SIO.FileAccess.Write, fileOptions: SIO.FileOptions.Asynchronous | SIO.FileOptions.DeleteOnClose | SIO.FileOptions.SequentialScan).DisposeAsync().AsTask()
-			, OperationIOException.DeleteErrorMap(file.FullName)
-			);
-		}
+		public F.Result<STT.Task> DeleteFile(IFileInfo file)
+		=> F.Factory.Try
+		   ( ()
+		     => GetFileStream(file.FullName, SIO.FileMode.Open, SIO.FileAccess.Write, fileOptions: SIO.FileOptions.Asynchronous | SIO.FileOptions.DeleteOnClose | SIO.FileOptions.SequentialScan)
+		     .DisposeAsync().AsTask()
+		     .SelectErrorAsync(OperationIOException.DeleteErrorMap(file.FullName))
+		   , OperationIOException.DeleteErrorMap(file.FullName)
+		   );
 		/// <inheritdoc/>
-		public F.Result<STT.Task> WriteConfiguration(AC.Configuration configuration, IFileInfo file) {
-			throw new S.NotImplementedException();
-			return F.Factory.Try
-			 ( () => {
-			   	using var stream = file.OpenWrite();
-			   	using var textWriter = new SIO.StreamWriter(stream);
-			   	configuration.Serialize(textWriter);
-			   }
-			 )
-			.ToTask;
-		}
+		// TODO replace with async stream when async serialization becomes possible.
+		public F.Result<STT.Task> WriteConfiguration(AC.Configuration configuration, IFileInfo file)
+		=> F.Factory.Try
+		   ( file.CreateStream
+		   , OperationIOException.WriteErrorMap(file.FullName)
+		   )
+		   .SelectMany
+		   ( F.Disposable.UsingMap
+		     ( (SIO.Stream stream)
+		       => new SIO.StreamWriter(stream).Using
+		          ( F.Factory.TryMap
+		            ( (SIO.StreamWriter textWriter) => {
+		              	configuration.Serialize(textWriter);
+		              	return F.Nothing.Value;
+		              }
+		            )
+		          )
+		     )
+		   )
+		   .Combine<STT.Task>(STT.Task.CompletedTask);
 	}
 }

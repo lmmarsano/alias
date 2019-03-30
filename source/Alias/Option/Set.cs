@@ -1,6 +1,7 @@
 ﻿using S = System;
 using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
+using System.Linq;
 using CL = CommandLine;
 using F = Functional;
 using static Functional.Extension;
@@ -36,6 +37,16 @@ namespace Alias.Option {
 		public Command Command { get; }
 		[CL.Value(2, HelpText = @"Arguments alias invokes with command.")]
 		public Arguments Arguments { get; }
+		/**
+		 * <summary>
+		 * Arguments as nullable, space separated argument string as the serializer requires.
+		 * </summary>
+		 * <value>An argument string or null (no arguments).</value>
+		 */
+		public string? ArgumentString
+		=> Arguments.Any()
+		 ? string.Join(' ', Arguments.Select(Utility.SafeQuote))
+		 : null;
 		/// <inheritdoc/>
 		public override F.Result<AbstractOption> Validation
 		=> Utility.ValidateFileName(Name)
