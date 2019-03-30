@@ -297,6 +297,30 @@ namespace Functional {
 		   .Unwrap();
 		/**
 		 * <summary>
+		 * Map exceptions in faulted or cancelled tasks to tasks and flatten.
+		 * </summary>
+		 * <param name="@this">A task.</param>
+		 * <param name="map">Map from aggregate exceptions to tasks.</param>
+		 * <returns>For successful tasks, the same task. Otherwise, the image for the exception resulting from the unsuccessful task.</returns>
+		 */
+		public static STT.Task CatchAsync(this STT.Task @this, S.Func<S.AggregateException, STT.Task> map)
+		=> @this.ContinueWith
+		   ( (STT.Task task)
+		     => task.IsCompletedSuccessfully
+		      ? task
+		      : map
+		        ( task.Exception
+		       ?? new S.AggregateException
+		          ( Enumerable.Append
+		            ( Enumerable.Empty<STT.TaskCanceledException>()
+		            , new STT.TaskCanceledException(task)
+		            )
+		          )
+		        )
+		   )
+		   .Unwrap();
+		/**
+		 * <summary>
 		 * Map exceptions in unsuccessful tasks.
 		 * </summary>
 		 * <param name="@this">Task.</param>
@@ -307,6 +331,16 @@ namespace Functional {
 		public static STT.Task<T> SelectErrorAsync<T>(this STT.Task<T> @this, S.Func<S.AggregateException, S.Exception> map)
 		where T: object
 		=> @this.CatchAsync(error => STT.Task.FromException<T>(map(error)));
+		/**
+		 * <summary>
+		 * Map exceptions in unsuccessful tasks.
+		 * </summary>
+		 * <param name="@this">Task.</param>
+		 * <param name="map">Exception map.</param>
+		 * <returns>For successful task, no change. Otherwise, task faulting with mapped exception.</returns>
+		 */
+		public static STT.Task SelectErrorAsync(this STT.Task @this, S.Func<S.AggregateException, S.Exception> map)
+		=> @this.CatchAsync(error => STT.Task.FromException(map(error)));
 		/**
 		 * <summary>
 		 * Filter task by yielded value, mapping rejected tasks to faulted tasks.
