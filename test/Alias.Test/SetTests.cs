@@ -7,6 +7,7 @@ using Xunit;
 using M = Moq;
 using F = Functional;
 using static Functional.Extension;
+using A = Alias;
 using AT = Alias.Test;
 using AO = Alias.Option;
 using Name = System.String;
@@ -42,7 +43,7 @@ namespace Alias.Test {
 		public async STT.Task SetTest(Name name, Command command, Arguments arguments) {
 			var mock = new M.Mock<IOperation>();
 			var option = new AO.Set(name, command, arguments);
-			mock.Setup(op => op.Set(M.It.IsAny<AO.Set>())).Returns(AT.Fixture.FakeTasks.ExitSuccess);
+			mock.Setup(op => op.Set(M.It.IsAny<AO.Set>())).Returns(A.Utility.TaskExitSuccess);
 			Assert.Equal(ExitCode.Success, await AT.Utility.FromOk(option.Operate(mock.Object)));
 			mock.Verify(op => op.Set(option));
 		}

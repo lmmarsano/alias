@@ -5,6 +5,8 @@ using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
 using Xunit;
 using System.Linq;
+using AT = Alias.Test;
+using ATF = Alias.Test.Fixture;
 using AC = Alias.Configuration;
 using NJL = Newtonsoft.Json.Linq;
 
@@ -13,9 +15,7 @@ namespace Alias.Test {
 		const string _newline = @"
 ";
 		public static string NormalizeLineEnd(string input)
-		=> _newline == S.Environment.NewLine
-		 ? input
-		 : input.Replace(_newline, S.Environment.NewLine);
+		=> AT.Utility.NormalizeLineEnd(_newline, input);
 		public static TheoryData<string> DeserializesToNullData
 		= new TheoryData<string>
 		  { @"{}"
@@ -49,42 +49,8 @@ namespace Alias.Test {
 			&& actual is AC.CommandEntry { Command: "command", Arguments: "arguments" }
 			);
 		}
-		static AC.Configuration ToConfiguration(SCG.IEnumerable<(string Alias, string Command, string? Arguments)> entries)
-		=> new AC.Configuration
-		   ( entries
-		     .Select(tuple => new SCG.KeyValuePair<string, AC.CommandEntry>(tuple.Alias, new AC.CommandEntry(tuple.Command, tuple.Arguments)))
-		     .ToDictionary(kv => kv.Key, kv => kv.Value)
-		   );
-		public static TheoryData<string, AC.Configuration> SerializationData
-		=> new TheoryData<string, AC.Configuration>
-		   { { NormalizeLineEnd
-		       ( @"{
-	""binding"": {}
-}"
-		       )
-		     , ToConfiguration(Enumerable.Empty<(string, string, string?)>())
-		     }
-		   , { NormalizeLineEnd
-		       ( @"{
-	""binding"": {
-		""alias-arguments"": {
-			""command"": ""command"",
-			""arguments"": ""arguments""
-		},
-		""alias-no-arguments"": {
-			""command"": ""command""
-		}
-	}
-}"
-		       )
-		     , ToConfiguration
-		       ( new []
-		         { ( @"alias-arguments", @"command", @"arguments")
-		         , ( @"alias-no-arguments", @"command", null)
-		         }
-		       )
-		     }
-		   };
+		public static TheoryData<string, AC.Configuration> SerializationData { get; }
+		= ATF.Sample.SerializationData;
 		[Theory]
 		[MemberData(nameof(SerializationData))]
 		public void Serializes(string expected, AC.Configuration sut) {

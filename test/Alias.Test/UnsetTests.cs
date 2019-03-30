@@ -6,6 +6,7 @@ using System.Linq;
 using Xunit;
 using M = Moq;
 using F = Functional;
+using A = Alias;
 using AO = Alias.Option;
 using AT = Alias.Test;
 using Name = System.String;
@@ -25,7 +26,7 @@ namespace Alias.Test {
 		public async STT.Task UnsetTest(Name name) {
 			var mock = new M.Mock<IOperation>();
 			var option = new AO.Unset(name);
-			mock.Setup(op => op.Unset(M.It.IsAny<AO.Unset>())).Returns(AT.Fixture.FakeTasks.ExitSuccess);
+			mock.Setup(op => op.Unset(M.It.IsAny<AO.Unset>())).Returns(A.Utility.TaskExitSuccess);
 			Assert.Equal(ExitCode.Success, await AT.Utility.FromOk(option.Operate(mock.Object)));
 			mock.Verify(op => op.Unset(option));
 		}

@@ -26,16 +26,6 @@ namespace Alias.Test {
 		  , { @"reset", new[] { @"reset" } }
 		  , { @"restore", new[] { @"restore" } }
 		  };
-		public static TheoryData<Arguments> ParseFailsData { get; }
-		= new TheoryData<Arguments>
-		  { new string[] {}
-		  , new string?[] {null}
-		  , new [] {@""}
-		  , new [] {@"-"}
-		  , new [] {@"set"}
-		  , new [] {@"set", @"name"}
-		  , new [] {@"unset"}
-		  };
 		[Theory]
 		[MemberData(nameof(ParseSucceedsData))]
 		public void ParseSucceeds(string unparse, Arguments arguments) {
@@ -49,6 +39,16 @@ namespace Alias.Test {
 					break;
 			};
 		}
+		public static TheoryData<Arguments> ParseFailsData { get; }
+		= new TheoryData<Arguments>
+		  { new string[] {}
+		  , new string?[] {null}
+		  , new [] {@""}
+		  , new [] {@"-"}
+		  , new [] {@"set"}
+		  , new [] {@"set", @"name"}
+		  , new [] {@"unset"}
+		  };
 		[Theory]
 		[MemberData(nameof(ParseFailsData))]
 		public void ParseFails(Arguments arguments) {

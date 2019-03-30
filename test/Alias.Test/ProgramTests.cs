@@ -47,7 +47,7 @@ namespace Alias.Test {
 		[Theory]
 		[MemberData(nameof(EntryData))]
 		public async STT.Task EntryTest(ExitCode expectedExitCode, string expectedOut, string expectedError, string name, Arguments arguments) {
-			var fake = new ATF.FakeTextFile
+			using var fake = new ATF.FakeTextFile
 			( string.Empty
 			, string.Empty
 			,
@@ -59,8 +59,9 @@ namespace Alias.Test {
   }
 }"
 			);
-			using var environment = new ATF.FakeEnvironment(new ATF.FakeFile(name, string.Empty).Mock.Object, arguments, fake.Mock.Object, MockEffect.Object, S.Environment.CurrentDirectory, string.Empty);
-			Assert.Equal(expectedExitCode, await Program.Entry(() => environment));
+			using var fakeFileDisposable = new ATF.FakeFile(name, string.Empty);
+			using var environment = new ATF.FakeEnvironment(fakeFileDisposable.Mock.Object, arguments, fake.Mock.Object, MockEffect.Object, S.Environment.CurrentDirectory, string.Empty);
+			Assert.Equal(expectedExitCode, await Program.Entry(() => environment.Mock.Object));
 			Assert.Equal(expectedOut, environment.StreamOut.ToString());
 			Assert.Equal(expectedError, environment.StreamError.ToString());
 		}

@@ -63,7 +63,7 @@ namespace Alias.Option.Test {
 			Assert.IsType<F.Just<AO.External>>(maybeOption);
 			var option = ((F.Just<AO.External>)maybeOption).Value;
 			mock.Setup(op => op.External(M.It.IsAny<AO.External>()))
-			.Returns(AT.Fixture.FakeTasks.ExitSuccess);
+			.Returns(Utility.TaskExitSuccess);
 			Assert.Equal(ExitCode.Success, await AT.Utility.FromOk(option.Operate(mock.Object)));
 			mock.Verify(op => op.External(option));
 		}
