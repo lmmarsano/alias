@@ -132,6 +132,20 @@ An executable is built under `source\Alias\bin\Debug\netcoreapp3.0`.
 Set-Location -Path alias source\Alias\bin\Debug\netcoreapp3.0
 .\Alias.exe
 ```
+
+# Demo
+Try it out by running the demo script
+```PowerShell
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+.\Demo.ps1
+.\Alias list
+# cowsay.exe
+# mklink.exe
+```
+and running the generated executables.
+- `mklink.exe` calls the link creation command from the `cmd.exe` environment
+- `cowsay.exe` echos back a cow saying your command arguments
+
 # To Do
 Include file system operations to link/copy/remove the alias executable as configuration mode edits `alias.conf`.
 

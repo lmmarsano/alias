@@ -15,9 +15,9 @@
 		<PackageTags>console</PackageTags>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="CommandLineParser" Version="2.4.3" />
-		<PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-		<PackageReference Include="System.Security.Permissions" Version="4.5.0" />
+		<PackageReference Include="CommandLineParser" Version="*" />
+		<PackageReference Include="Newtonsoft.Json" Version="*" />
+		<PackageReference Include="System.Security.Permissions" Version="*" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Functional\Functional.csproj" />
