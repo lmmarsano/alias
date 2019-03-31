@@ -1,7 +1,7 @@
 ﻿using S = System;
+using SD = System.Diagnostics;
 using SIO = System.IO;
 using SCG = System.Collections.Generic;
-using SRA = System.Reflection.Assembly;
 using F = Functional;
 
 namespace Alias {
@@ -41,13 +41,15 @@ namespace Alias {
 			} catch (System.Exception error) {
 				throw TerminalFileException.CurrentDirectoryUnavailable(ConfigurationFilePath, error);
 			}
-			var appPath = SRA.GetEntryAssembly().Location;
-			// Accessing the assembly’s properties shouldn’t raise exceptions: shouldn’t be dynamic.
-			ApplicationFile = GetFileInfo(appPath);
-			ApplicationDirectory = SIO.Path.GetDirectoryName(appPath);
+			using (var currentProcess = SD.Process.GetCurrentProcess())
+			using (var mainModule = currentProcess.MainModule) {
+				// No exceptions should get thrown on a process necessarily running to execute this code.
+				ApplicationFile = GetFileInfo(mainModule.FileName);
+			}
+			ApplicationName = ApplicationFile.Name;
+			ApplicationDirectory = ApplicationFile.DirectoryName;
 			ConfigurationFilePath = SIO.Path.Combine(ApplicationDirectory, _configurationFileName);
 			ConfigurationFile = GetFileInfo(ConfigurationFilePath);
-			ApplicationName = SIO.Path.GetFileName(appPath);
 			Arguments = arguments;
 		}
 		/**

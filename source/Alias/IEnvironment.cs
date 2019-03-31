@@ -18,13 +18,6 @@ namespace Alias {
 		 */
 		SCG.IEnumerable<string> Arguments { get; }
 		/**
-		 * <summary>Path to the configuration file.</summary>
-		 * <value>The configuration file path, which normally shares parent directory with the application.</value>
-		 */
-		string ConfigurationFilePath { get; }
-		/// <summary>Configuration file information.</summary>
-		IFileInfo ConfigurationFile { get; }
-		/**
 		<summary>Application’s working directory.</summary>
 		<value>Fully qualified path of the current working directory.</value>
 		 */
@@ -56,6 +49,13 @@ namespace Alias {
 		 * </summary>
 		 * <value>An instance providing methods producing effects.</value>
 		 */
+		/**
+		 * <summary>Path to the configuration file.</summary>
+		 * <value>The configuration file path, which normally shares parent directory with the application.</value>
+		 */
+		string ConfigurationFilePath { get; }
+		/// <summary>Configuration file information.</summary>
+		IFileInfo ConfigurationFile { get; }
 		IEffect Effect { get; }
 	}
 }
