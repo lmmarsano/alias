@@ -1,12 +1,7 @@
-﻿using S = System;
-using SCG = System.Collections.Generic;
-using SIO = System.IO;
+﻿using SCG = System.Collections.Generic;
 using Xunit;
-using A = Alias;
 using F = Functional;
-using Functional;
 using CL = CommandLine;
-using System.Linq;
 using CommandLine;
 
 namespace Alias.Test {

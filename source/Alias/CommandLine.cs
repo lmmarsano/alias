@@ -6,7 +6,6 @@ using CL = CommandLine;
 using CommandLine;
 using AO = Alias.Option;
 using F = Functional;
-using Functional;
 
 namespace Alias {
 	class CommandLine {

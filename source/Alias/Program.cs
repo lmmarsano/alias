@@ -1,19 +1,15 @@
 ﻿using S = System;
 using STT = System.Threading.Tasks;
-using static System.Threading.Tasks.TaskExtensions;
 using SRC = System.Runtime.CompilerServices;
 using SIO = System.IO;
 using SCG = System.Collections.Generic;
-using SSP = System.Security.Permissions;
-using System.Linq;
 using F = Functional;
 using static Functional.Extension;
-using CL = CommandLine;
 using AC = Alias.Configuration;
 using AO = Alias.Option;
 
 [assembly: SRC.InternalsVisibleTo("DynamicProxyGenAssembly2")
-         , SRC.InternalsVisibleTo("Alias.Test")
+				 , SRC.InternalsVisibleTo("Alias.Test")
 ]
 namespace Alias {
 	public enum ExitCode
@@ -62,7 +58,8 @@ namespace Alias {
 		   , _ => throw UnhandledCaseException.Error
 		   };
 		static S.Func<SIO.TextReader, STT.Task<F.Maybe<AC.Configuration>>> DeserializeMap(SIO.Stream fileStream)
-		=> async textReader => {
+		=> async textReader
+		=> {
 			using (fileStream)
 			using (textReader)
 			return (await AC.Configuration.DeserializeAsync(textReader)).ToMaybe();

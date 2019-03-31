@@ -1,6 +1,4 @@
 using S = System;
-using SIO = System.IO;
-using M = Moq;
 
 namespace Alias.Test.Fixture {
 	class FakeTextFile: FakeFile {

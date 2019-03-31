@@ -1,8 +1,6 @@
 #nullable enable
-using SCG = System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using M = Moq;
 
 namespace Alias.Test {
 	public class EnvironmentTests {

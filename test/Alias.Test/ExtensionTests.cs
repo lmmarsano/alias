@@ -1,7 +1,6 @@
 #nullable enable
 using S = System;
 using STT = System.Threading.Tasks;
-using SCG = System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using M = Moq;

@@ -1,6 +1,5 @@
 ﻿using SCG = System.Collections.Generic;
 using SIO = System.IO;
-using F = Functional;
 
 namespace Alias {
 	interface IEnvironment {

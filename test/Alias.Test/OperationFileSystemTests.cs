@@ -1,22 +1,13 @@
 #nullable enable
 using S = System;
 using SCG = System.Collections.Generic;
-using SIO = System.IO;
-using STT = System.Threading.Tasks;
 using Xunit;
 using System.Linq;
 using M = Moq;
-using F = Functional;
-using A = Alias;
-using AT = Alias.Test;
 using ATF = Alias.Test.Fixture;
-using AO = Alias.Option;
-using Directory = System.String;
-using Command = System.String;
 using Argument = System.String;
 
 namespace Alias.Test {
-	using Arguments = SCG.IEnumerable<Argument>;
 	public class OperationFileSystemTests : S.IDisposable {
 		readonly M.Mock<IEffect> _mockEffect;
 		readonly ATF.FakeFile _fakeApp;

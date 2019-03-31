@@ -3,7 +3,6 @@ using STT = System.Threading.Tasks;
 using CL = CommandLine;
 using Name = System.String;
 using F = Functional;
-using static Functional.Extension;
 
 namespace Alias.Option {
 	/**
@@ -19,8 +18,8 @@ namespace Alias.Option {
 		public override F.Result<AbstractOption> Validation
 		=> Utility.ValidateFileName(Name)
 		   .SelectError(InvalidOptionException.InvalidAliasName(nameof(Unset), nameof(Name), Name))
-			 .Combine(F.Factory.Result<AbstractOption>(this))
-			 ;
+		   .Combine(F.Factory.Result<AbstractOption>(this))
+		   ;
 		/**
 		 * <summary>
 		 * Construct parsed options for unset verb.

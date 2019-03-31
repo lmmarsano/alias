@@ -4,7 +4,6 @@ using STT = System.Threading.Tasks;
 using System.Linq;
 using CL = CommandLine;
 using F = Functional;
-using static Functional.Extension;
 using Name = System.String;
 using Command = System.String;
 using Argument = System.String;

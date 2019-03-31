@@ -2,7 +2,6 @@
 using SIO = System.IO;
 using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
-using System.Linq;
 using Xunit;
 using M = Moq;
 using F = Functional;
@@ -12,7 +11,6 @@ using AT = Alias.Test;
 using Name = System.String;
 
 namespace Alias.Test {
-	using Arguments = SCG.IEnumerable<string>;
 	public class UnsetTests {
 		public static TheoryData<Name> InvalidData { get; }
 		= new TheoryData<Name>{@"", SIO.Path.DirectorySeparatorChar.ToString()};

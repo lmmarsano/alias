@@ -6,7 +6,6 @@ using Xunit;
 using M = Moq;
 using F = Functional;
 using AT = Alias.Test;
-using static Alias.Test.Utility;
 using AO = Alias.Option;
 using AC = Alias.Configuration;
 using Command = System.String;

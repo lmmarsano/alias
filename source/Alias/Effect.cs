@@ -2,7 +2,6 @@ using S = System;
 using SIO = System.IO;
 using SD = System.Diagnostics;
 using STT = System.Threading.Tasks;
-using static System.Threading.Tasks.TaskExtensions;
 using F = Functional;
 using static Functional.Extension;
 using AC = Alias.Configuration;

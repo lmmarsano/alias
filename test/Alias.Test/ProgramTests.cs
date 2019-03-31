@@ -2,11 +2,8 @@
 using S = System;
 using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
-using System.Linq;
 using Xunit;
 using M = Moq;
-using F = Functional;
-using static Functional.Extension;
 using ATF = Alias.Test.Fixture;
 
 namespace Alias.Test {

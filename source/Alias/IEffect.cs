@@ -1,6 +1,3 @@
-using S = System;
-using SIO = System.IO;
-using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
 using F = Functional;
 using AC = Alias.Configuration;

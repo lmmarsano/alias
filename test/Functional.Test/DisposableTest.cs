@@ -1,5 +1,4 @@
 using S = System;
-using STT = System.Threading.Tasks;
 using Xunit;
 
 namespace Functional.Test {

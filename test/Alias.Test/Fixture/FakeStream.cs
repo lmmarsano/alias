@@ -1,4 +1,3 @@
-using S = System;
 using SIO = System.IO;
 
 namespace Alias.Test.Fixture {

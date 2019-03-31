@@ -6,7 +6,6 @@ using System.Linq;
 using Xunit;
 using M = Moq;
 using F = Functional;
-using static Functional.Extension;
 using A = Alias;
 using AT = Alias.Test;
 using AO = Alias.Option;

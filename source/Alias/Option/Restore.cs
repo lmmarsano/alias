@@ -2,7 +2,6 @@
 using STT = System.Threading.Tasks;
 using CL = CommandLine;
 using F = Functional;
-using static Functional.Extension;
 
 namespace Alias.Option {
 	/**

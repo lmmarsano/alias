@@ -4,7 +4,7 @@ using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
 using STRE = System.Text.RegularExpressions;
 using F = Functional;
-using Functional;
+using static Functional.Extension;
 using System.Linq;
 
 namespace Alias {
@@ -66,17 +66,17 @@ namespace Alias {
 		 */
 		public static F.Result<string> ValidateFileName(string fileName)
 		=> fileName
-			 .ToResult(() => new S.ArgumentNullException(nameof(fileName), @"Null file name."))
-			 .Where
-				( fileName => !(string.IsNullOrWhiteSpace(fileName) || IllegalFileNames.Contains(fileName))
-				, fileName => new S.ArgumentException(@"Invalid file name.", nameof(fileName))
-				)
-			 .Combine(F.Factory.Try(() => SIO.Path.GetFileName(fileName)))
-			 .Where
-				( name => name == fileName
-				, fileName => new S.ArgumentException(@"Invalid file name.", nameof(fileName))
-				)
-			 ;
+		   .ToResult(() => new S.ArgumentNullException(nameof(fileName), @"Null file name."))
+		   .Where
+		   	( fileName => !(string.IsNullOrWhiteSpace(fileName) || IllegalFileNames.Contains(fileName))
+		   	, fileName => new S.ArgumentException(@"Invalid file name.", nameof(fileName))
+		   	)
+		   .Combine(F.Factory.Try(() => SIO.Path.GetFileName(fileName)))
+		   .Where
+		   	( name => name == fileName
+		   	, fileName => new S.ArgumentException(@"Invalid file name.", nameof(fileName))
+		   	)
+		   ;
 		/**
 		 * <summary>
 		 * Quote and escape raw string only if necessary.

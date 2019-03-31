@@ -1,13 +1,9 @@
 using S = System;
-using SIO = System.IO;
-using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
 using Xunit;
-using System.Linq;
 using AT = Alias.Test;
 using ATF = Alias.Test.Fixture;
 using AC = Alias.Configuration;
-using NJL = Newtonsoft.Json.Linq;
 
 namespace Alias.Test {
 	public class EffectTests {

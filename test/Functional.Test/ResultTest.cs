@@ -1,7 +1,6 @@
 using Xunit;
 using S = System;
 using STT = System.Threading.Tasks;
-using System.Linq;
 
 namespace Functional.Test {
 	public class ResultTest {

@@ -1,10 +1,8 @@
-using S = System;
 using SCG = System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using AT = Alias.Test;
 using AC = Alias.Configuration;
-using Command = System.String;
 
 namespace Alias.Test.Fixture {
 	public class Sample {

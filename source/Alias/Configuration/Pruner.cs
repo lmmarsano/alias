@@ -1,4 +1,3 @@
-using S = System;
 using SCG = System.Collections.Generic;
 using System.Linq;
 

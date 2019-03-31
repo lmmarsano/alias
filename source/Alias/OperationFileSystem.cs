@@ -1,8 +1,6 @@
 using S = System;
 using SIO = System.IO;
 using STT = System.Threading.Tasks;
-using static System.Threading.Tasks.TaskExtensions;
-using System.Linq;
 using F = Functional;
 using static Functional.Extension;
 using AO = Alias.Option;

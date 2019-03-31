@@ -2,7 +2,6 @@
 using STT = System.Threading.Tasks;
 using Xunit;
 using M = Moq;
-using F = Functional;
 using A = Alias;
 using AT = Alias.Test;
 using AO = Alias.Option;

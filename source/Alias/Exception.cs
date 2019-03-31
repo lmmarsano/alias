@@ -4,11 +4,8 @@ using SSP = System.Security.Permissions;
 using SCG = System.Collections.Generic;
 using NJL = Newtonsoft.Json.Linq;
 using F = Functional;
-using static Functional.Extension;
 
 namespace Alias {
-	using System.Threading.Tasks;
-	using Alias.Configuration;
 	using Alias.Option;
 	using Arguments = SCG.IEnumerable<string>;
 	/**

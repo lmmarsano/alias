@@ -3,7 +3,6 @@ using SCG = System.Collections.Generic;
 using SIO = System.IO;
 using M = Moq;
 using Path = System.String;
-using Name = System.String;
 
 namespace Alias.Test.Fixture {
 	using Arguments = SCG.IEnumerable<string>;
