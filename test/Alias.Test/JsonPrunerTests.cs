@@ -1,6 +1,6 @@
 #nullable enable
 using Xunit;
-using AC = Alias.Configuration;
+using AC = Alias.ConfigurationData;
 using NJL = Newtonsoft.Json.Linq;
 
 namespace Alias.Test {

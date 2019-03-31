@@ -3,7 +3,7 @@ using STT = System.Threading.Tasks;
 using Xunit;
 using AT = Alias.Test;
 using ATF = Alias.Test.Fixture;
-using AC = Alias.Configuration;
+using AC = Alias.ConfigurationData;
 
 namespace Alias.Test {
 	public class EffectTests {

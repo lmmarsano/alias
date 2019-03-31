@@ -3,7 +3,7 @@ using SCG = System.Collections.Generic;
 using NJL = Newtonsoft.Json.Linq;
 using System.Linq;
 
-namespace Alias.Configuration {
+namespace Alias.ConfigurationData {
 	/**
 	 * <summary>
 	 * Static methods for pruning and filtering out null, undefined, and empty collection tokens, and for rebuilding JSON Linq tokens from enumerated children.

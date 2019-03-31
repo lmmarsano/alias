@@ -1,23 +1,20 @@
 #nullable enable
 using S = System;
-using SCG = System.Collections.Generic;
 using SIO = System.IO;
 using STT = System.Threading.Tasks;
 using System.Linq;
 using NJ = Newtonsoft.Json;
 using Name = System.String;
-using Command = System.String;
-using Arguments = System.String;
 using NJL = Newtonsoft.Json.Linq;
 
-namespace Alias.Configuration {
-	using Binding = SCG.IDictionary<Name, CommandEntry>;
+namespace Alias.ConfigurationData {
+	// using Binding = SCG.IDictionary<Name, CommandEntry>;
 	/**
 	<summary>
 		Application-wide configuration including bindings from alias names to command entries.
 	</summary>
 	*/
-	public class Configuration {
+	public class Configuration: S.IEquatable<Configuration> {
 		[NJ.JsonProperty("binding")]
 		/**
 		<summary>
@@ -37,7 +34,7 @@ namespace Alias.Configuration {
 			(x => !( string.IsNullOrWhiteSpace(x.Key)
 			      || string.IsNullOrWhiteSpace(x.Value.Command)
 			       )
-			).ToDictionary(x => x.Key.Trim(), x => x.Value);
+			).ToBinding(x => x.Key.Trim(), x => x.Value);
 		}
 		/**
 		 * <summary>
@@ -101,91 +98,13 @@ namespace Alias.Configuration {
 			using var jsonWriter = Converter.ToJsonWriter(writer);
 			await NJL.JToken.FromObject(this).WriteToAsync(jsonWriter);
 		}
-	}
-	/**
-	 * <summary>
-	 * Components of a command invocation: command & optional arguments.
-	 * </summary>
-	 */
-	public class CommandEntry {
-		/**
-		<summary>
-			Command to execute.
-		</summary>
-		<value>A command without arguments.</value>
-		*/
-		[NJ.JsonProperty("command")]
-		public Command Command { get; set; }
-		/**
-		<summary>
-			Command arguments.
-		</summary>
-		<value>Arguments for a command.</value>
-		*/
-		[NJ.JsonProperty("arguments")]
-		public Arguments? Arguments { get; set; }
-		/**
-		<summary>
-			Initialize a <c cref='CommandEntry'>command entry</c>.
-		</summary>
-		<param name="command">A commandline with arguments.</param>
-		*/
-		public CommandEntry(Command command, Arguments? arguments) {
-			Command = command.Trim();
-			Arguments = string.IsNullOrWhiteSpace(arguments)
-			          ? null
-			          : arguments.Trim();
-		}
-		/// <inheritdoc/>
-		public override string ToString()
-		=> Utility.SafeQuote(Command)
-		 + ( string.IsNullOrWhiteSpace(Arguments)
-		   ? string.Empty
-		   : @" " + Arguments
-		   );
-		public bool Equals(CommandEntry commandEntry)
-		=> Command == commandEntry.Command
-		&& Arguments == commandEntry.Arguments;
-		public override bool Equals(object obj)
-		=> obj is CommandEntry commandEntry
-		&& Equals(commandEntry);
-		public override int GetHashCode() => S.HashCode.Combine(Command, Arguments);
-	}
-	public static class Converter {
 		/**
 		 * <summary>
-		 * <see cref='NJ.JsonSerializerSettings'/> to skip default value serialization, ignore nulls for (de)serialization, ignore meta data properties, indent serializations, and throw <see cref='SerializerException'/> on errors.
+		 * Equality predicate.
 		 * </summary>
+		 * <param name="other">A <see cref='Configuration'/>.</param>
+		 * <returns>Truth value.</returns>
 		 */
-		public static readonly NJ.JsonSerializerSettings Settings = new NJ.JsonSerializerSettings
-		{ DefaultValueHandling = NJ.DefaultValueHandling.Ignore
-		, Formatting = NJ.Formatting.Indented
-		, NullValueHandling = NJ.NullValueHandling.Ignore
-		, MetadataPropertyHandling = NJ.MetadataPropertyHandling.Ignore
-		, Error = (sender, args) => {
-		  	if (sender == args.ErrorContext.OriginalObject) {
-		  		throw SerializerException.Failure(args.ErrorContext.Path, args.ErrorContext.Error);
-		  	}
-		  }
-		};
-		public static NJ.JsonSerializer JsonSerializer { get; } = NJ.JsonSerializer.Create(Settings);
-		public static NJL.JsonLoadSettings JsonLoadSettings { get; }
-		= new NJL.JsonLoadSettings()
-		  { DuplicatePropertyNameHandling = NJL.DuplicatePropertyNameHandling.Error };
-		/**
-		 * <summary>
-		 * Transform a <see cref='SIO.TextWriter'/> to a tab indenting <see cref='NJ.JsonWriter'/>.
-		 * </summary>
-		 * <param name="writer">A <see cref='SIO.TextWriter'/>.</param>
-		 * <returns>A tab indenting <see cref='NJ.JsonWriter'/>.</returns>
-		 */
-		public static NJ.JsonWriter ToJsonWriter(SIO.TextWriter writer)
-		=> new NJ.JsonTextWriter(writer)
-		   { Formatting = NJ.Formatting.Indented
-		   , IndentChar = '	'
-		   , Indentation = 1
-		   };
-		public static T Deserialize<T>(string value)
-		=> NJ.JsonConvert.DeserializeObject<T>(value, Settings);
+		public bool Equals(Configuration other) => Binding.Equals(other.Binding);
 	}
 }

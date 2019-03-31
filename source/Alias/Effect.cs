@@ -4,7 +4,7 @@ using SD = System.Diagnostics;
 using STT = System.Threading.Tasks;
 using F = Functional;
 using static Functional.Extension;
-using AC = Alias.Configuration;
+using AC = Alias.ConfigurationData;
 using Command = System.String;
 using Arguments = System.String;
 using WorkingDirectory = System.String;

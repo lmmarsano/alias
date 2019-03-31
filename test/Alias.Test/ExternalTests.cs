@@ -7,7 +7,7 @@ using M = Moq;
 using F = Functional;
 using AT = Alias.Test;
 using AO = Alias.Option;
-using AC = Alias.Configuration;
+using AC = Alias.ConfigurationData;
 using Command = System.String;
 using Argument = System.String;
 
@@ -16,7 +16,7 @@ namespace Alias.Option.Test {
 	public class ExternalTests {
 		static AC.Configuration Configuration { get; }
 		= new AC.Configuration
-		  ( new SCG.Dictionary<Command, AC.CommandEntry>(5)
+		  ( new AC.Binding(5)
 			  { { @"alias0", new AC.CommandEntry(string.Empty, null) }
 				, { @"alias1", new AC.CommandEntry(@"command", null) }
 				, { @"alias2", new AC.CommandEntry(@"command", string.Empty) }

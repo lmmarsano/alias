@@ -1,7 +1,7 @@
 using SCG = System.Collections.Generic;
 using System.Linq;
 
-namespace Alias.Configuration {
+namespace Alias.ConfigurationData {
 	/**
 	 * <summary>
 	 * Operation to fold over a recursive data structure containing <c cref='SCG.IEnumerable{T}'>enumerables over T</c>.

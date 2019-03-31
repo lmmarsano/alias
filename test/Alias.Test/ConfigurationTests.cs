@@ -1,10 +1,11 @@
 #nullable enable
 using SIO = System.IO;
 using SCG = System.Collections.Generic;
+using STT = System.Threading.Tasks;
 using Xunit;
 using AT = Alias.Test;
 using ATF = Alias.Test.Fixture;
-using AC = Alias.Configuration;
+using AC = Alias.ConfigurationData;
 using NJL = Newtonsoft.Json.Linq;
 
 namespace Alias.Test {
@@ -13,39 +14,30 @@ namespace Alias.Test {
 ";
 		public static string NormalizeLineEnd(string input)
 		=> AT.Utility.NormalizeLineEnd(_newline, input);
-		public static TheoryData<string> DeserializesToNullData
-		= new TheoryData<string>
-		  { @"{}"
-		  , @"{ ""binding"" : null }"
-		  , @"{ ""binding"" : {} }"
-		  , @"{ ""binding"" : { ""name"": null } }"
-		  , @"{ ""binding"" : { ""name"": {} } }"
-		  , @"{ ""binding"" : { ""name"": { ""command"": null } } }"
-		  , @"{ ""binding"" : { ""name"": { ""command"": null, ""arguments"": null } } }"
+		public static async STT.Task<AC.Configuration?> FromString(string input) {
+			using var reader = new SIO.StringReader(input);
+			return await AC.Configuration.DeserializeAsync(reader);
+		}
+		public static TheoryData<AC.Configuration?, string> DeserializesData
+		= new TheoryData<AC.Configuration?, string>
+		  { {null, @"{}"}
+		  , {null, @"{ ""binding"" : null }"}
+		  , {null, @"{ ""binding"" : {} }"}
+		  , {null, @"{ ""binding"" : { ""name"": null } }"}
+		  , {null, @"{ ""binding"" : { ""name"": {} } }"}
+		  , {null, @"{ ""binding"" : { ""name"": { ""command"": null } } }"}
+		  , {null, @"{ ""binding"" : { ""name"": { ""command"": null, ""arguments"": null } } }"}
+		  , { new AC.Configuration(new AC.Binding(1) {{"name", new AC.CommandEntry("value", null)}})
+		    , @"{ ""binding"" : { ""name"": { ""command"": ""value"" } } }"
+		    }
+		  , { new AC.Configuration(new AC.Binding(1) {{"name", new AC.CommandEntry("command", "arguments")}})
+		    , @"{ ""binding"" : { ""name"": { ""command"": ""command"", ""arguments"": ""arguments"" } } }"
+		    }
 		  };
 		[Theory]
-		[MemberData(nameof(DeserializesToNullData))]
-		public static void DeserializesToNull(string input) {
-			Assert.Null(AC.Configuration.Deserialize(new SIO.StringReader(input)));
-		}
-		[Fact]
-		public void NonEmptyBindingDeserializes() {
-			var target = AC.Configuration.FromJsonLinq(NJL.JToken.Parse(@"{ ""binding"" : { ""name"": { ""command"": ""value"" } } }"));
-			Assert.True
-			( target is AC.Configuration { Binding: SCG.IDictionary<string, AC.CommandEntry> { Count: 1 } binding }
-			&& binding.TryGetValue("name", out var actual)
-			&& actual is AC.CommandEntry { Command: "value", Arguments: null }
-			);
-		}
-		[Fact]
-		public void FullBindingDeserializes() {
-			var target = AC.Configuration.FromJsonLinq(NJL.JToken.Parse(@"{ ""binding"" : { ""name"": { ""command"": ""command"", ""arguments"": ""arguments"" } } }"));
-			Assert.True
-			( target is AC.Configuration { Binding: SCG.IDictionary<string, AC.CommandEntry> { Count: 1 } binding }
-			&& binding.TryGetValue("name", out var actual)
-			&& actual is AC.CommandEntry { Command: "command", Arguments: "arguments" }
-			);
-		}
+		[MemberData(nameof(DeserializesData))]
+		public static async STT.Task Deserializes(AC.Configuration expected, string input)
+		=> Assert.Equal(expected, await FromString(input));
 		public static TheoryData<string, AC.Configuration> SerializationData { get; }
 		= ATF.Sample.SerializationData;
 		[Theory]

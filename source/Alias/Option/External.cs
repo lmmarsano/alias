@@ -2,7 +2,7 @@ using S = System;
 using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
 using System.Linq;
-using AC = Alias.Configuration;
+using AC = Alias.ConfigurationData;
 using F = Functional;
 using static Functional.Extension;
 using Command = System.String;

@@ -3,7 +3,7 @@ using System.Linq;
 using F = Functional;
 using static Functional.Extension;
 using AO = Alias.Option;
-using AC = Alias.Configuration;
+using AC = Alias.ConfigurationData;
 
 namespace Alias {
 	/**

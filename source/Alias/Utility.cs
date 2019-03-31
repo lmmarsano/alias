@@ -94,5 +94,23 @@ namespace Alias {
 			     ? $@"""{EndBackslashRegEx.Replace(partial, @"$1$1")}"""
 			     : partial;
 		}
+		/**
+		 * <summary>
+		 * Equality predicate for dictionaries.
+		 * </summary>
+		 * <param name="a">A dictionary.</param>
+		 * <param name="b">A dictionary.</param>
+		 * <typeparam name="TKey">Key type.</typeparam>
+		 * <typeparam name="TValue">Value type.</typeparam>
+		 * <returns>True if and only if key-value pairs equal.</returns>
+		 */
+		public static bool Equals<TKey, TValue>(SCG.IDictionary<TKey, TValue> a, SCG.IDictionary<TKey, TValue> b)
+		=> object.ReferenceEquals(a, b)
+		|| a.Count.Equals(b.Count)
+		&& a.All
+		   (element
+		    => b.TryGetValue(element.Key, out var value)
+		    && object.Equals(element.Value, value)
+		   );
 	}
 }

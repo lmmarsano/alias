@@ -2,7 +2,7 @@ using SCG = System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using AT = Alias.Test;
-using AC = Alias.Configuration;
+using AC = Alias.ConfigurationData;
 
 namespace Alias.Test.Fixture {
 	public class Sample {
@@ -10,9 +10,10 @@ namespace Alias.Test.Fixture {
 ";
 		static AC.Configuration ToConfiguration(SCG.IEnumerable<(string Alias, string Command, string? Arguments)> entries)
 		=> new AC.Configuration
-		   ( entries
-		     .Select(tuple => new SCG.KeyValuePair<string, AC.CommandEntry>(tuple.Alias, new AC.CommandEntry(tuple.Command, tuple.Arguments)))
-		     .ToDictionary(kv => kv.Key, kv => kv.Value)
+		   ( entries.ToBinding
+		     ( tuple => tuple.Alias
+		     , tuple => new AC.CommandEntry(tuple.Command, tuple.Arguments)
+		     )
 		   );
 		public static AC.Configuration Configuration { get; }
 		= ToConfiguration

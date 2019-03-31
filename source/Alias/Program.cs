@@ -5,7 +5,7 @@ using SIO = System.IO;
 using SCG = System.Collections.Generic;
 using F = Functional;
 using static Functional.Extension;
-using AC = Alias.Configuration;
+using AC = Alias.ConfigurationData;
 using AO = Alias.Option;
 
 [assembly: SRC.InternalsVisibleTo("DynamicProxyGenAssembly2")
@@ -80,7 +80,7 @@ namespace Alias {
 		static F.Result<STT.Task<ExitCode>> WithoutConfiguration(IEnvironment environment)
 		=> new CommandLine(environment.StreamError).Parse(environment.Arguments)
 		   .SelectMany
-		    (option => option.Operate(new Operation(environment, new AC.Configuration(new SCG.Dictionary<string, AC.CommandEntry>()))));
+		    (option => option.Operate(new Operation(environment, new AC.Configuration(new AC.Binding()))));
 		/**
 		 * <summary>
 		 * Attempt to lookup program name from configuration and run found associated command.

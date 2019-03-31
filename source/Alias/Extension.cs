@@ -4,8 +4,9 @@ using STT = System.Threading.Tasks;
 using SCG = System.Collections.Generic;
 using F = Functional;
 using static Functional.Extension;
-using AC = Alias.Configuration;
+using AC = Alias.ConfigurationData;
 using System.Linq;
+using Name = System.String;
 
 namespace Alias {
 	static class Extension {
@@ -96,6 +97,23 @@ namespace Alias {
 				@this.Start();
 			}
 			return @this;
+		}
+		/**
+		 * <summary>
+		 * Convert a sequence to a binding.
+		 * </summary>
+		 * <param name="@this">A sequence.</param>
+		 * <param name="nameSelector">Map from sequence item to name.</param>
+		 * <param name="commandEntrySelector">Map from sequence item to command entry.</param>
+		 * <typeparam name="T">Sequence item type.</typeparam>
+		 * <returns>A binding.</returns>
+		 */
+		public static AC.Binding ToBinding<T>(this SCG.IEnumerable<T> @this, S.Func<T, Name> nameSelector, S.Func<T, AC.CommandEntry> commandEntrySelector) {
+			var binding = new AC.Binding();
+			foreach (var item in @this) {
+				binding.Add(nameSelector(item), commandEntrySelector(item));
+			}
+			return binding;
 		}
 	}
 }
