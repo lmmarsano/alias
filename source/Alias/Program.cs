@@ -70,10 +70,9 @@ namespace Alias {
 		static STT.Task<ExitCode> WithMaybeConfiguration(IEnvironment environment, STT.Task<F.Maybe<AC.Configuration>> taskMaybeConfiguration)
 		=> taskMaybeConfiguration.SelectManyAsync
 		    ( maybeConfiguration
-		      => (maybeConfiguration switch
-		          { F.Just<AC.Configuration> justConfiguration => WithConfiguration(environment, justConfiguration.Value)
-		          , _ => WithoutConfiguration(environment)
-		          }
+		      => ( maybeConfiguration is F.Just<AC.Configuration>(var configuration)
+					   ? WithConfiguration(environment, configuration)
+		         : WithoutConfiguration(environment)
 		         )
 		         .Reduce(ErrorRenderMap(F.Factory.Maybe(environment), maybeConfiguration))
 		    );
@@ -99,10 +98,9 @@ namespace Alias {
 		    (() => AO.External.Parse(configuration, environment.ApplicationName))
 		   .SelectMany
 		    (maybeExternal
-		     => maybeExternal switch
-		        { F.Just<AO.External> justExternal => F.Factory.Result<AO.AbstractOption>(justExternal.Value)
-		        , _ => new CommandLine(environment.StreamError).Parse(environment.Arguments)
-		        }
+		     => maybeExternal is F.Just<AO.External>(var external)
+		      ? F.Factory.Result<AO.AbstractOption>(external)
+		      : new CommandLine(environment.StreamError).Parse(environment.Arguments)
 		    )
 		   .SelectMany(option => option.Operate(new Operation(environment, configuration)));
 	}

@@ -86,8 +86,8 @@ namespace Alias {
 		 * <returns>An error output stream.</returns>
 		 */
 		public static SIO.TextWriter GetErrorStream(F.Maybe<IEnvironment> maybeEnvironment)
-		=> maybeEnvironment is F.Just<IEnvironment> just
-		 ? just.Value.StreamError
+		=> maybeEnvironment is F.Just<IEnvironment>(var environment)
+		 ? environment.StreamError
 		 : S.Console.Error;
 	}
 }

@@ -55,9 +55,9 @@ namespace Alias.Configuration {
 		=> jToken switch
 		   { NJL.JArray _ => new NJL.JArray(enumerable)
 		   , NJL.JObject _ => new NJL.JObject(enumerable)
-		   , NJL.JProperty jProperty => new NJL.JProperty(jProperty.Name, enumerable.ElementAtOrDefault(0))
+		   , NJL.JProperty {Name: var name} => new NJL.JProperty(name, enumerable.ElementAtOrDefault(0))
 		   // jProperty = new JProperty(name, value) iff (jProperty.Name = name and jProperty.ElementAt(0) = value)
-		   , NJL.JConstructor jConstructor => new NJL.JConstructor(jConstructor.Name, enumerable)
+		   , NJL.JConstructor {Name: var name} => new NJL.JConstructor(name, enumerable)
 		   , NJL.JContainer _ => throw UnhandledJsonTokenException.GetUnknown(jToken)
 		   , _ => jToken
 		   };

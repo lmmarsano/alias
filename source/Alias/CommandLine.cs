@@ -44,7 +44,7 @@ namespace Alias {
 		   .SelectMany
 		    ( result
 		      => result switch
-		         { CL.Parsed<object> parsed => ((AO.AbstractOption)parsed.Value).Validation
+		         { CL.Parsed<object> {Value: AO.AbstractOption parsed} => parsed.Validation
 		         , _ when arguments.Intersect(_helpTokens).Any() => HelpException.HelpRequest // FIXME is there a better way? check demo
 		         , _ => F.Factory.Result<AO.AbstractOption>(UnparsableOptionException.Unparsable(arguments))
 		         }
