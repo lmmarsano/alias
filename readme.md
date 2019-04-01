@@ -112,8 +112,8 @@ The full path is only required as your system requires (eg, directory not in the
 string
 ```
 A single string containing arguments as you would enter them in the console.
-Escape `"` as `\"`.
-The command will be called with these arguments and any additional arguments pass through invocation.
+Escape `"` as `\"` and `\` as `\\`.
+The command will be called with these arguments and any additional arguments passed through invocation.
 
 # Development
 Install at least [.NET Core 3.0][dotnet], clone the repository, change into the directory, and build.
