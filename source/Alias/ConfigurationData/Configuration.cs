@@ -14,8 +14,10 @@ namespace Alias.ConfigurationData {
 		Application-wide configuration including bindings from alias names to command entries.
 	</summary>
 	*/
+#pragma warning disable CS0659 // overrides Object.Equals(object o) but does not override Object.GetHashCode()
 	public class Configuration: S.IEquatable<Configuration> {
 		[NJ.JsonProperty("binding")]
+#pragma warning restore CS0659
 		/**
 		<summary>
 			The configuration's bindings between alias names and command entries.
@@ -106,5 +108,7 @@ namespace Alias.ConfigurationData {
 		 * <returns>Truth value.</returns>
 		 */
 		public bool Equals(Configuration other) => Binding.Equals(other.Binding);
+		/// <inheritdoc/>
+		public override bool Equals(object obj) => (obj as Configuration)?.Equals(this) == true;
 	}
 }

@@ -50,8 +50,7 @@ namespace Alias.ConfigurationData {
 		=> Command == commandEntry.Command
 		&& Arguments == commandEntry.Arguments;
 		public override bool Equals(object obj)
-		=> obj is CommandEntry commandEntry
-		&& Equals(commandEntry);
+		=> (obj as CommandEntry)?.Equals(this) == true;
 		public override int GetHashCode() => S.HashCode.Combine(Command, Arguments);
 	}
 }
