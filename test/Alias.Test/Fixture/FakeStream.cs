@@ -7,6 +7,7 @@ namespace Alias.Test.Fixture {
 		public FakeStream(SIO.Stream stream) {
 			stream.CopyTo(this);
 			Stream = stream;
+			Position = 0;
 		}
 		public override void Close() {
 			if (awaitingCopy) {
