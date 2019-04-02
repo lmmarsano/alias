@@ -4,8 +4,8 @@ using SIO = System.IO;
 using STT = System.Threading.Tasks;
 using System.Linq;
 using NJ = Newtonsoft.Json;
-using Name = System.String;
 using NJL = Newtonsoft.Json.Linq;
+using Name = System.String;
 
 namespace Alias.ConfigurationData {
 	// using Binding = SCG.IDictionary<Name, CommandEntry>;
@@ -16,7 +16,6 @@ namespace Alias.ConfigurationData {
 	*/
 #pragma warning disable CS0659 // overrides Object.Equals(object o) but does not override Object.GetHashCode()
 	public class Configuration: S.IEquatable<Configuration> {
-		[NJ.JsonProperty("binding")]
 #pragma warning restore CS0659
 		/**
 		<summary>
@@ -24,7 +23,8 @@ namespace Alias.ConfigurationData {
 		</summary>
 		<value>An association of <c cref='Name'>names</c> with their <c cref='CommandEntry'>command entries</c>.</value>
 		*/
-		public Binding Binding { get; set; }
+		[NJ.JsonProperty("binding")]
+		public Binding Binding { get; }
 		/**
 		<summary>
 			Initialize an application <c cref='Configuration'>Configuration</c>.
@@ -53,24 +53,12 @@ namespace Alias.ConfigurationData {
 		}
 		/**
 		 * <summary>
-		 * Deserialize a <see cref='Configuration'/> object from <see cref='SIO.TextReader'/>.
-		 * </summary>
-		 * <param name="reader">Text input stream to deserialize.</param>
-		 * <returns>A configuration or <see cref="null"/> for empty configuration.</returns>
-		 * <exception cref="UnhandledJsonTokenException">An item with unhandled runtime type derived from <see cref='NJL.JContainer'/> was encountered as a JSON token read from <paramref name="reader"/>.</exception>
-		 */
-		// TODO deprecate
-		public static Configuration? Deserialize(SIO.TextReader reader) {
-			using var jsonReader = new NJ.JsonTextReader(reader);
-			return FromJsonLinq(NJL.JToken.ReadFrom(jsonReader, Converter.JsonLoadSettings));
-		}
-		/**
-		 * <summary>
 		 * Asynchronously deserialize a <see cref='Configuration'/> object from <see cref='SIO.TextReader'/>.
 		 * </summary>
 		 * <param name="reader">Text input stream to deserialize.</param>
 		 * <returns>A configuration or <see cref="null"/> for empty configuration.</returns>
 		 * <exception cref="UnhandledJsonTokenException">An item with unhandled runtime type derived from <see cref='NJL.JContainer'/> was encountered as a JSON token read from <paramref name="reader"/>.</exception>
+		 * <exception cref='NJ.JsonReaderException'>Unable to read JSON text.</exception>
 		 */
 		public static async STT.Task<Configuration?> DeserializeAsync(SIO.TextReader reader) {
 			using var jsonReader = new NJ.JsonTextReader(reader);
@@ -84,7 +72,7 @@ namespace Alias.ConfigurationData {
 		 * <exception cref="SerializerException">Configuration could not be serialized.</exception>
 		 */
 		// TODO deprecate
-		public void Serialize(SIO.TextWriter writer) {
+		public virtual void Serialize(SIO.TextWriter writer) {
 			using var jsonWriter = Converter.ToJsonWriter(writer);
 			Converter.JsonSerializer.Serialize(jsonWriter, this);
 		}
