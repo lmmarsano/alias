@@ -15,6 +15,11 @@ namespace Alias.Test {
 			Assert.IsType<F.Ok<T>>(@this);
 			return ((F.Ok<T>)@this).Value;
 		}
+		public static S.Exception FromError<T>(this F.Result<T> @this)
+		where T: object {
+			Assert.IsType<F.Error<T>>(@this);
+			return ((F.Error<T>)@this).Value;
+		}
 		public static STT.Task TaskFaulted
 		=> STT.Task.FromException(new S.Exception());
 		public static STT.Task<T> TaskFault<T>()
