@@ -117,9 +117,7 @@ namespace Functional {
 	public sealed class Ok<T>: Result<T>, S.IEquatable<Ok<T>> where T: object {
 		public static implicit operator Ok<T>(T value) => new Ok<T>(value);
 		public static implicit operator T(Ok<T> value) => value.Value;
-		public static bool operator ==(Ok<T> a, Ok<T> b)
-		=> object.ReferenceEquals(a, b)
-		|| a.Equals(b);
+		public static bool operator ==(Ok<T> a, Ok<T> b) => a.Equals(b);
 		public static bool operator !=(Ok<T> a, Ok<T> b) => !(a == b);
 		/**
 		 * <summary>
@@ -152,12 +150,12 @@ namespace Functional {
 		public override Result<T> Catch(S.Func<Error<T>, Result<T>> handler) => this;
 		public override T Reduce(T alternative) => Value;
 		public override T Reduce(S.Func<S.Exception, T> alternative) => Value;
-		public bool Equals(Ok<T> other) => Value!.Equals(other.Value);
+		public bool Equals(Ok<T> other)
+		=> object.ReferenceEquals(this, other)
+		|| Value.Equals(other.Value);
 		public override bool Equals(Result<T> other) => Equals((object)other);
-		public override bool Equals(object obj)
-		=> obj is Ok<T> ok
-		&& Equals(ok);
-		public override int GetHashCode() => Value!.GetHashCode();
+		public override bool Equals(object obj) => (obj as Ok<T>)?.Equals(this) == true;
+		public override int GetHashCode() => Value.GetHashCode();
 		public override SCG.IEnumerator<T> GetEnumerator() {
 			yield return Value;
 		}
@@ -177,9 +175,7 @@ namespace Functional {
 	public sealed class Error<T>: Result<T>, S.IEquatable<Error<T>> where T: object {
 		public static implicit operator Error<T>(S.Exception value) => new Error<T>(value);
 		public static implicit operator S.Exception(Error<T> value) => value.Value;
-		public static bool operator ==(Error<T> a, Error<T> b)
-		=> object.ReferenceEquals(a, b)
-		|| a.Equals(b);
+		public static bool operator ==(Error<T> a, Error<T> b) => a.Equals(b);
 		public static bool operator !=(Error<T> a, Error<T> b) => !(a == b);
 		/**
 		 * <summary>
@@ -209,11 +205,11 @@ namespace Functional {
 		public override Result<T> Catch(S.Func<Error<T>, Result<T>> handler) => handler(Value);
 		public override T Reduce(T alternative) => alternative;
 		public override T Reduce(S.Func<S.Exception, T> alternative) => alternative(Value);
-		public bool Equals(Error<T> other) => Value.Equals(other.Value);
+		public bool Equals(Error<T> other)
+		=> object.ReferenceEquals(this, other)
+		|| Value.Equals(other.Value);
 		public override bool Equals(Result<T> other) => Equals((object)other);
-		public override bool Equals(object obj)
-		=> obj is Error<T> error
-		&& Equals(error);
+		public override bool Equals(object obj) => (obj as Error<T>)?.Equals(this) == true;
 		public override int GetHashCode() => Value.GetHashCode();
 		public override SCG.IEnumerator<T> GetEnumerator() {
 			yield break;

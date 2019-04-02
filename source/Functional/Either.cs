@@ -135,9 +135,7 @@ namespace Functional {
 		where TRight: object {
 		public static implicit operator Left<TLeft, TRight>(TLeft left) => new Left<TLeft, TRight>(left);
 		public static implicit operator TLeft(Left<TLeft, TRight> left) => left.Value;
-		public static bool operator ==(Left<TLeft, TRight> a, Left<TLeft, TRight> b)
-		=> object.ReferenceEquals(a, b)
-		&& a.Equals(b);
+		public static bool operator ==(Left<TLeft, TRight> a, Left<TLeft, TRight> b) => a.Equals(b);
 		public static bool operator !=(Left<TLeft, TRight> a, Left<TLeft, TRight> b) => !(a == b);
 		/**
 		 * <summary>
@@ -169,11 +167,11 @@ namespace Functional {
 		public override TRight ReduceRight(TRight alternative) => alternative;
 		public override TRight ReduceRight(S.Func<TLeft, TRight> alternative) => alternative(Value);
 		public override Either<TLeft, TResult> OfType<TResult>(S.Func<TRight, TLeft> onError) => Value;
-		public bool Equals(Left<TLeft, TRight> other) => Value!.Equals(other.Value);
+		public bool Equals(Left<TLeft, TRight> other)
+		=> object.ReferenceEquals(this, other)
+		|| Value.Equals(other.Value);
 		public override bool Equals(Either<TLeft, TRight> other) => Equals((object)other);
-		public override bool Equals(object obj)
-		=> obj is Left<TLeft, TRight> left
-		&& Equals(left);
+		public override bool Equals(object obj) => (obj as Left<TLeft, TRight>)?.Equals(this) == true;
 		public override int GetHashCode()
 		=> Value is {}
 		 ? Value.GetHashCode()
@@ -193,9 +191,7 @@ namespace Functional {
 		where TRight: object {
 		public static implicit operator Right<TLeft, TRight>(TRight right) => new Right<TLeft, TRight>(right);
 		public static implicit operator TRight(Right<TLeft, TRight> right) => right.Value;
-		public static bool operator ==(Right<TLeft, TRight> a, Right<TLeft, TRight> b)
-		=> object.ReferenceEquals(a, b)
-		&& a.Equals(b);
+		public static bool operator ==(Right<TLeft, TRight> a, Right<TLeft, TRight> b) => a.Equals(b);
 		public static bool operator !=(Right<TLeft, TRight> a, Right<TLeft, TRight> b) => !(a == b);
 		/**
 		 * <summary>
@@ -230,12 +226,12 @@ namespace Functional {
 		=> Value is TResult right
 		 ? (Either<TLeft, TResult>)right
 		 : onError(Value);
-		public bool Equals(Right<TLeft, TRight> other) => Value!.Equals(other.Value);
+		public bool Equals(Right<TLeft, TRight> other)
+		=> object.ReferenceEquals(this, other)
+		|| Value.Equals(other.Value);
 		public override bool Equals(Either<TLeft, TRight> other) => Equals((object)other);
-		public override bool Equals(object obj)
-		=> obj is Right<TLeft, TRight> right
-		&& Equals(right);
-		public override int GetHashCode() => Value!.GetHashCode();
+		public override bool Equals(object obj) => (obj as Right<TLeft, TRight>)?.Equals(this) == true;
+		public override int GetHashCode() => Value.GetHashCode();
 		public override SCG.IEnumerator<TRight> GetEnumerator() {
 			yield return Value;
 		}

@@ -114,9 +114,7 @@ namespace Functional {
 	public sealed class Just<T>: Maybe<T>, S.IEquatable<Just<T>> where T: object {
 		public static implicit operator Just<T>(T value) => new Just<T>(value);
 		public static implicit operator T(Just<T> just) => just.Value;
-		public static bool operator ==(Just<T> a, Just<T> b)
-		=> object.ReferenceEquals(a, b)
-		|| a.Equals(b);
+		public static bool operator ==(Just<T> a, Just<T> b) => a.Equals(b);
 		public static bool operator !=(Just<T> a, Just<T> b) => !(a == b);
 		/**
 		 * <summary>
@@ -154,13 +152,14 @@ namespace Functional {
 		 ? (Maybe<TResult>)result
 		 : Nothing.Value;
 		// T is non-nullable
-		public bool Equals(Just<T> other) => Value!.Equals(other.Value);
+		public bool Equals(Just<T> other)
+		=> object.ReferenceEquals(this, other)
+		|| Value.Equals(other.Value);
 		public override bool Equals(Maybe<T> other) => Equals((object)other);
 		public override bool Equals(object obj)
-		=> obj is Just<T> just
-		&& Equals(just);
+		=> (obj as Just<T>)?.Equals(this) == true;
 		// T is non-nullable
-		public override int GetHashCode() => Value!.GetHashCode();
+		public override int GetHashCode() => Value.GetHashCode();
 		public override string ToString() => $"Just<{typeof(T)}>({Value})";
 	}
 	/**
