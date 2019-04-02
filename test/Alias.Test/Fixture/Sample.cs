@@ -8,22 +8,21 @@ namespace Alias.Test.Fixture {
 	public class Sample {
 		const string _newLine = @"
 ";
-		static AC.Configuration ToConfiguration(SCG.IEnumerable<(string Alias, string Command, string? Arguments)> entries)
+		public static AC.Configuration ToConfiguration(SCG.IEnumerable<(string Alias, string Command, string? Arguments)> entries)
 		=> new AC.Configuration
 		   ( entries.ToBinding
 		     ( tuple => tuple.Alias
 		     , tuple => new AC.CommandEntry(tuple.Command, tuple.Arguments)
 		     )
 		   );
-		public static AC.Configuration Configuration { get; }
-		= ToConfiguration
-		  ( new []
-		    { (@"alias0", @"command", null)
-		    , (@"alias1", @"command", @"arguments")
-		    , (@"alias2", @"command", @"arguments with spaces")
-		    , (@"spaced alias", @"spaced command", @"arguments")
-		    }
-		  );
+		public static SCG.IEnumerable<(string Alias, string Command, string? Arguments)> ConfigurationParameters { get; }
+		= new []
+		  { (@"alias0", @"command", null)
+		  , (@"alias1", @"command", @"arguments")
+		  , (@"alias2", @"command", @"arguments with spaces")
+		  , (@"spaced alias", @"spaced command", @"arguments")
+		  };
+		public static AC.Configuration Configuration { get; } = ToConfiguration(ConfigurationParameters);
 		public static AC.Configuration EmptyConfiguration { get; }
 		= ToConfiguration(Enumerable.Empty<(string, string, string?)>());
 		static string NormalizeLineEnd(string input)

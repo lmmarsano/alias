@@ -1,12 +1,11 @@
 #nullable enable
 using SIO = System.IO;
-using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
 using Xunit;
 using AT = Alias.Test;
 using ATF = Alias.Test.Fixture;
 using AC = Alias.ConfigurationData;
-using NJL = Newtonsoft.Json.Linq;
+using NJ = Newtonsoft.Json;
 
 namespace Alias.Test {
 	public class ConfigurationTests {
@@ -18,26 +17,21 @@ namespace Alias.Test {
 			using var reader = new SIO.StringReader(input);
 			return await AC.Configuration.DeserializeAsync(reader);
 		}
-		public static TheoryData<AC.Configuration?, string> DeserializesData
-		= new TheoryData<AC.Configuration?, string>
-		  { {null, @"{}"}
-		  , {null, @"{ ""binding"" : null }"}
-		  , {null, @"{ ""binding"" : {} }"}
-		  , {null, @"{ ""binding"" : { ""name"": null } }"}
-		  , {null, @"{ ""binding"" : { ""name"": {} } }"}
-		  , {null, @"{ ""binding"" : { ""name"": { ""command"": null } } }"}
-		  , {null, @"{ ""binding"" : { ""name"": { ""command"": null, ""arguments"": null } } }"}
-		  , { new AC.Configuration(new AC.Binding(1) {{"name", new AC.CommandEntry("value", null)}})
-		    , @"{ ""binding"" : { ""name"": { ""command"": ""value"" } } }"
-		    }
-		  , { new AC.Configuration(new AC.Binding(1) {{"name", new AC.CommandEntry("command", "arguments")}})
-		    , @"{ ""binding"" : { ""name"": { ""command"": ""command"", ""arguments"": ""arguments"" } } }"
-		    }
-		  };
+		[Fact]
+		public static void EqualsTest() {
+			Assert.Equal(ATF.Sample.Configuration, ATF.Sample.ToConfiguration(ATF.Sample.ConfigurationParameters));
+		}
 		[Theory]
-		[MemberData(nameof(DeserializesData))]
-		public static async STT.Task Deserializes(AC.Configuration expected, string input)
+		[ClassData(typeof(ATF.DeserializesData))]
+		public async STT.Task Deserializes(AC.Configuration expected, string input)
 		=> Assert.Equal(expected, await FromString(input));
+		[Theory]
+		[ClassData(typeof(ATF.InvalidJson))]
+		public STT.Task DeserializeFail(string input)
+		=> FromString(input).ContinueWith(task => {
+		   	Assert.Equal(STT.TaskStatus.Faulted, task.Status);
+		   	Assert.IsType<NJ.JsonReaderException>(task.Exception.InnerException);
+		   });
 		public static TheoryData<string, AC.Configuration> SerializationData { get; }
 		= ATF.Sample.SerializationData;
 		[Theory]
