@@ -1,6 +1,8 @@
 ﻿using SCG = System.Collections.Generic;
+using System.Linq;
 using Xunit;
 using F = Functional;
+using AT = Alias.Test;
 using CL = CommandLine;
 using CommandLine;
 
@@ -24,20 +26,25 @@ namespace Alias.Test {
 		[Theory]
 		[MemberData(nameof(ParseSucceedsData))]
 		public void ParseSucceeds(string unparse, Arguments arguments) {
-			switch (Parse(arguments)) {
-				case F.Ok<Option.AbstractOption> value:
-					Assert.Equal(unparse, CL.Parser.Default.FormatCommandLine(value.Value));
-					break;
-				case var value:
-					Assert.IsType<F.Ok<Option.AbstractOption>>(value);
-					Assert.True(false);
-					break;
-			};
+			Assert.Equal(unparse, CL.Parser.Default.FormatCommandLine(AT.Utility.FromOk(Parse(arguments))));
+		}
+		public static TheoryData<Arguments> ParsePassesData { get; }
+		= new TheoryData<Arguments>
+		  { Enumerable.Empty<string>()
+		  , new string[] { @"help" }
+		  , new string[] { @"--help" }
+		  , new string[] { @"version" }
+		  , new string[] { @"--version" }
+		  };
+		[Theory]
+		[MemberData(nameof(ParsePassesData))]
+		public void ParsePasses(Arguments arguments) {
+			var parse = Parse(arguments);
+			Assert.IsType<F.Ok<Option.AbstractOption>>(parse);
 		}
 		public static TheoryData<Arguments> ParseFailsData { get; }
 		= new TheoryData<Arguments>
-		  { new string[] {}
-		  , new string?[] {null}
+		  { new string?[] {null}
 		  , new [] {@""}
 		  , new [] {@"-"}
 		  , new [] {@"set"}
@@ -49,7 +56,7 @@ namespace Alias.Test {
 		public void ParseFails(Arguments arguments) {
 			var parse = Parse(arguments);
 			Assert.IsType<F.Error<Option.AbstractOption>>(parse);
-			Assert.IsType<UnparsableOptionException>(((F.Error<Option.AbstractOption>)parse).Value);
+			Assert.IsType<UnparsableOptionException>(AT.Utility.FromError(parse));
 		}
 		[Fact]
 		public void ParseEmptyTest() {

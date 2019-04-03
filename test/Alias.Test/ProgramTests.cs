@@ -18,6 +18,27 @@ namespace Alias.Test {
 		static readonly string _defaultOutput = NormalizeLineEnd(@"testhost 16.0.1
 © Microsoft Corporation. All rights reserved.
 
+ERROR(S):
+  No verb selected.
+
+  list       List aliases.
+
+  reset      Remove all aliases.
+
+  restore    Recreate file system for configured aliases.
+
+  set        Add or change an alias.
+
+  unset      Remove configured alias.
+
+  help       Display more information on a specific command.
+
+  version    Display version information.
+
+");
+		static readonly string _helpOutput = NormalizeLineEnd(@"testhost 16.0.1
+© Microsoft Corporation. All rights reserved.
+
   list       List aliases.
 
   reset      Remove all aliases.
@@ -43,10 +64,10 @@ namespace Alias.Test {
 		public static TheoryData<ExitCode, string, string, string, string, Arguments> EntryData
 		= new TheoryData<ExitCode, string, string, string, string, Arguments>
 		  { { ExitCode.Error, string.Empty, _defaultOutput, _configuration, @"alias", Enumerable.Empty<string>() }
-			, { ExitCode.Error, string.Empty, _defaultOutput, _configuration, @"alias", new [] {@"help"} }
-			, { ExitCode.Error, string.Empty, NormalizeLineEnd(@"Unable to process file: directory\alias.conf
+		  , { ExitCode.Success, string.Empty, _helpOutput, _configuration, @"alias", new [] {@"help"} }
+		  , { ExitCode.Error, string.Empty, NormalizeLineEnd(@"Unable to process file: directory\alias.conf
 Unexpected end of content while loading JObject. Path 'binding', line 1, position 12.
-"), @"{ ""binding"":", @"alias", new [] {@"help"} }
+"), @"{ ""binding"":", @"alias", Enumerable.Empty<string>() }
 		  };
 		[Theory]
 		[MemberData(nameof(EntryData))]
