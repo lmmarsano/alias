@@ -25,8 +25,8 @@ namespace Alias.Test {
 		public static TheoryData<string, string?> CommandEntryInequalityData { get; }
 		= new TheoryData<string, string?>
 		  { {string.Empty, "."}
-			, {".", null}
-			};
+		  , {".", null}
+		  };
 		[Theory]
 		[MemberData(nameof(CommandEntryInequalityData))]
 		public void CommandEntryInequality(string command, string? arguments)

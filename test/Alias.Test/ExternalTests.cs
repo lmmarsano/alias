@@ -17,20 +17,20 @@ namespace Alias.Option.Test {
 		static AC.Configuration Configuration { get; }
 		= new AC.Configuration
 		  ( new AC.Binding(5)
-			  { { @"alias0", new AC.CommandEntry(string.Empty, null) }
-				, { @"alias1", new AC.CommandEntry(@"command", null) }
-				, { @"alias2", new AC.CommandEntry(@"command", string.Empty) }
-				, { @"alias3", new AC.CommandEntry(@"command", @"arguments") }
-				, { @"alias4", new AC.CommandEntry(@"alias3", @"more arguments") }
-				}
-			);
+		    { { @"alias0", new AC.CommandEntry(string.Empty, null) }
+		    , { @"alias1", new AC.CommandEntry(@"command", null) }
+		    , { @"alias2", new AC.CommandEntry(@"command", string.Empty) }
+		    , { @"alias3", new AC.CommandEntry(@"command", @"arguments") }
+		    , { @"alias4", new AC.CommandEntry(@"alias3", @"more arguments") }
+		    }
+		  );
 		public static TheoryData<Command, Arguments, uint> ParseAcceptsData { get; }
 		= new TheoryData<Command, Arguments, uint>
 		  { {@"command", Enumerable.Empty<string>(), 1}
-			, {@"command", Enumerable.Empty<string>(), 2}
-			, {@"command", new [] {@"arguments"}, 3}
-			, {@"alias3", new [] {@"more arguments"}, 4}
-			};
+		  , {@"command", Enumerable.Empty<string>(), 2}
+		  , {@"command", new [] {@"arguments"}, 3}
+		  , {@"alias3", new [] {@"more arguments"}, 4}
+		  };
 		[Theory]
 		[MemberData(nameof(ParseAcceptsData))]
 		public void ParseAcceptsTest(Command expectedCommand, Arguments expectedArguments, uint index) {

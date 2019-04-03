@@ -19,16 +19,16 @@ namespace Alias.Test {
 		public static TheoryData<Name, Command, Arguments> InvalidData { get; }
 		= new TheoryData<Name, Command, Arguments>
 		  { {@"", @"", Empty}
-			, {@"alias", @"", Empty}
-			, {SIO.Path.DirectorySeparatorChar.ToString(), @"command", Empty}
-			, {@"alias", "\0", Empty}
-			};
+		  , {@"alias", @"", Empty}
+		  , {SIO.Path.DirectorySeparatorChar.ToString(), @"command", Empty}
+		  , {@"alias", "\0", Empty}
+		  };
 		public static TheoryData<Name, Command, Arguments> ValidData { get; }
 		= new TheoryData<Name, Command, Arguments>
 		  { {@"alias", @"command", Empty}
-			, {@"alias", @"command", new [] {@"argument"}}
-			, {@"alias", @"command", Enumerable.Repeat(@"argument", 2)}
-			};
+		  , {@"alias", @"command", new [] {@"argument"}}
+		  , {@"alias", @"command", Enumerable.Repeat(@"argument", 2)}
+		  };
 		[Theory]
 		[MemberData(nameof(InvalidData)), MemberData(nameof(ValidData))]
 		public void CtorTest(Name name, Command command, Arguments arguments) {

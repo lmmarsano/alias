@@ -23,9 +23,9 @@ namespace Alias.Test {
 		= new TheoryData<string>
 		  { @"-"
 		  , @"name"
-			, SIO.Path.Combine(@"path", @"name")
-			, @"."
-			, @".."
+		  , SIO.Path.Combine(@"path", @"name")
+		  , @"."
+		  , @".."
 		  };
 		public static TheoryData<string?> ValidatePathRejectsData { get; }
 		= new TheoryData<string?>
@@ -51,13 +51,13 @@ namespace Alias.Test {
 		public static TheoryData<string, string> SafeQuoteData { get; }
 		= new TheoryData<string, string>
 		  { {@""" """, @" "}
-			, {@"\""", @""""}
-			, {@"\", @"\"}
-			, {@""" \""""", @" """}
-			, {@"\\\""", @"\"""}
-			, {@""" \\""", @" \"}
-			, {@"""\ \\""", @"\ \"}
-			};
+		  , {@"\""", @""""}
+		  , {@"\", @"\"}
+		  , {@""" \""""", @" """}
+		  , {@"\\\""", @"\"""}
+		  , {@""" \\""", @" \"}
+		  , {@"""\ \\""", @"\ \"}
+		  };
 		[Theory]
 		[MemberData(nameof(SafeQuoteData))]
 		public void SafeQuoteTest(string expected, string input) => Assert.Equal(expected, A.Utility.SafeQuote(input));
