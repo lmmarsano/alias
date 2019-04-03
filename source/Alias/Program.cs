@@ -35,40 +35,15 @@ namespace Alias {
 		=> F.Factory.Try(getEnvironment)
 		   .Select(WithEnvironment)
 		   .Reduce(ErrorRenderMap(F.Nothing.Value, F.Nothing.Value));
-		public static STT.Task<ExitCode> WithEnvironment(IEnvironment environment)
-		=> TryGetConfiguration(environment.ConfigurationFile).Select
-		   (taskMaybeConfiguration => WithMaybeConfiguration(environment, taskMaybeConfiguration))
-		   .Reduce(ErrorRenderMap(F.Factory.Maybe(environment), F.Nothing.Value));
-		private static F.Result<STT.Task<F.Maybe<AC.Configuration>>> TryGetConfiguration(IFileInfo file)
-		=> F.Factory.Try(() => file.OpenAsync(SIO.FileMode.Open, SIO.FileAccess.Read)) switch
-			 { F.Ok<SIO.Stream>(var fileStream)
-		     => F.Factory.Try
-		         ( () => new SIO.StreamReader(fileStream)
-		         , TerminalFileException.ReadErrorMap(file.FullName)
-		         )
-		        .Catch(result => {
-		         	fileStream.Dispose();
-		         	return result;
-		         })
-		        .Select(DeserializeMap(fileStream))
-		   , F.Error<SIO.Stream>(var error)
-		     => error is SIO.FileNotFoundException _
-		      ? F.Factory.Result(STT.Task.FromResult((F.Maybe<AC.Configuration>)F.Nothing.Value))
-		      : TerminalFileException.ReadErrorMap(file.FullName)(error)
-		   , _ => throw UnhandledCaseException.Error
-		   };
-		static S.Func<SIO.TextReader, STT.Task<F.Maybe<AC.Configuration>>> DeserializeMap(SIO.Stream fileStream)
-		=> async textReader
-		=> {
-			using (fileStream)
-			using (textReader)
-			return (await AC.Configuration.DeserializeAsync(textReader)).ToMaybe();
-		};
-		static STT.Task<ExitCode> WithMaybeConfiguration(IEnvironment environment, STT.Task<F.Maybe<AC.Configuration>> taskMaybeConfiguration)
+		static STT.Task<ExitCode> WithEnvironment(IEnvironment environment)
+		=> environment.Effect.TryGetConfiguration(environment.ConfigurationFile)
+		   .Select(WithMaybeConfiguration(environment))
+		static S.Func<STT.Task<F.Maybe<AC.Configuration>>, STT.Task<ExitCode>> WithMaybeConfiguration(IEnvironment environment)
+		=> taskMaybeConfiguration
 		=> taskMaybeConfiguration.SelectManyAsync
 		    ( maybeConfiguration
 		      => ( maybeConfiguration is F.Just<AC.Configuration>(var configuration)
-					   ? WithConfiguration(environment, configuration)
+		         ? WithConfiguration(environment, configuration)
 		         : WithoutConfiguration(environment)
 		         )
 		         .Reduce(ErrorRenderMap(F.Factory.Maybe(environment), maybeConfiguration))

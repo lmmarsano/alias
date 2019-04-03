@@ -112,5 +112,29 @@ namespace Alias {
 		    => b.TryGetValue(element.Key, out var value)
 		    && object.Equals(element.Value, value)
 		   );
+		/**
+		 * <summary>
+		 * Compile error messages into a string.
+		 * </summary>
+		 * <param name="error">An exception.</param>
+		 * <returns>Merged error messages.</returns>
+		 */
+		public static string GetErrorMessage(S.Exception error) {
+			var stringBuilder = new S.Text.StringBuilder();
+			var stack = new SCG.Stack<S.Exception>();
+			for (stack.Push(error); stack.Any(); error = stack.Pop()) {
+				if (error is S.AggregateException { InnerExceptions: var aggregate }) {
+					foreach (var item in aggregate) {
+						stack.Push(item);
+					}
+				} else {
+					stringBuilder.AppendLine(error.Message);
+					if (error.InnerException is S.Exception inner) {
+						stack.Push(inner);
+					}
+				}
+			}
+			return stringBuilder.ToString();
+		}
 	}
 }

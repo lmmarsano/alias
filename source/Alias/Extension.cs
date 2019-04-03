@@ -12,7 +12,7 @@ namespace Alias {
 	static class Extension {
 		public static STT.Task DisplayMessage(this ITerminalException @this, F.Maybe<IEnvironment> maybeEnvironment, F.Maybe<AC.Configuration> maybeConfiguration)
 		=> @this is S.Exception error
-		 ? Environment.GetErrorStream(maybeEnvironment).WriteAsync(GetErrorMessage(error))
+		 ? Environment.GetErrorStream(maybeEnvironment).WriteAsync(Utility.GetErrorMessage(error))
 		 : STT.Task.CompletedTask;
 		public static STT.Task DisplayMessage(this S.Exception @this, F.Maybe<IEnvironment> maybeEnvironment, F.Maybe<AC.Configuration> maybeConfiguration)
 		=> @this switch
@@ -25,23 +25,6 @@ namespace Alias {
 		   , ITerminalException exception => exception.DisplayMessage(maybeEnvironment, maybeConfiguration)
 		   , _ => STT.Task.CompletedTask
 		   };
-		static string GetErrorMessage(S.Exception error) {
-			var stringBuilder = new S.Text.StringBuilder();
-			var stack = new SCG.Stack<S.Exception>();
-			for (stack.Push(error); stack.Any(); error = stack.Pop()) {
-				if (error is S.AggregateException { InnerExceptions: var aggregate }) {
-					foreach (var item in aggregate) {
-						stack.Push(item);
-					}
-				} else {
-					stringBuilder.AppendLine(error.Message);
-					if (error.InnerException is S.Exception inner) {
-						stack.Push(inner);
-					}
-				}
-			}
-			return stringBuilder.ToString();
-		}
 		/**
 		 * <summary>
 		 * Map errors/failures of possible tasks.

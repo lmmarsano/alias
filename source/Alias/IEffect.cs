@@ -23,6 +23,17 @@ namespace Alias {
 		F.Result<STT.Task> DeleteFile(IFileInfo file);
 		/**
 		 * <summary>
+		 * Attempt to retrieve the configuration. If the configuration is missing, yield nothing.
+		 * </summary>
+		 * <param name="file">File containing configuration.</param>
+		 * <returns>Possible task retrieving an optional configuration.</returns>
+		 * <exception cref="TerminalFileException">The file exists and cannot be read.</exception>
+		 * <exception cref="DeserialException">Processing file into configuration fails.</exception>
+		 * <exception cref='UnhandledCaseException'>An alternative that shouldn’t exist occurred.</exception>
+		 */
+		F.Result<STT.Task<F.Maybe<AC.Configuration>>> TryGetConfiguration(IFileInfo file);
+		/**
+		 * <summary>
 		 * Write configuration to file.
 		 * </summary>
 		 * <param name="configuration">Alias configuration.</param>

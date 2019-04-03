@@ -186,5 +186,32 @@ namespace Alias {
 		     )
 		   )
 		   .Combine<STT.Task>(STT.Task.CompletedTask);
+		/// <inheritdoc/>
+		public F.Result<STT.Task<F.Maybe<AC.Configuration>>> TryGetConfiguration(IFileInfo file)
+		=> F.Factory.Try(() => file.OpenAsync(SIO.FileMode.Open, SIO.FileAccess.Read)) switch
+		   { F.Ok<SIO.Stream>(var fileStream)
+		     => F.Factory.Try
+		         ( () => new SIO.StreamReader(fileStream)
+		         , error => {
+		           	fileStream.Dispose();
+		           	return TerminalFileException.ReadErrorMap(file.FullName, error);
+		           }
+		         )
+		        .Select
+		         (textReader
+		          => Deserialize(fileStream, textReader)
+		             .SelectErrorAsync(DeserialException.FailureMap(file))
+		         )
+		   , F.Error<SIO.Stream>(var error)
+		     => error is SIO.FileNotFoundException _
+		      ? F.Factory.Result(STT.Task.FromResult((F.Maybe<AC.Configuration>)F.Nothing.Value))
+		      : TerminalFileException.ReadErrorMap(file.FullName, error)
+		   , _ => UnhandledCaseException.Error
+		   };
+		static async STT.Task<F.Maybe<AC.Configuration>> Deserialize(SIO.Stream fileStream, SIO.TextReader textReader) {
+			using (fileStream)
+			using (textReader)
+			return (await AC.Configuration.DeserializeAsync(textReader)).ToMaybe();
+		}
 	}
 }
