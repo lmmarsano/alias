@@ -39,7 +39,7 @@ namespace Alias {
 		 * <param name="configuration">Alias configuration.</param>
 		 * <param name="file">Configuration file.</param>
 		 * <returns>Resulting task to write configuration.</returns>
-		 * <exception cref="OperationIOException">Unable to write configuration to file.</exception>
+		 * <exception cref="TerminalFileException">Unable to write configuration to file.</exception>
 		 * <exception cref="SerializerException">Unable to serialize configuration.</exception>
 		 */
 		F.Result<STT.Task> WriteConfiguration(AC.Configuration configuration, IFileInfo file);

@@ -190,9 +190,6 @@ namespace Alias {
 		public static S.Func<S.Exception, OperationIOException> ReadErrorMap(string destination)
 		=> (error)
 		=> new OperationIOException(destination, SSP.FileIOPermissionAccess.Read, "Unable to open file for reading.", error);
-		public static S.Func<S.Exception, OperationIOException> WriteErrorMap(string destination)
-		=> (error)
-		=> new OperationIOException(destination, SSP.FileIOPermissionAccess.Write, "Unable to write configuration file.", error);
 		public static S.Func<S.Exception, OperationIOException> CreateErrorMap(string destination)
 		=> (error)
 		=> new OperationIOException(destination, SSP.FileIOPermissionAccess.Write, "Unable to create file for writing.", error);

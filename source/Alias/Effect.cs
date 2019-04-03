@@ -170,7 +170,7 @@ namespace Alias {
 		public F.Result<STT.Task> WriteConfiguration(AC.Configuration configuration, IFileInfo file)
 		=> F.Factory.Try
 		   ( file.CreateStream
-		   , OperationIOException.WriteErrorMap(file.FullName)
+		   , TerminalFileException.WriteErrorMap(file.FullName)
 		   )
 		   .SelectMany
 		   ( F.Disposable.UsingMap
