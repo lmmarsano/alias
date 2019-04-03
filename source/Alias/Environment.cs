@@ -31,7 +31,7 @@ namespace Alias {
 		/// <inheritdoc/>
 		public IEffect Effect { get; } = new Effect();
 		/**
-		 * <summary>Initialize properties about the application path and name, configuration path and file  information, and main arguments.</summary>
+		 * <summary>Initialize properties about the application path and name, configuration path and file information, and main arguments.</summary>
 		 * <param name="arguments">Main arguments.</param>
 		 * <exception cref="TerminalFileException">Failure accessing application/configuration file information or current directory.</exception>
 		 */
@@ -53,7 +53,7 @@ namespace Alias {
 			Arguments = arguments;
 		}
 		/**
-		 * <summary>Initialize properties about the application path and name, configuration path and file  information, main arguments, and IO streams.</summary>
+		 * <summary>Initialize properties about the application path and name, configuration path and file information, main arguments, and IO streams.</summary>
 		 * <param name="arguments">Main arguments.</param>
 		 * <param name="streamIn">Input stream.</param>
 		 * <param name="streamOut">Output stream.</param>
