@@ -203,12 +203,6 @@ namespace Alias {
 		=> (error)
 		=> new OperationIOException(destination, SSP.FileIOPermissionAccess.Write, "Unable to access file for deletion.", error);
 	}
-	class HelpException: S.Exception, INonTerminalException {
-		public static HelpException HelpRequest { get; } = new HelpException(@"Help requested.");
-		public HelpException() {}
-		public HelpException(string message): base(message) {}
-		public HelpException(string message, S.Exception inner): base(message, inner) {}
-	}
 	/**
 	 * <summary>
 	 * Exception for an argument containing invalid data.

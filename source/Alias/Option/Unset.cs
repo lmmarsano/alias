@@ -1,6 +1,8 @@
 ﻿using S = System;
+using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
 using CL = CommandLine;
+using CLT = CommandLine.Text;
 using Name = System.String;
 using F = Functional;
 
@@ -12,8 +14,13 @@ namespace Alias.Option {
 	 */
 	[CL.Verb(@"unset", HelpText = @"Remove configured alias.")]
 	sealed class Unset: AbstractOption, S.IEquatable<Unset> {
-		[CL.Value(0, Required = true, HelpText = @"Alias name.")]
+		[CL.Value(0, MetaName = @"name", Required = true, HelpText = @"Alias name.")]
 		public Name Name { get; }
+		[CLT.Usage]
+		public static SCG.IEnumerable<CLT.Example> Example { get; }
+		= new CLT.Example[]
+		  { new CLT.Example(@"Remove mklink.exe as an alias", new Unset(@"mklink.exe"))
+		  };
 		/// <inheritdoc/>
 		public override F.Result<AbstractOption> Validation
 		=> Utility.ValidateFileName(Name)

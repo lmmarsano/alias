@@ -3,6 +3,7 @@ using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
 using System.Linq;
 using CL = CommandLine;
+using CLT = CommandLine.Text;
 using F = Functional;
 using Name = System.String;
 using Command = System.String;
@@ -30,12 +31,22 @@ namespace Alias.Option {
 	 */
 	[CL.Verb(@"set", HelpText = @"Add or change an alias.")]
 	sealed class Set: AbstractOption, S.IEquatable<Set> {
-		[CL.Value(0, Required = true, HelpText = @"Name for the alias.")]
+		[CL.Value(0, MetaName = @"name", Required = true, HelpText = @"Name for the alias.")]
 		public Name Name { get; }
-		[CL.Value(1, Required = true, HelpText = @"Command the alias invokes.")]
+		[CL.Value(1, MetaName = @"command", Required = true, HelpText = @"Command the alias invokes.")]
 		public Command Command { get; }
-		[CL.Value(2, HelpText = @"Arguments alias invokes with command.")]
+		[CL.Value(2, MetaName = @"arguments", HelpText = @"Arguments alias invokes with command.")]
 		public Arguments Arguments { get; }
+		/**
+		 * <summary>
+		 * Usage examples.
+		 * </summary>
+		 */
+		[CLT.Usage]
+		public static SCG.IEnumerable<CLT.Example> Example { get; }
+		= new CLT.Example[]
+		  { new CLT.Example(@"Set mklink.exe as an alias to mklink built into cmd", new Set(@"mklink.exe", @"cmd", new [] {@"/c", @"mklink"}))
+			};
 		/**
 		 * <summary>
 		 * Arguments as nullable, space separated argument string as the serializer requires.
