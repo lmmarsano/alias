@@ -16,19 +16,39 @@ namespace Alias {
 	}
 	class Program {
 		static async STT.Task<int> Main(string[] args) {
-			/*
-			read configuration (from file or default)
-			if current name is configured, then run configured command with passed in arguments
-			otherwise, process arguments & return validity
-			- valid: dispatch command
-				- set name
-				- unset name
-				- reset all
-				- restore
-			- invalid: display help & exit with error
-			 */
 			 return (int)await Entry(() => new Environment(args));
 		}
+		/**
+		 * <summary>
+		 * <para>
+		 * Entry point to entire program.
+		 * Load an environment.
+		 * Read the configuration.
+		 * If current name is configured, then run configured command with passed in arguments.
+		 * Otherwise, process arguments, and return validity
+		 * </para>
+		 * <list>
+		 * <item>
+		 * <term>valid</term>
+		 * <description>
+		 * <para>dispatch command</para>
+		 * <list>
+		 * <item><description>set name</description></item>
+		 * <item><description>unset name</description></item>
+		 * <item><description>reset all</description></item>
+		 * <item><description>restore</description></item>
+		 * </list>
+		 * </description>
+		 * </item>
+		 * <item>
+		 * <term>invalid</term>
+		 * <description>display help and exit with error</description>
+		 * </item>
+		 * </list>
+		 * </summary>
+		 * <param name="getEnvironment">Map returning environment.</param>
+		 * <returns>A task yielding an exit code.</returns>
+		 */
 		public static STT.Task<ExitCode> Entry(S.Func<IEnvironment> getEnvironment)
 		=> F.Factory.Try(getEnvironment)
 		   .Select(WithEnvironment)
