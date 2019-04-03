@@ -1,8 +1,6 @@
 ﻿using S = System;
 using STT = System.Threading.Tasks;
 using SRC = System.Runtime.CompilerServices;
-using SIO = System.IO;
-using SCG = System.Collections.Generic;
 using F = Functional;
 using static Functional.Extension;
 using AC = Alias.ConfigurationData;
@@ -34,10 +32,11 @@ namespace Alias {
 		public static STT.Task<ExitCode> Entry(S.Func<IEnvironment> getEnvironment)
 		=> F.Factory.Try(getEnvironment)
 		   .Select(WithEnvironment)
-		   .Reduce(ErrorRenderMap(F.Nothing.Value, F.Nothing.Value));
+		   .ReduceNested(ErrorRenderMap(F.Nothing.Value, F.Nothing.Value));
 		static STT.Task<ExitCode> WithEnvironment(IEnvironment environment)
 		=> environment.Effect.TryGetConfiguration(environment.ConfigurationFile)
 		   .Select(WithMaybeConfiguration(environment))
+		   .ReduceNested(ErrorRenderMap(F.Factory.Maybe(environment), F.Nothing.Value));
 		static S.Func<STT.Task<F.Maybe<AC.Configuration>>, STT.Task<ExitCode>> WithMaybeConfiguration(IEnvironment environment)
 		=> taskMaybeConfiguration
 		=> taskMaybeConfiguration.SelectManyAsync
@@ -46,7 +45,7 @@ namespace Alias {
 		         ? WithConfiguration(environment, configuration)
 		         : WithoutConfiguration(environment)
 		         )
-		         .Reduce(ErrorRenderMap(F.Factory.Maybe(environment), maybeConfiguration))
+		         .ReduceNested(ErrorRenderMap(F.Factory.Maybe(environment), maybeConfiguration))
 		    );
 		static S.Func<S.Exception, STT.Task<ExitCode>> ErrorRenderMap(F.Maybe<IEnvironment> maybeEnvironment, F.Maybe<AC.Configuration> maybeConfiguration)
 		=> error

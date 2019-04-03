@@ -2,7 +2,9 @@
 using SIO = System.IO;
 using SSP = System.Security.Permissions;
 using SCG = System.Collections.Generic;
+using STT = System.Threading.Tasks;
 using NJL = Newtonsoft.Json.Linq;
+using AC = Alias.ConfigurationData;
 using F = Functional;
 
 namespace Alias {
@@ -78,8 +80,7 @@ namespace Alias {
 		=> new TerminalFileException(configurationFilePath, SSP.FileIOPermissionAccess.PathDiscovery, @"Current directory unavailable.", error);
 		public static TerminalFileException InaccessiblePath(string path, S.Exception error)
 		=> new TerminalFileException(path, SSP.FileIOPermissionAccess.PathDiscovery, @"Inaccessible file path.", error);
-		public static S.Func<S.Exception, TerminalFileException> ReadErrorMap(string path)
-		=> (error)
+		public static TerminalFileException ReadErrorMap(string path, S.Exception error)
 		=> new TerminalFileException(path, SSP.FileIOPermissionAccess.Read, @"Unable to open file for reading.", error);
 		public static S.Func<S.Exception, S.Exception> WriteErrorMap(string path)
 		=> (error)
@@ -103,7 +104,9 @@ namespace Alias {
 		}
 		public static S.Func<S.Exception, DeserialException> FailureMap(IFileInfo file)
 		=> (error)
-		=> new DeserialException(file, @"Deserialization failure.", error);
+		=> new DeserialException(file, $@"Unable to process file: {file.FullName}", error);
+		public STT.Task DisplayMessage(F.Maybe<IEnvironment> maybeEnvironment, F.Maybe<AC.Configuration> maybeConfiguration)
+		=> Environment.GetErrorStream(maybeEnvironment).WriteAsync(Utility.GetErrorMessage(this));
 	}
 	/**
 	 * <summary>

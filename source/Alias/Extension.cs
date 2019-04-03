@@ -49,6 +49,28 @@ namespace Alias {
 		=> @this.SelectError(errorMap).Select(task => task.SelectErrorAsync(errorMap));
 		/**
 		 * <summary>
+		 * Map possible tasks to their successful possibilities or alternatives.
+		 * </summary>
+		 * <param name="@this">Possible task.</param>
+		 * <param name="alternative">Map from errors/faults to alternative tasks.</param>
+		 * <typeparam name="T">Type task yields.</typeparam>
+		 * <returns>The successful task or alternative mapped from error/fault.</returns>
+		 */
+		public static STT.Task<T> ReduceNested<T>(this F.Result<STT.Task<T>> @this, S.Func<S.Exception, STT.Task<T>> alternative)
+		where T: object
+		=> @this.Reduce(alternative).CatchAsync(alternative);
+		/**
+		 * <summary>
+		 * Map possible tasks to their successful possibilities or alternatives.
+		 * </summary>
+		 * <param name="@this">Possible task.</param>
+		 * <param name="alternative">Map from errors/faults to alternative tasks.</param>
+		 * <returns>The successful task or alternative mapped from error/fault.</returns>
+		 */
+		public static STT.Task ReduceNested(this F.Result<STT.Task> @this, S.Func<S.Exception, STT.Task> alternative)
+		=> @this.Reduce(alternative).CatchAsync(alternative);
+		/**
+		 * <summary>
 		 * Run process asynchronously.
 		 * </summary>
 		 * <param name="@this">Process to run.</param>
