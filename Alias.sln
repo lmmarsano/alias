@@ -11,9 +11,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{4CA8E0B1-F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alias.Test", "test\Alias.Test\Alias.Test.csproj", "{F5519CEE-FF88-49C3-A1CF-C6579F7D4A1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Functional", "source\Functional\Functional.csproj", "{CECE9680-4BDF-4A85-9632-BB3D044F27D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Functional", "source\Functional\Functional.csproj", "{CECE9680-4BDF-4A85-9632-BB3D044F27D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Functional.Test", "test\Functional.Test\Functional.Test.csproj", "{58361D95-CD9F-4A8D-BBF9-33AC6678D47A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Functional.Test", "test\Functional.Test\Functional.Test.csproj", "{58361D95-CD9F-4A8D-BBF9-33AC6678D47A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{09BCF660-EF31-4736-AEEF-37AF0E342728}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		.editorconfig = .editorconfig
+		Alias.ruleset = Alias.ruleset
+		Demo.ps1 = Demo.ps1
+		Directory.build.props = Directory.build.props
+		LICENSE = LICENSE
+		readme.md = readme.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

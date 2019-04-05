@@ -4,5 +4,6 @@
 		<!-- <LangVersion>latest</LangVersion> -->
 		<LangVersion>8.0</LangVersion>
 		<NullableContextOptions>enable</NullableContextOptions>
+		<CodeAnalysisRuleSet>..\..\Alias.ruleset</CodeAnalysisRuleSet>
 	</PropertyGroup>
 </Project>

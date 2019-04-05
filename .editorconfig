@@ -1,0 +1,36 @@
+root = true
+
+[*]
+end_of_line = lf
+trim_trailing_whitespace = true
+insert_final_newline = true
+charset = utf-8
+indent_style = tab
+indent_size = 2
+
+[*.cs]
+dotnet_style_require_accessibility_modifiers = never:suggestion
+dotnet_style_prefer_auto_properties = true:suggestion
+dotnet_style_prefer_conditional_expression_over_assignment = true:suggestion
+dotnet_style_prefer_conditional_expression_over_return = true:suggestion
+
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = true:suggestion
+
+csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
+csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
+
+csharp_style_expression_bodied_methods = true:suggestion # when_on_single_line
+csharp_style_expression_bodied_constructors = true:suggestion
+csharp_style_expression_bodied_operators = true:suggestion
+
+csharp_prefer_braces = true:suggestion
+
+csharp_new_line_before_open_brace = object_collection_array_initializers
+csharp_new_line_before_members_in_object_initializers = false
+csharp_new_line_before_members_in_anonymous_types = false
+
+csharp_space_before_colon_in_inheritance_clause = false
+
+csharp_indent_labels = one_less_than_current
