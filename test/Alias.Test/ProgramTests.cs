@@ -54,6 +54,23 @@ ERROR(S):
   version    Display version information.
 
 ");
+		static readonly string _setUsageOutput = NormalizeLineEnd(@"testhost 16.0.1
+© Microsoft Corporation. All rights reserved.
+USAGE:
+Set mklink.exe as an alias to mklink built into cmd:
+  testhost set mklink.exe cmd /c mklink
+
+  --help                Display this help screen.
+
+  --version             Display version information.
+
+  name (pos. 0)         Required. Name for the alias.
+
+  command (pos. 1)      Required. Command the alias invokes.
+
+  arguments (pos. 2)    Arguments alias invokes with command.
+
+");
 		static readonly string _configuration = @"{ ""binding"":
   { ""bound"":
     { ""command"": ""name""
@@ -68,6 +85,7 @@ ERROR(S):
 		  , { ExitCode.Error, string.Empty, NormalizeLineEnd(@"Unable to process file: directory\alias.conf
 Unexpected end of content while loading JObject. Path 'binding', line 1, position 12.
 "), @"{ ""binding"":", @"alias", Enumerable.Empty<string>() }
+		  , { ExitCode.Success, string.Empty, _setUsageOutput, _configuration, @"alias", new [] {@"help", @"set"} }
 		  };
 		[Theory]
 		[MemberData(nameof(EntryData))]
