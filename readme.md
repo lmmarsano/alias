@@ -129,7 +129,7 @@ code source\Alias
 ```
 An executable is built under `source\Alias\bin\Debug\netcoreapp3.0`.
 ```PowerShell
-Set-Location -Path alias source\Alias\bin\Debug\netcoreapp3.0
+Set-Location -Path source\Alias\bin\Debug\netcoreapp3.0
 .\Alias.exe
 ```
 
