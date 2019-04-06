@@ -92,6 +92,7 @@ Each alias must be unique.
 unique string
 ```
 A plain string naming an alias.
+The name must include executable file name extension (`exe` on Windows) if the operating system requires it.
 
 ### `commandEntry`
 ```JavaScript
@@ -104,7 +105,6 @@ An object with `"command"` and optional `"arguments"` properties.
 string
 ```
 A string naming an executable.
-The name must include file name extension (`exe` on Windows).
 The full path is only required as your system requires (eg, directory not in the environment `PATH` variable).
 
 #### `arguments`
