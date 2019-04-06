@@ -8,7 +8,7 @@ using AC = Alias.ConfigurationData;
 namespace Alias {
 	/**
 	 * <summary>
-	 * Operations associated with each <see cref='Option.AbstractOption'/> implementation.
+	 * Operations associated with each <see cref='AO.AbstractOption'/> implementation.
 	 * </summary>
 	 */
 	class Operation: IOperation {
@@ -60,7 +60,7 @@ namespace Alias {
 		public virtual F.Result<STT.Task<ExitCode>> Set(AO.Set options) {
 			Configuration.Binding[options.Name]
 			= new AC.CommandEntry
-			  ( options.Command
+			  (options.Command
 			  , options.ArgumentString
 			  );
 			return WriteConfiguration();
@@ -90,7 +90,7 @@ namespace Alias {
 		=> ListAsync().SelectErrorAsync(ListOperationException.OutputFailureMap(options));
 		async STT.Task<ExitCode> ListAsync() {
 			foreach (var kvp in Configuration.Binding) {
-				await Environment.StreamOut.WriteLineAsync($"{Utility.SafeQuote(kvp.Key)} → {kvp.Value.ToString()}");
+				await Environment.StreamOut.WriteLineAsync($"{Utility.SafeQuote(kvp.Key)} → {kvp.Value.ToString()}").ConfigureAwait(false);
 			}
 			return ExitCode.Success;
 		}

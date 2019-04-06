@@ -1,5 +1,4 @@
 ﻿using S = System;
-using STT = System.Threading.Tasks;
 
 namespace Functional {
 	/**
@@ -18,7 +17,7 @@ namespace Functional {
 		 * <typeparam name="TResult">Image type of <paramref name="map"/>.</typeparam>
 		 * <returns>The result of <paramref name="map"/> applied to the resource.</returns>
 		 */
-		public static TResult Using<TDisposable, TResult>(TDisposable disposable, S.Func<TDisposable, TResult> map) where TDisposable: S.IDisposable {
+		public static TResult Using<TDisposable, TResult>(TDisposable disposable, S.Func<TDisposable, TResult> map) where TDisposable : S.IDisposable {
 			using (disposable) {
 				return map(disposable);
 			}
@@ -32,11 +31,11 @@ namespace Functional {
 		 * <typeparam name="TResult">Image type of <paramref name="map"/>.</typeparam>
 		 * <returns><paramref name="map"/> with resource management.</returns>
 		 */
-		public static S.Func<TDisposable, TResult> UsingMap<TDisposable, TResult>(S.Func<TDisposable, TResult> map) where TDisposable: S.IDisposable
+		public static S.Func<TDisposable, TResult> UsingMap<TDisposable, TResult>(S.Func<TDisposable, TResult> map) where TDisposable : S.IDisposable
 		=> disposable => {
-		   	using (disposable) {
-		   		return map(disposable);
-		   	}
-		   };
+			using (disposable) {
+				return map(disposable);
+			}
+		};
 	}
 }

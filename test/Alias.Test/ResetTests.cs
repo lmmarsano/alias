@@ -4,7 +4,6 @@ using Xunit;
 using M = Moq;
 using A = Alias;
 using AO = Alias.Option;
-using AT = Alias.Test;
 
 namespace Alias.Test {
 	public class ResetTests {
@@ -13,7 +12,7 @@ namespace Alias.Test {
 			var mock = new M.Mock<IOperation>();
 			var option = new AO.Reset();
 			mock.Setup(op => op.Reset(M.It.IsAny<AO.Reset>())).Returns(A.Utility.TaskExitSuccess);
-			Assert.Equal(ExitCode.Success, await AT.Utility.FromOk(option.Operate(mock.Object)));
+			Assert.Equal(ExitCode.Success, await Utility.FromOk(option.Operate(mock.Object)).ConfigureAwait(false));
 			mock.Verify(op => op.Reset(option));
 		}
 	}

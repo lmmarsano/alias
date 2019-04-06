@@ -6,21 +6,21 @@ namespace Functional.Test {
 		public static TheoryData<string, Either<bool, int>> ToStringData { get; }
 		= new TheoryData<string, Either<bool, int>>
 		  { {$"Left<{typeof(bool)}, {typeof(int)}>({true})", LeftBoolInt(true)}
-			, {$"Right<{typeof(bool)}, {typeof(int)}>({0})", RightBoolInt(0)}
-			};
+		  , {$"Right<{typeof(bool)}, {typeof(int)}>({0})", RightBoolInt(0)}
+		  };
 		public static TheoryData<S.Type, Either<bool, int>, bool> WhereData { get; }
 		= new TheoryData<S.Type, Either<bool, int>, bool>
 		  { {typeof(Right<bool, int>), RightBoolInt(0), true}
-			, {typeof(Left<bool, int>), RightBoolInt(0), false}
-			, {typeof(Left<bool, int>), LeftBoolInt(false), true}
-			, {typeof(Left<bool, int>), LeftBoolInt(false), false}
-			};
+		  , {typeof(Left<bool, int>), RightBoolInt(0), false}
+		  , {typeof(Left<bool, int>), LeftBoolInt(false), true}
+		  , {typeof(Left<bool, int>), LeftBoolInt(false), false}
+		  };
 		public static TheoryData<S.Type, Either<bool, int>> CombineData { get; }
 		= new TheoryData<S.Type, Either<bool, int>>
 		  { {typeof(Right<bool, int>), Factory.Either<bool, Nothing>(Nothing.Value).Combine(RightBoolInt(0))}
-			, {typeof(Left<bool, int>), RightBoolInt(0).Combine(LeftBoolInt(false))}
-			, {typeof(Left<bool, int>), LeftBoolInt(false).Combine(RightBoolInt(0))}
-			};
+		  , {typeof(Left<bool, int>), RightBoolInt(0).Combine(LeftBoolInt(false))}
+		  , {typeof(Left<bool, int>), LeftBoolInt(false).Combine(RightBoolInt(0))}
+		  };
 		static Either<bool, int> LeftBoolInt(bool value) => value;
 		static Either<bool, int> RightBoolInt(int value) => value;
 		[Theory]
@@ -36,7 +36,7 @@ namespace Functional.Test {
 		public void InfersLeft() {
 			Either<bool, int> either = true;
 			Assert.True
-			(  either is Left<bool, int> {Value: bool value}
+			(either is Left<bool, int> { Value: bool value }
 			&& value
 			);
 		}
@@ -44,7 +44,7 @@ namespace Functional.Test {
 		public void InfersRight() {
 			Either<int, bool> either = true;
 			Assert.True
-			(  either is Right<int, bool> {Value: bool value}
+			(either is Right<int, bool> { Value: bool value }
 			&& value
 			);
 		}

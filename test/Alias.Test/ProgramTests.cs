@@ -4,17 +4,15 @@ using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
 using System.Linq;
 using Xunit;
-using M = Moq;
-using AT = Alias.Test;
 using ATF = Alias.Test.Fixture;
 
 namespace Alias.Test {
 	using Arguments = SCG.IEnumerable<string>;
 	public class ProgramTests {
-		static readonly string _newLine = @"
+		const string _newLine = @"
 ";
 		static string NormalizeLineEnd(string input)
-		=> AT.Utility.NormalizeLineEnd(_newLine, input);
+		=> Utility.NormalizeLineEnd(_newLine, input);
 		static readonly string _defaultOutput = NormalizeLineEnd(@"testhost 16.0.1
 © Microsoft Corporation. All rights reserved.
 
@@ -71,14 +69,14 @@ Set mklink.exe as an alias to mklink built into cmd:
   arguments (pos. 2)    Arguments alias invokes with command.
 
 ");
-		static readonly string _configuration = @"{ ""binding"":
+		const string _configuration = @"{ ""binding"":
   { ""bound"":
     { ""command"": ""name""
     , ""arguments"": ""from configuration""
     }
   }
 }";
-		public static TheoryData<ExitCode, string, string, string, string, Arguments> EntryData
+		public static TheoryData<ExitCode, string, string, string, string, Arguments> EntryData { get; }
 		= new TheoryData<ExitCode, string, string, string, string, Arguments>
 		  { { ExitCode.Error, string.Empty, _defaultOutput, _configuration, @"alias", Enumerable.Empty<string>() }
 		  , { ExitCode.Success, string.Empty, _helpOutput, _configuration, @"alias", new [] {@"help"} }
@@ -87,17 +85,18 @@ Unexpected end of content while loading JObject. Path 'binding', line 1, positio
 "), @"{ ""binding"":", @"alias", Enumerable.Empty<string>() }
 		  , { ExitCode.Success, string.Empty, _setUsageOutput, _configuration, @"alias", new [] {@"help", @"set"} }
 		  };
-		[Theory]
-		[MemberData(nameof(EntryData))]
+		[ Theory
+		, MemberData(nameof(EntryData))
+		]
 		public async STT.Task EntryTest(ExitCode expectedExitCode, string expectedOut, string expectedError, string configuration, string name, Arguments arguments) {
 			using var fake = new ATF.FakeTextFile
-			( @"alias.conf"
+			(@"alias.conf"
 			, @"directory"
 			, configuration
 			);
 			using var fakeFileDisposable = new ATF.FakeFile(name, string.Empty);
 			using var environment = new ATF.FakeEnvironment(fakeFileDisposable.Mock.Object, arguments, fake.Mock.Object, new Effect(), S.Environment.CurrentDirectory, string.Empty);
-			Assert.Equal(expectedExitCode, await Program.Entry(() => environment.Mock.Object));
+			Assert.Equal(expectedExitCode, await Program.Entry(() => environment.Mock.Object).ConfigureAwait(false));
 			Assert.Equal(expectedOut, environment.StreamOut.ToString());
 			Assert.Equal(expectedError, environment.StreamError.ToString());
 		}

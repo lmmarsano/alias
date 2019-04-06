@@ -6,7 +6,6 @@ using Xunit;
 using M = Moq;
 using F = Functional;
 using AT = Alias.Test;
-using AO = Alias.Option;
 using AC = Alias.ConfigurationData;
 using Command = System.String;
 using Argument = System.String;
@@ -16,7 +15,7 @@ namespace Alias.Option.Test {
 	public class ExternalTests {
 		static AC.Configuration Configuration { get; }
 		= new AC.Configuration
-		  ( new AC.Binding(5)
+		  ( new AC.BindingDictionary(5)
 		    { { @"alias0", new AC.CommandEntry(string.Empty, null) }
 		    , { @"alias1", new AC.CommandEntry(@"command", null) }
 		    , { @"alias2", new AC.CommandEntry(@"command", string.Empty) }
@@ -31,39 +30,42 @@ namespace Alias.Option.Test {
 		  , {@"command", new [] {@"arguments"}, 3}
 		  , {@"alias3", new [] {@"more arguments"}, 4}
 		  };
-		[Theory]
-		[MemberData(nameof(ParseAcceptsData))]
+		[ Theory
+		, MemberData(nameof(ParseAcceptsData))
+		]
 		public void ParseAcceptsTest(Command expectedCommand, Arguments expectedArguments, uint index) {
 			var alias = $@"alias{index}";
-			var maybeOption = AO.External.Parse(Configuration, alias);
-			Assert.IsType<F.Just<AO.External>>(maybeOption);
+			var maybeOption = External.Parse(Configuration, alias);
+			Assert.IsType<F.Just<External>>(maybeOption);
 			maybeOption.Select
-			( option => {
-			  	Assert.Equal(alias, option.Alias);
-			  	Assert.Equal(expectedCommand, option.Command);
-			  	Assert.Equal(expectedArguments, option.Arguments);
-			  	return F.Nothing.Value;
-			  }
+			(option => {
+				Assert.Equal(alias, option.Alias);
+				Assert.Equal(expectedCommand, option.Command);
+				Assert.Equal(expectedArguments, option.Arguments);
+				return F.Nothing.Value;
+			}
 			);
 		}
 		public static TheoryData<uint> ParseRejectsData { get; }
-		= new TheoryData<uint>{0, 5};
-		[Theory]
-		[MemberData(nameof(ParseRejectsData))]
+		= new TheoryData<uint> { 0, 5 };
+		[ Theory
+		, MemberData(nameof(ParseRejectsData))
+		]
 		public void ParseRejectsTest(uint index)
-		=> Assert.IsType<F.Nothing<AO.External>>(AO.External.Parse(Configuration, $@"alias{index}"));
+		=> Assert.IsType<F.Nothing<External>>(External.Parse(Configuration, $@"alias{index}"));
 		public static TheoryData<uint> OperateData { get; }
-		= new TheoryData<uint>{1, 2, 3, 4};
-		[Theory]
-		[MemberData(nameof(OperateData))]
+		= new TheoryData<uint> { 1, 2, 3, 4 };
+		[ Theory
+		, MemberData(nameof(OperateData))
+		]
 		public async STT.Task OperateTest(uint index) {
 			var mock = new M.Mock<IOperation>();
-			var maybeOption = AO.External.Parse(Configuration, $@"alias{index}");
-			Assert.IsType<F.Just<AO.External>>(maybeOption);
-			var option = ((F.Just<AO.External>)maybeOption).Value;
-			mock.Setup(op => op.External(M.It.IsAny<AO.External>()))
+			var maybeOption = External.Parse(Configuration, $@"alias{index}");
+			Assert.IsType<F.Just<External>>(maybeOption);
+			var option = ((F.Just<External>)maybeOption).Value;
+			mock.Setup(op => op.External(M.It.IsAny<External>()))
 			.Returns(Utility.TaskExitSuccess);
-			Assert.Equal(ExitCode.Success, await AT.Utility.FromOk(option.Operate(mock.Object)));
+			Assert.Equal(ExitCode.Success, await AT.Utility.FromOk(option.Operate(mock.Object)).ConfigureAwait(false));
 			mock.Verify(op => op.External(option));
 		}
 	}

@@ -6,7 +6,7 @@ using Path = System.String;
 
 namespace Alias.Test.Fixture {
 	using Arguments = SCG.IEnumerable<string>;
-	class FakeEnvironment : S.IDisposable {
+	class FakeEnvironment: S.IDisposable {
 		bool _allowDisposal = true;
 		public M.Mock<IEnvironment> Mock = new M.Mock<IEnvironment>();
 		public SIO.TextReader StreamIn { get; }
@@ -18,7 +18,7 @@ namespace Alias.Test.Fixture {
 			Mock.Setup(env => env.StreamOut).Returns(StreamOut);
 			Mock.Setup(env => env.StreamError).Returns(StreamError);
 		}
-		public FakeEnvironment(IFileInfo applicationFile, Arguments arguments, IFileInfo configurationFile, IEffect effect, Path workingDirectory, string input): this(input) {
+		public FakeEnvironment(IFileInfo applicationFile, Arguments arguments, IFileInfo configurationFile, IEffect effect, Path workingDirectory, string input) : this(input) {
 			Mock.Setup(env => env.Arguments).Returns(arguments);
 			Mock.Setup(env => env.ApplicationFile).Returns(applicationFile);
 			Mock.Setup(env => env.ApplicationName).Returns(applicationFile.Name);
@@ -31,7 +31,7 @@ namespace Alias.Test.Fixture {
 		protected virtual void Dispose(bool disposing) {
 			if (_allowDisposal) {
 				if (disposing) {
-					foreach (var item in new S.IDisposable[] {StreamIn, StreamOut, StreamError}) {
+					foreach (var item in new S.IDisposable[] { StreamIn, StreamOut, StreamError }) {
 						item.Dispose();
 					}
 				}

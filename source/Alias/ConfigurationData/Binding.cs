@@ -1,4 +1,5 @@
 using S = System;
+using SDC = System.Diagnostics.CodeAnalysis;
 using SCG = System.Collections.Generic;
 using Name = System.String;
 
@@ -10,12 +11,11 @@ namespace Alias.ConfigurationData {
 	 * <typeparam name="Name">Alias names.</typeparam>
 	 * <typeparam name="CommandEntry">Commands with initial arguments.</typeparam>
 	 */
-#pragma warning disable CS0659 // overrides Object.Equals(object o) but does not override Object.GetHashCode()
-	public class Binding: SCG.Dictionary<Name, CommandEntry>, S.IEquatable<Binding> {
-#pragma warning restore CS0659
-		public Binding() {}
-		public Binding(int capacity) : base(capacity) {}
-		public bool Equals(Binding other) => Utility.Equals(this, other);
-		public override bool Equals(object other) => (other as Binding)?.Equals(this) == true;
+	[SDC.SuppressMessage("Compile", "CS0659", Justification = "Need equality.")]
+	public class BindingDictionary: SCG.Dictionary<Name, CommandEntry>, S.IEquatable<BindingDictionary> {
+		public BindingDictionary() {}
+		public BindingDictionary(int capacity) : base(capacity) {}
+		public bool Equals(BindingDictionary other) => Utility.Equals(this, other);
+		public override bool Equals(object other) => (other as BindingDictionary)?.Equals(this) == true;
 	}
 }

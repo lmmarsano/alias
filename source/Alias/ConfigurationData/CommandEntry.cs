@@ -36,16 +36,16 @@ namespace Alias.ConfigurationData {
 		public CommandEntry(Command command, Arguments? arguments) {
 			Command = command.Trim();
 			Arguments = string.IsNullOrWhiteSpace(arguments)
-			          ? null
-			          : arguments.Trim();
+								? null
+								: arguments.Trim();
 		}
 		/// <inheritdoc/>
 		public override string ToString()
 		=> Utility.SafeQuote(Command)
-		 + ( string.IsNullOrWhiteSpace(Arguments)
-		   ? string.Empty
-		   : @" " + Arguments
-		   );
+		 + (string.IsNullOrWhiteSpace(Arguments)
+			 ? string.Empty
+			 : @" " + Arguments
+			 );
 		public bool Equals(CommandEntry commandEntry)
 		=> Command == commandEntry.Command
 		&& Arguments == commandEntry.Arguments;

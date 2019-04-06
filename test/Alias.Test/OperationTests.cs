@@ -1,5 +1,5 @@
-#nullable enable
 using S = System;
+using SDC = System.Diagnostics.CodeAnalysis;
 using SCG = System.Collections.Generic;
 using SIO = System.IO;
 using STT = System.Threading.Tasks;
@@ -8,7 +8,6 @@ using Xunit;
 using System.Linq;
 using M = Moq;
 using F = Functional;
-using AT = Alias.Test;
 using ATF = Alias.Test.Fixture;
 using A = Alias;
 using AC = Alias.ConfigurationData;
@@ -19,7 +18,7 @@ using Argument = System.String;
 
 namespace Alias.Test {
 	using Arguments = SCG.IEnumerable<Argument>;
-	public class OperationTests : S.IDisposable {
+	public class OperationTests: S.IDisposable {
 		readonly M.Mock<IEffect> _mockEffect;
 		readonly ATF.FakeFile _fakeApp;
 		readonly ATF.FakeTextFile _fakeConf;
@@ -38,9 +37,9 @@ namespace Alias.Test {
 		}
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				foreach (var item in new S.IDisposable[] {_fakeApp, _fakeConf, _fakeEnv}) {
-					item.Dispose();
-				}
+				_fakeApp.Dispose();
+				_fakeConf.Dispose();
+				_fakeEnv.Dispose();
 			}
 		}
 		IOperation Operation(IEnvironment environment)
@@ -48,9 +47,9 @@ namespace Alias.Test {
 		[Fact]
 		public async STT.Task ListTest() {
 			var environment = _mockEnv.Object;
-			Assert.Equal(ExitCode.Success, await AT.Utility.FromOk(Operation(environment).List(new AO.List())));
+			Assert.Equal(ExitCode.Success, await Utility.FromOk(Operation(environment).List(new AO.List())).ConfigureAwait(false));
 			Assert.Equal
-			( string.Join
+			(string.Join
 			  ( S.Environment.NewLine
 			  , new[]
 			    { @"alias0 → command"
@@ -71,7 +70,7 @@ namespace Alias.Test {
 			_mockEnv.Setup(env => env.StreamOut).Returns(mock.Object);
 			var environment = _mockEnv.Object;
 			var option = new AO.List();
-			return AT.Utility.FromOk(Operation(environment).List(option))
+			return Utility.FromOk(Operation(environment).List(option))
 			.ContinueWith(task => {
 				Assert.Equal(STT.TaskStatus.Faulted, task.Status);
 				var error = (ListOperationException)task.Exception.InnerExceptions.Single();
@@ -83,7 +82,7 @@ namespace Alias.Test {
 		public async STT.Task RestoreTest() {
 			Assert.Equal
 			( ExitCode.Success
-			, await AT.Utility.FromOk(Operation(_mockEnv.Object).Restore(new AO.Restore()))
+			, await Utility.FromOk(Operation(_mockEnv.Object).Restore(new AO.Restore())).ConfigureAwait(false)
 			);
 		}
 		[Fact]
@@ -94,7 +93,7 @@ namespace Alias.Test {
 			.Returns(A.Utility.TaskExitSuccess);
 			Assert.Equal
 			( ExitCode.Success
-			, await AT.Utility.FromOk(Operation(environment).Reset(new AO.Reset()))
+			, await Utility.FromOk(Operation(environment).Reset(new AO.Reset())).ConfigureAwait(false)
 			);
 		}
 		[Fact]
@@ -103,7 +102,7 @@ namespace Alias.Test {
 			var configurationFile = environment.ConfigurationFile;
 			_mockEffect.Setup(effect => effect.DeleteFile(configurationFile))
 			.Returns(STT.Task.FromException(new OperationIOException(configurationFile.FullName, SSP.FileIOPermissionAccess.AllAccess)));
-			return AT.Utility.FromOk(Operation(environment).Reset(new AO.Reset()))
+			return Utility.FromOk(Operation(environment).Reset(new AO.Reset()))
 			.ContinueWith(task => {
 				Assert.Equal(STT.TaskStatus.Faulted, task.Status);
 				Assert.IsType<OperationIOException>(task.Exception.InnerExceptions.Single());
@@ -122,9 +121,9 @@ namespace Alias.Test {
 				var alias0 = @"alias0";
 				var alias1 = @"alias1";
 				var command = @"command";
-				var mixedArguments = new [] {@"with spaces", @"nonspace"};
+				var mixedArguments = new[] { @"with spaces", @"nonspace" };
 				var emptyArguments = Enumerable.Empty<string>();
-				var sameArguments = new [] {@"arguments"};
+				var sameArguments = new[] { @"arguments" };
 				var differentCommand = @"different command";
 				return new TheoryData<AC.Configuration, string, string, Arguments>
 				{ {ATF.Sample.EmptyConfiguration, alias, command, emptyArguments }
@@ -148,32 +147,35 @@ namespace Alias.Test {
 				};
 			}
 		}
-		[Theory]
-		[MemberData(nameof(SetData))]
-		public async STT.Task SetSuccess(AC.Configuration configuration, string name, string command, SCG.IEnumerable<string> arguments) {
+		[ Theory
+		, MemberData(nameof(SetData))
+		]
+		public async STT.Task SetSuccess(AC.Configuration configuration, string name, string command, Arguments arguments) {
 			var (environment, configurationFile) = SetupWrite(configuration, A.Utility.TaskExitSuccess);
 			var option = new AO.Set(name, command, arguments);
 			Assert.Equal
 			( ExitCode.Success
-			, await AT.Utility.FromOk
-			  (new Operation(environment, configuration).Set(option))
+			, await Utility.FromOk
+			  (new Operation(environment, configuration).Set(option)).ConfigureAwait(false)
 			);
 			Assert.True(configuration.Binding.ContainsKey(name));
 			var entry = configuration.Binding[name];
 			Assert.Equal(command, entry.Command);
 			Assert.Equal(option.ArgumentString, entry.Arguments);
 		}
-		[Theory]
-		[MemberData(nameof(SetData))]
-		public STT.Task SetError(AC.Configuration configuration, string name, string command, SCG.IEnumerable<string> arguments) {
-			var (environment, configurationFile) = SetupWrite(configuration, AT.Utility.TaskFault<ExitCode>());
-			return AT.Utility.FromOk
+		[ Theory
+		, MemberData(nameof(SetData))
+		]
+		public STT.Task SetError(AC.Configuration configuration, string name, string command, Arguments arguments) {
+			var (environment, configurationFile) = SetupWrite(configuration, Utility.TaskFault<ExitCode>());
+			return Utility.FromOk
 			(new Operation(environment, configuration).Set(new AO.Set(name, command, arguments)))
 			.ContinueWith(task => Assert.Equal(STT.TaskStatus.Faulted, task.Status));
 		}
-		[Theory]
-		[MemberData(nameof(SetData))]
-		public void SetFailure(AC.Configuration configuration, string name, string command, SCG.IEnumerable<string> arguments) {
+		[ Theory
+		, MemberData(nameof(SetData))
+		]
+		public void SetFailure(AC.Configuration configuration, string name, string command, Arguments arguments) {
 			var (environment, configurationFile) = SetupWrite(configuration, new S.Exception());
 			Assert.IsType<F.Error<STT.Task<ExitCode>>>
 			(new Operation(environment, configuration).Set(new AO.Set(name, command, arguments)));
@@ -184,17 +186,18 @@ namespace Alias.Test {
 				var error = new S.Exception();
 				return new TheoryData<AC.Configuration, string, F.Result<STT.Task>>
 				{ {ATF.Sample.EmptyConfiguration, absentAlias, A.Utility.TaskExitSuccess}
-				, {ATF.Sample.EmptyConfiguration, absentAlias, AT.Utility.TaskFaulted}
+				, {ATF.Sample.EmptyConfiguration, absentAlias, Utility.TaskFaulted}
 				, {ATF.Sample.EmptyConfiguration, absentAlias, error}
 				, {ATF.Sample.Configuration, @"alias0", error}
 				, {ATF.Sample.Configuration, absentAlias, A.Utility.TaskExitSuccess}
-				, {ATF.Sample.Configuration, absentAlias, AT.Utility.TaskFaulted}
+				, {ATF.Sample.Configuration, absentAlias, Utility.TaskFaulted}
 				, {ATF.Sample.Configuration, absentAlias, error}
 				};
 			}
 		}
-		[Theory]
-		[MemberData(nameof(UnsetErrorData))]
+		[ Theory
+		, MemberData(nameof(UnsetErrorData))
+		]
 		public void UnsetError(AC.Configuration configuration, string name, F.Result<STT.Task> writeOutcome) {
 			var (environment, configurationFile) = SetupWrite(configuration, writeOutcome);
 			Assert.IsType<F.Error<STT.Task<ExitCode>>>
@@ -206,14 +209,14 @@ namespace Alias.Test {
 			var (environment, configurationFile) = SetupWrite(configuration, A.Utility.TaskExitSuccess);
 			Assert.Equal
 			( ExitCode.Success
-			, await AT.Utility.FromOk(new Operation(environment, configuration).Unset(new AO.Unset(@"alias0")))
+			, await Utility.FromOk(new Operation(environment, configuration).Unset(new AO.Unset(@"alias0"))).ConfigureAwait(false)
 			);
 		}
 		[Fact]
 		public STT.Task UnsetFailure() {
 			var configuration = ATF.Sample.Configuration;
-			var (environment, configurationFile) = SetupWrite(configuration, AT.Utility.TaskFaulted);
-			return AT.Utility.FromOk
+			var (environment, configurationFile) = SetupWrite(configuration, Utility.TaskFaulted);
+			return Utility.FromOk
 			(new Operation(environment, configuration).Unset(new AO.Unset(@"alias0")))
 			.ContinueWith(task => Assert.Equal(STT.TaskStatus.Faulted, task.Status));
 		}
@@ -222,7 +225,6 @@ namespace Alias.Test {
 			.Setup(effect => effect.RunCommand(M.It.IsAny<Directory>(), M.It.IsAny<Command>(), M.It.IsAny<F.Maybe<string>>()))
 			.Returns(runOutcome);
 			_mockEnv.Setup(env => env.Arguments).Returns(arguments);
-			// _mockEnv.Setup(env => env.Effect).Returns(_mockEffect.Object);
 		}
 		public static TheoryData<F.Maybe<string>, Arguments, string> ExternalSuccessData {
 			get {
@@ -230,9 +232,9 @@ namespace Alias.Test {
 				var alias1 = @"alias1";
 				var alias2 = @"alias2";
 				var empty = Enumerable.Empty<Argument>();
-				var single = new [] {@"main"};
-				var spaced = new [] {@"spaced main"};
-				var pair = new [] {@"spaced main", @"main"};
+				var single = new[] { @"main" };
+				var spaced = new[] { @"spaced main" };
+				var pair = new[] { @"spaced main", @"main" };
 				return new TheoryData<F.Maybe<string>, Arguments, string>
 				{ {F.Nothing.Value, empty, alias0}
 				, {@"main", single, alias0}
@@ -249,43 +251,49 @@ namespace Alias.Test {
 				};
 			}
 		}
-		[Theory]
-		[MemberData(nameof(ExternalSuccessData))]
+		[ Theory
+		, MemberData(nameof(ExternalSuccessData))
+		]
 		public async STT.Task ExternalSuccess(F.Maybe<string> expected, Arguments arguments, string alias) {
 			SetupRun(arguments, A.Utility.TaskExitSuccess);
 			var environment = _mockEnv.Object;
 			Assert.Equal
 			( ExitCode.Success
-			, await AT.Utility.FromOk
+			, await Utility.FromOk
 			  (Operation(environment)
-			  .External(AT.Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration, alias)))
+			  .External(Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration,   alias)))
 			  )
+			  .ConfigureAwait(false)
 			);
 			_mockEffect.Verify
-			( effect
-			  => effect.RunCommand
-			     ( environment.WorkingDirectory
-			     , Alias.Utility.SafeQuote(ATF.Sample.Configuration.Binding[alias].Command)
-			     , expected
-			     )
+			(effect
+			 => effect.RunCommand
+			    (environment.WorkingDirectory
+			    , A.Utility.SafeQuote(ATF.Sample.Configuration.Binding[alias].Command)
+			    , expected
+			    )
 			);
 		}
-		[Theory]
-		[MemberData(nameof(ExternalSuccessData))]
+		[ Theory
+		, MemberData(nameof(ExternalSuccessData))
+		, SDC.SuppressMessage("Usage", "xUnit1026", Justification = "Deliberate.")
+		, SDC.SuppressMessage("Naming", "CA1707", Justification = "Deliberate.")
+		]
 		public void ExternalError(F.Maybe<string> _, Arguments arguments, string alias) {
 			SetupRun(arguments, new SIO.IOException());
 			Assert.IsType<F.Error<STT.Task<ExitCode>>>
 			(Operation(_mockEnv.Object)
-			.External(AT.Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration, alias)))
+			.External(Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration, alias)))
 			);
 		}
-		[Theory]
-		[MemberData(nameof(ExternalSuccessData))]
+		[ Theory
+		, MemberData(nameof(ExternalSuccessData))
+		]
 		public STT.Task ExternalFailure(F.Maybe<string> expected, Arguments arguments, string alias) {
 			var inner = new SIO.IOException();
 			SetupRun(arguments, STT.Task.FromException<ExitCode>(inner));
-			var option = AT.Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration, alias));
-			return AT.Utility.FromOk(Operation(_mockEnv.Object).External(option))
+			var option = Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration, alias));
+			return Utility.FromOk(Operation(_mockEnv.Object).External(option))
 			.ContinueWith
 			(task => {
 				Assert.Equal(STT.TaskStatus.Faulted, task.Status);

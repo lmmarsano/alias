@@ -35,7 +35,7 @@ namespace Functional.Test {
 		public void InfersSome() {
 			Maybe<bool> maybe = true;
 			Assert.True
-			(  maybe is Just<bool> {Value: bool value}
+			(maybe is Just<bool> { Value: bool value }
 			&& value
 			);
 		}
@@ -44,7 +44,7 @@ namespace Functional.Test {
 			Maybe<bool> maybe = Nothing.Value;
 			Assert.IsType<Nothing<bool>>(maybe);
 		}
-		public static TheoryData<Maybe<bool>, bool> ReduceData
+		public static TheoryData<Maybe<bool>, bool> ReduceData { get; }
 		= new TheoryData<Maybe<bool>, bool>
 		  { {JustBool(true), false}
 		  , {NothingBool, true}
@@ -57,7 +57,7 @@ namespace Functional.Test {
 			Assert.True(maybe.Reduce(alternative, _ => !alternative));
 			Assert.True(maybe.Reduce(() => alternative, _ => !alternative));
 		}
-		public static TheoryData<Maybe<bool>, bool> SelectData
+		public static TheoryData<Maybe<bool>, bool> SelectData { get; }
 		= new TheoryData<Maybe<bool>, bool>
 		  { {JustBool(false), true}
 		  , {NothingBool, false}

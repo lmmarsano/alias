@@ -1,6 +1,5 @@
 ﻿using S = System;
 using SCG = System.Collections.Generic;
-using ST = System.Threading;
 using STT = System.Threading.Tasks;
 using static System.Threading.Tasks.TaskExtensions;
 using System.Linq;
@@ -15,7 +14,7 @@ namespace Functional {
 		 * <typeparam name="T">Non-nullable.</typeparam>
 		 * <returns><see cref="Just{T}"/> current value if condition <see cref="true"/>, otherwise <see cref="Nothing{T}"/>.</returns>
 		 */
-		public static Maybe<T> When<T>(this T @this, bool condition) where T: object
+		public static Maybe<T> When<T>(this T @this, bool condition) where T : object
 		=> condition
 		 ? (Maybe<T>)@this
 		 : Nothing.Value;
@@ -27,7 +26,7 @@ namespace Functional {
 		 * <typeparam name="T">Non-nullable.</typeparam>
 		 * <returns><see cref="Just{T}"/> current value if predicate maps to <see cref="true"/>, otherwise <see cref="Nothing{T}"/>.</returns>
 		 */
-		public static Maybe<T> When<T>(this T @this, S.Func<T, bool> predicate) where T: object
+		public static Maybe<T> When<T>(this T @this, S.Func<T, bool> predicate) where T : object
 		=> @this.When(predicate(@this));
 		/**
 		 * <summary>
@@ -36,7 +35,7 @@ namespace Functional {
 		 * <typeparam name="T">Non-nullable reference.</typeparam>
 		 * <returns><see cref="Nothing{T}"/> if null, otherwise <see cref="Just{T}"/> current value.</returns>
 		 */
-		public static Maybe<T> ToMaybe<T>(this T? @this) where T: class
+		public static Maybe<T> ToMaybe<T>(this T? @this) where T : class
 		=> @this is T value
 		 ? (Maybe<T>)value
 		 : Nothing.Value;
@@ -47,7 +46,7 @@ namespace Functional {
 		 * <typeparam name="T">Value type.</typeparam>
 		 * <returns><see cref="Just{T}"/> current value is any, otherwise <see cref="Nothing{T}"/>.</returns>
 		 */
-		public static Maybe<T> ToMaybe<T>(this T? @this) where T: struct
+		public static Maybe<T> ToMaybe<T>(this T? @this) where T : struct
 		=> @this is T value
 		 ? (Maybe<T>)value
 		 : Nothing.Value;
@@ -58,7 +57,7 @@ namespace Functional {
 		 * <typeparam name="T">Non-nullable.</typeparam>
 		 * <returns><see cref="Just{T}"/> first element or <see cref="Nothing{T}"/>.</returns>
 		 */
-		public static Maybe<T> FirstOrNone<T>(this SCG.IEnumerable<T> @this) where T: object
+		public static Maybe<T> FirstOrNone<T>(this SCG.IEnumerable<T> @this) where T : object
 		=> @this.Select(Factory.Maybe).DefaultIfEmpty(Nothing.Value).First();
 		/**
 		 * <summary>
@@ -68,7 +67,7 @@ namespace Functional {
 		 * <typeparam name="T">Non-nullable.</typeparam>
 		 * <returns><see cref="Just{T}"/> first filtered element or <see cref="Nothing{T}"/>.</returns>
 		 */
-		public static Maybe<T> FirstOrNone<T>(this SCG.IEnumerable<T> @this, S.Func<T, bool> predicate) where T: object
+		public static Maybe<T> FirstOrNone<T>(this SCG.IEnumerable<T> @this, S.Func<T, bool> predicate) where T : object
 		=> @this.Where(predicate).FirstOrNone();
 		/**
 		 * <summary>
@@ -79,7 +78,7 @@ namespace Functional {
 		 * <typeparam name="TOut">Image type the <paramref name="selector"/> possibly returns.</typeparam>
 		 * <returns>An enumerable of images the map successfully returned.</returns>
 		 */
-		public static SCG.IEnumerable<TOut> SelectMaybe<TIn, TOut>(this SCG.IEnumerable<TIn> @this, S.Func<TIn, Maybe<TOut>> selector) where TOut: object
+		public static SCG.IEnumerable<TOut> SelectMaybe<TIn, TOut>(this SCG.IEnumerable<TIn> @this, S.Func<TIn, Maybe<TOut>> selector) where TOut : object
 		=> @this.Select(selector).OfType<Just<TOut>>().Select(x => x.Value);
 		/**
 		 * <summary>
@@ -90,7 +89,7 @@ namespace Functional {
 		 * <typeparam name="TValue">Value type.</typeparam>
 		 * <returns><see cref="Just{T}"/> the lookup value or <see cref="Nothing{T}"/>.</returns>
 		 */
-		public static Maybe<TValue> TryGetValue<TKey, TValue>(this SCG.IDictionary<TKey, TValue> @this, TKey key) where TValue: object
+		public static Maybe<TValue> TryGetValue<TKey, TValue>(this SCG.IDictionary<TKey, TValue> @this, TKey key) where TValue : object
 		=> @this.TryGetValue(key, out var value)
 		 ? (Maybe<TValue>)value
 		 : Nothing.Value;
@@ -103,7 +102,7 @@ namespace Functional {
 		 * <typeparam name="TResult">Image type of <paramref name="map"/>.</typeparam>
 		 * <returns>The result of <paramref name="map"/> applied to the resource.</returns>
 		 */
-		public static TResult Using<TDisposable, TResult>(this TDisposable @this, S.Func<TDisposable, TResult> map) where TDisposable: S.IDisposable => Disposable.Using(@this, map);
+		public static TResult Using<TDisposable, TResult>(this TDisposable @this, S.Func<TDisposable, TResult> map) where TDisposable : S.IDisposable => Disposable.Using(@this, map);
 		/**
 		 * <summary>
 		 * Convert to <see cref="Result{T}"/> by mapping nulls to <see cref="Error{T}"/>.
@@ -136,7 +135,7 @@ namespace Functional {
 		 * <typeparam name="T">A non-nullable type.</typeparam>
 		 * <returns>A task returning results.</returns>
 		 */
-		public static STT.Task<Result<T>> ToResultAsync<T>(this STT.Task<T> @this) where T: object
+		public static STT.Task<Result<T>> ToResultAsync<T>(this STT.Task<T> @this) where T : object
 		=> Factory.ResultAsync(@this);
 		/**
 		 * <summary>
@@ -147,7 +146,7 @@ namespace Functional {
 		 * <typeparam name="T">A non-nullable type.</typeparam>
 		 * <returns>A task returning results.</returns>
 		 */
-		public static STT.Task<Result<T>> ToResultAsync<T>(this STT.Task<T> @this, S.Func<STT.Task<T>, Result<T>> onFailure) where T: object
+		public static STT.Task<Result<T>> ToResultAsync<T>(this STT.Task<T> @this, S.Func<STT.Task<T>, Result<T>> onFailure) where T : object
 		=> Factory.ResultAsync(@this, onFailure);
 		/**
 		 * <summary>
@@ -170,7 +169,7 @@ namespace Functional {
 		 * <typeparam name="T">The function’s image type.</typeparam>
 		 * <returns>Result of successful evaluation or error.</returns>
 		 */
-		public static Result<T> Try<T>(this S.Func<T> @this) where T: object => Try(@this);
+		public static Result<T> Try<T>(this S.Func<T> @this) where T : object => Try(@this);
 		/**
 		 * <summary>
 		 * Evaluate to result.
@@ -180,7 +179,7 @@ namespace Functional {
 		 * <returns>Result of successful evaluation or error.</returns>
 		 */
 		public static Result<T> Try<T>(this S.Func<T> @this, S.Func<S.Exception, S.Exception> errorMap)
-		where T: object => Try(@this, errorMap);
+		where T : object => Try(@this, errorMap);
 		/**
 		 * <summary>
 		 * Convert to <see cref="Either{TLeft, TRight}"/> by mapping nulls to <see cref="Left{TLeft, TRight}"/>.
@@ -190,7 +189,7 @@ namespace Functional {
 		 * <typeparam name="TRight">Non-nullable reference.</typeparam>
 		 * <returns><see cref="Left{TLeft, TRight}"/> if null, otherwise <see cref="Right{TLeft, TRight}"/> current value.</returns>
 		 */
-		public static Either<TLeft, TRight> ToEither<TLeft, TRight>(this TRight? @this, S.Func<TLeft> onNull) where TLeft: object where TRight: class
+		public static Either<TLeft, TRight> ToEither<TLeft, TRight>(this TRight? @this, S.Func<TLeft> onNull) where TLeft : object where TRight : class
 		=> @this is TRight value
 		 ? (Either<TLeft, TRight>)value
 		 : onNull();
@@ -203,7 +202,7 @@ namespace Functional {
 		 * <typeparam name="TRight">Value type.</typeparam>
 		 * <returns><see cref="Right{TLeft, TRight}"/> if current value is any, otherwise <see cref="Left{TLeft, TRight}"/>.</returns>
 		 */
-		public static Either<TLeft, TRight> ToEither<TLeft, TRight>(this TRight? @this, S.Func<TLeft> onNull) where TLeft: object where TRight : struct
+		public static Either<TLeft, TRight> ToEither<TLeft, TRight>(this TRight? @this, S.Func<TLeft> onNull) where TLeft : object where TRight : struct
 		=> @this is TRight value
 		 ? (Either<TLeft, TRight>)value
 		 : onNull();
@@ -218,8 +217,8 @@ namespace Functional {
 		 * <returns>For successful task, task yielding value map image yields. Otherwise, an unsuccessful task.</returns>
 		 */
 		public static STT.Task<TResult> SelectManyAsync<T, TResult>(this STT.Task<T> @this, S.Func<T, STT.Task<TResult>> map)
-		where T: object
-		where TResult: object
+		where T : object
+		where TResult : object
 		=> @this.SelectAsync(map).Unwrap();
 		/**
 		 * <summary>
@@ -231,7 +230,7 @@ namespace Functional {
 		 * <returns>If current task is successful, the next task follows. Otherwise, the current task remains.</returns>
 		 */
 		public static STT.Task<T> CombineAsync<T>(this STT.Task @this, STT.Task<T> next)
-		where T: object
+		where T : object
 		=> @this.ContinueWith
 		   ( task => {
 		     	task.GetAwaiter().GetResult();
@@ -266,8 +265,8 @@ namespace Functional {
 		 * <returns>For successful task, task yielding map image. Otherwise, an unsuccessful task.</returns>
 		 */
 		public static STT.Task<TResult> SelectAsync<T, TResult>(this STT.Task<T> @this, S.Func<T, TResult> map)
-		where T: object
-		where TResult: object
+		where T : object
+		where TResult : object
 		=> @this.ContinueWith((STT.Task<T> task) => map(task.Result), STT.TaskContinuationOptions.NotOnCanceled);
 		/**
 		 * <summary>
@@ -279,20 +278,20 @@ namespace Functional {
 		 * <returns>For successful tasks, the same task. Otherwise, the image for the exception resulting from the unsuccessful task.</returns>
 		 */
 		public static STT.Task<T> CatchAsync<T>(this STT.Task<T> @this, S.Func<S.AggregateException, STT.Task<T>> map)
-		where T: object
+		where T : object
 		=> @this.ContinueWith
-		   ( (STT.Task<T> task)
-		     => task.IsCompletedSuccessfully
-		      ? task
-		      : map
-		        ( task.Exception
-		       ?? new S.AggregateException
-		          ( Enumerable.Append
-		            ( Enumerable.Empty<STT.TaskCanceledException>()
-		            , new STT.TaskCanceledException(task)
-		            )
-		          )
-		        )
+		   ((STT.Task<T> task)
+		    => task.IsCompletedSuccessfully
+		     ? task
+		     : map
+		       ( task.Exception
+		      ?? new S.AggregateException
+		         ( Enumerable.Append
+		           (Enumerable.Empty<STT.TaskCanceledException>()
+		           , new STT.TaskCanceledException(task)
+		           )
+		         )
+		       )
 		   )
 		   .Unwrap();
 		/**
@@ -305,18 +304,18 @@ namespace Functional {
 		 */
 		public static STT.Task CatchAsync(this STT.Task @this, S.Func<S.AggregateException, STT.Task> map)
 		=> @this.ContinueWith
-		   ( (STT.Task task)
-		     => task.IsCompletedSuccessfully
-		      ? task
-		      : map
-		        ( task.Exception
-		       ?? new S.AggregateException
-		          ( Enumerable.Append
-		            ( Enumerable.Empty<STT.TaskCanceledException>()
-		            , new STT.TaskCanceledException(task)
-		            )
-		          )
-		        )
+		   ((STT.Task task)
+		    => task.IsCompletedSuccessfully
+		     ? task
+		     : map
+		       ( task.Exception
+		      ?? new S.AggregateException
+		         ( Enumerable.Append
+		           (Enumerable.Empty<STT.TaskCanceledException>()
+		           , new STT.TaskCanceledException(task)
+		           )
+		         )
+		       )
 		   )
 		   .Unwrap();
 		/**
@@ -329,7 +328,7 @@ namespace Functional {
 		 * <returns>For successful task, no change. Otherwise, task faulting with mapped exception.</returns>
 		 */
 		public static STT.Task<T> SelectErrorAsync<T>(this STT.Task<T> @this, S.Func<S.AggregateException, S.Exception> map)
-		where T: object
+		where T : object
 		=> @this.CatchAsync(error => STT.Task.FromException<T>(map(error)));
 		/**
 		 * <summary>
@@ -352,12 +351,12 @@ namespace Functional {
 		 * <returns>Filtered task.</returns>
 		 */
 		public static STT.Task<T> WhereAsync<T>(this STT.Task<T> @this, S.Func<T, bool> predicate, S.Func<T, S.AggregateException> onError)
-		where T: object
+		where T : object
 		=> @this.SelectManyAsync
-		   ( result
-		     => predicate(result)
-		      ? @this
-		      : STT.Task.FromException<T>(onError(result))
+		   (result
+		    => predicate(result)
+		     ? @this
+		     : STT.Task.FromException<T>(onError(result))
 		   );
 	}
 }

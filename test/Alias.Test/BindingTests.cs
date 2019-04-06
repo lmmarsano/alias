@@ -1,12 +1,11 @@
 #nullable enable
-using SCG = System.Collections.Generic;
 using AC = Alias.ConfigurationData;
 using Xunit;
 
 namespace Alias.Test {
 	public class BindingTests {
-		AC.Binding SampleBinding
-		=> new AC.Binding
+		static AC.BindingDictionary SampleBinding
+		=> new AC.BindingDictionary
 		   { {string.Empty, new AC.CommandEntry(string.Empty, null)}
 		   };
 		[Fact]
@@ -15,7 +14,7 @@ namespace Alias.Test {
 		}
 		[Fact]
 		public void BindingInequality() {
-			Assert.NotEqual(SampleBinding, new AC.Binding());
+			Assert.NotEqual(SampleBinding, new AC.BindingDictionary());
 		}
 	}
 }

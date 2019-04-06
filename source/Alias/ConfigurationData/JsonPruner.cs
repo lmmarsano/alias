@@ -30,13 +30,13 @@ namespace Alias.ConfigurationData {
 		 */
 		public static bool Filter(NJL.JToken jToken)
 		=> !( jToken is NJL.JContainer jContainer
-			 && ( !jContainer.Any()
-			   || jToken is NJL.JProperty jProperty
-			   && !Filter(jProperty.Value)
-			    )
-			 || jToken.Type == NJL.JTokenType.Null
-			 || jToken.Type == NJL.JTokenType.Undefined
-			  );
+		   && ( !jContainer.Any()
+		     || jToken is NJL.JProperty jProperty
+		     && !Filter(jProperty.Value)
+		      )
+		   || jToken.Type == NJL.JTokenType.Null
+		   || jToken.Type == NJL.JTokenType.Undefined
+		    );
 		/**
 		 * <summary>
 		 * Produce same type of JSON token as <paramref name='jToken'/> with children from <paramref name='enumerable'/>.
@@ -47,17 +47,17 @@ namespace Alias.ConfigurationData {
 		 * <exception cref="UnhandledJsonTokenException"><paramref name='jToken'/>’s runtime type is an unhandled type derived from <c cref='NJL.JContainer'>NJL.JContainer</c>.</exception>
 		 */
 		public static NJL.JToken Factory(NJL.JToken jToken, SCG.IEnumerable<NJL.JToken> enumerable)
-			/* switch chosen over
-			 * - (dynamic) with extension methods
-			 * - dictionary from token type to function
-			 * this approach favors compile-time checks, others carry runtime penalties
-			 */
+		/* switch chosen over
+		 * - (dynamic) with extension methods
+		 * - dictionary from token type to function
+		 * this approach favors compile-time checks, others carry runtime penalties
+		 */
 		=> jToken switch
 		   { NJL.JArray _ => new NJL.JArray(enumerable)
 		   , NJL.JObject _ => new NJL.JObject(enumerable)
-		   , NJL.JProperty {Name: var name} => new NJL.JProperty(name, enumerable.ElementAtOrDefault(0))
+		   , NJL.JProperty { Name: var name } => new NJL.JProperty(name, enumerable.ElementAtOrDefault(0))
 		   // jProperty = new JProperty(name, value) iff (jProperty.Name = name and jProperty.ElementAt(0) = value)
-		   , NJL.JConstructor {Name: var name} => new NJL.JConstructor(name, enumerable)
+		   , NJL.JConstructor { Name: var name } => new NJL.JConstructor(name, enumerable)
 		   , NJL.JContainer _ => throw UnhandledJsonTokenException.GetUnknown(jToken)
 		   , _ => jToken
 		   };

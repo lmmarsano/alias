@@ -1,4 +1,4 @@
-﻿using S = System;
+using S = System;
 using SIO = System.IO;
 
 namespace Alias {
@@ -37,7 +37,7 @@ namespace Alias {
 		 * </summary>
 		 * <value>A string representing the directory&#39;s full path.</value>
 		 * <exception cref='S.ArgumentNullException'>null was passed in for the directory name.</exception>
-		 * <exception cref='S.IO.PathTooLongException'>The fully qualified path is 260 or more characters.</exception>
+		 * <exception cref='SIO.PathTooLongException'>The fully qualified path is 260 or more characters.</exception>
 		 * <exception cref='S.Security.SecurityException'>The caller does not have the required permission.</exception>
 		 */
 		string DirectoryName { get; }
@@ -129,7 +129,8 @@ namespace Alias {
 		 * <exception cref='SIO.IOException'>The disk is read-only.</exception>
 		 * <exception cref='S.Security.SecurityException'>The caller does not have the required permission.</exception>
 		 */
-		SIO.Stream CreateStream(); // TODO eliminate when async serialization becomes possible.
+		// TODO eliminate when async serialization becomes possible.
+		SIO.Stream CreateStream();
 		/**
 		 * <summary>
 		 * Creates a System.IO.StreamWriter that writes a new text file.
@@ -213,7 +214,7 @@ namespace Alias {
 		 * <exception cref='SIO.DirectoryNotFoundException'>The specified path is invalid, such as being on an unmapped drive.</exception>
 		 * <exception cref='SIO.IOException'>The file is already open.</exception>
 		 */
-		SIO.Stream OpenAsync(SIO.FileMode mode, SIO.FileAccess access, SIO.FileShare share=SIO.FileShare.Read);
+		SIO.Stream OpenAsync(SIO.FileMode mode, SIO.FileAccess access, SIO.FileShare share = SIO.FileShare.Read);
 		/**
 		 * <summary>
 		 * Opens a file in the specified mode.

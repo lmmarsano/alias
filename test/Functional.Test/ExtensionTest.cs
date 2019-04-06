@@ -44,7 +44,7 @@ namespace Functional.Test {
 		}
 		[Fact]
 		public void FirstOrNonePredicateTest() {
-			var array = new [] { false, true };
+			var array = new[] { false, true };
 			Assert.Equal((Maybe<bool>)true, array.FirstOrNone(x => x));
 			Assert.Equal(Nothing<bool>.Value, array.FirstOrNone(x => false));
 		}
@@ -96,20 +96,20 @@ namespace Functional.Test {
 		}
 		public static TheoryData<STT.Task<bool>> ErrorAsyncData
 		=> new TheoryData<STT.Task<bool>>
-		   { FaultedBoolAsync
-		   , CancelledBoolAsync
-		   };
+			 { FaultedBoolAsync
+			 , CancelledBoolAsync
+			 };
 		[Theory]
 		[MemberData(nameof(ErrorAsyncData))]
 		public async STT.Task ToErrorAsync(STT.Task<bool> sut) {
-			Assert.IsType<Error<bool>>(await sut.ToResultAsync());
-			Assert.IsType<Error<bool>>(await sut.ToResultAsync(task => new S.Exception()));
+			Assert.IsType<Error<bool>>(await sut.ToResultAsync().ConfigureAwait(false));
+			Assert.IsType<Error<bool>>(await sut.ToResultAsync(task => new S.Exception()).ConfigureAwait(false));
 		}
 		[Fact]
 		public async STT.Task ToOkAsync() {
 			var sut = SuccessfulBoolAsync(false);
-			Assert.IsType<Ok<bool>>(await sut.ToResultAsync());
-			Assert.IsType<Ok<bool>>(await sut.ToResultAsync(task => new S.Exception()));
+			Assert.IsType<Ok<bool>>(await sut.ToResultAsync().ConfigureAwait(false));
+			Assert.IsType<Ok<bool>>(await sut.ToResultAsync(task => new S.Exception()).ConfigureAwait(false));
 		}
 		[Fact]
 		public void NullToLeft() {
@@ -121,7 +121,7 @@ namespace Functional.Test {
 		}
 		[Fact]
 		public async STT.Task SuccessfulSelectManyAsyncTest()
-		=> Assert.True(await SuccessfulBoolAsync(false).SelectManyAsync(x => SuccessfulBoolAsync(true)));
+		=> Assert.True(await SuccessfulBoolAsync(false).SelectManyAsync(x => SuccessfulBoolAsync(true)).ConfigureAwait(false));
 		public static TheoryData<STT.Task<bool>, STT.Task<bool>, STT.TaskStatus> ErrorSelectManyAsyncData {
 			get {
 				var falseAsync = SuccessfulBoolAsync(false);
@@ -139,7 +139,7 @@ namespace Functional.Test {
 		=> sut.SelectManyAsync(x => image).ContinueWith(task => Assert.Equal(expected, task.Status));
 		[Fact]
 		public async STT.Task SuccessfulSelectAsyncTest()
-		=> Assert.True(await SuccessfulBoolAsync(false).SelectAsync(x => true));
+		=> Assert.True(await SuccessfulBoolAsync(false).SelectAsync(x => true).ConfigureAwait(false));
 		public static TheoryData<STT.Task<bool>, STT.TaskStatus> ErrorSelectAsyncData
 		=> new TheoryData<STT.Task<bool>, STT.TaskStatus>
 		   { {FaultedBoolAsync, STT.TaskStatus.Faulted}
@@ -149,9 +149,9 @@ namespace Functional.Test {
 		[MemberData(nameof(ErrorSelectAsyncData))]
 		public STT.Task ErrorSelectAsyncTest(STT.Task<bool> sut, STT.TaskStatus expected)
 		=> sut.SelectAsync(x => false).ContinueWith(task => {
-		   	Assert.Equal(expected, task.Status);
-		   });
-		public static TheoryData<STT.Task<bool>> SuccessfulCatchAsyncData
+			Assert.Equal(expected, task.Status);
+		});
+		public static TheoryData<STT.Task<bool>> SuccessfulCatchAsyncData { get; }
 		= new TheoryData<STT.Task<bool>>
 		  { SuccessfulBoolAsync(false)
 		  , CancelledBoolAsync
@@ -160,14 +160,14 @@ namespace Functional.Test {
 		[Theory]
 		[MemberData(nameof(SuccessfulCatchAsyncData))]
 		public async STT.Task SuccessfulCatchAsyncTest(STT.Task<bool> catchValue) {
-			Assert.True(await SuccessfulBoolAsync(true).CatchAsync(x => catchValue));
+			Assert.True(await SuccessfulBoolAsync(true).CatchAsync(x => catchValue).ConfigureAwait(false));
 		}
 		[Theory]
 		[MemberData(nameof(ErrorAsyncData))]
 		public STT.Task ErrorCatchAsyncTest(STT.Task<bool> sut)
 		=> sut.CatchAsync(x => SuccessfulBoolAsync(true)).ContinueWith(task => {
-		   	Assert.True(task.Result);
-		   });
+			Assert.True(task.Result);
+		});
 		[Fact]
 		public STT.Task SuccessfulSelectErrorAsyncTest()
 		=> SuccessfulBoolAsync(true)
@@ -179,10 +179,10 @@ namespace Functional.Test {
 		=> sut
 		   .SelectErrorAsync(error => new S.InvalidOperationException(string.Empty, error))
 		   .ContinueWith(task => {
-		    	var error = task.Exception.InnerExceptions.First();
-		    	Assert.IsType<S.InvalidOperationException>(error);
-		    	Assert.IsType<S.AggregateException>(error.InnerException);
-		    });
+		   	var error = task.Exception.InnerExceptions.First();
+		   	Assert.IsType<S.InvalidOperationException>(error);
+		   	Assert.IsType<S.AggregateException>(error.InnerException);
+		   });
 		public static TheoryData<bool, STT.TaskStatus> SuccessfulWhereAsyncData
 		=> new TheoryData<bool, STT.TaskStatus>
 		   { {true, STT.TaskStatus.RanToCompletion}
@@ -203,8 +203,8 @@ namespace Functional.Test {
 		[MemberData(nameof(ErrorWhereAsyncData))]
 		public STT.Task ErrorWhereAsyncTest(STT.Task<bool> sut, STT.TaskStatus expected)
 		=> sut.WhereAsync(x => true, value => new S.AggregateException()).ContinueWith(task => {
-		   	Assert.Equal(expected, task.Status);
-		   });
+			Assert.Equal(expected, task.Status);
+		});
 		public static TheoryData<STT.Task<Nothing>, STT.Task<bool>, STT.TaskStatus> CombineAsyncData {
 			get {
 				var nothingAsync = STT.Task.FromResult(Nothing.Value);

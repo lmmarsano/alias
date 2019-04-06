@@ -1,4 +1,3 @@
-#nullable enable
 using S = System;
 using STT = System.Threading.Tasks;
 using System.Linq;
@@ -22,14 +21,15 @@ namespace Alias.Test {
 				};
 			}
 		}
-		[Theory]
-		[MemberData(nameof(DisplayMessageData))]
+		[ Theory
+		, MemberData(nameof(DisplayMessageData))
+		]
 		public async STT.Task DisplayMessageTest(S.Exception exception, string message) {
 			using var fakeFileDisposable = new ATF.FakeFile(string.Empty, string.Empty);
 			var fakeFile = fakeFileDisposable.Mock.Object;
 			using var env = new ATF.FakeEnvironment(fakeFile, Enumerable.Empty<string>(), fakeFile, new M.Mock<IEffect>().Object, string.Empty, string.Empty);
-			await exception.DisplayMessage(F.Factory.Maybe(env.Mock.Object), F.Nothing.Value);
-			Assert.Equal(message, env.StreamError.ToString());
+			await exception.DisplayMessage(F.Factory.Maybe(env.Mock.Object), F.Nothing.Value).ConfigureAwait(false);
+			Assert.Equal(message, env.StreamError.ToString().Trim());
 		}
 	}
 }

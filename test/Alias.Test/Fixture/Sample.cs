@@ -1,11 +1,10 @@
 using SCG = System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using AT = Alias.Test;
 using AC = Alias.ConfigurationData;
 
 namespace Alias.Test.Fixture {
-	public class Sample {
+	public static class Sample {
 		const string _newLine = @"
 ";
 		public static AC.Configuration ToConfiguration(SCG.IEnumerable<(string Alias, string Command, string? Arguments)> entries)
@@ -16,7 +15,7 @@ namespace Alias.Test.Fixture {
 		     )
 		   );
 		public static SCG.IEnumerable<(string Alias, string Command, string? Arguments)> ConfigurationParameters { get; }
-		= new []
+		= new[]
 		  { (@"alias0", @"command", null)
 		  , (@"alias1", @"command", @"arguments")
 		  , (@"alias2", @"command", @"arguments with spaces")
@@ -26,7 +25,7 @@ namespace Alias.Test.Fixture {
 		public static AC.Configuration EmptyConfiguration { get; }
 		= ToConfiguration(Enumerable.Empty<(string, string, string?)>());
 		static string NormalizeLineEnd(string input)
-		=> AT.Utility.NormalizeLineEnd(_newLine, input);
+		=> Utility.NormalizeLineEnd(_newLine, input);
 		public static TheoryData<string, AC.Configuration> SerializationData { get; }
 		= new TheoryData<string, AC.Configuration>
 		  { { NormalizeLineEnd

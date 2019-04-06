@@ -38,7 +38,7 @@ namespace Alias {
 		public Environment(SCG.IEnumerable<string> arguments) {
 			try {
 				WorkingDirectory = S.Environment.CurrentDirectory;
-			} catch (System.Exception error) {
+			} catch (S.Exception error) {
 				throw TerminalFileException.CurrentDirectoryUnavailable(ConfigurationFilePath, error);
 			}
 			using (var currentProcess = SD.Process.GetCurrentProcess())
@@ -60,7 +60,7 @@ namespace Alias {
 		 * <param name="streamError">Error stream.</param>
 		 * <exception cref="TerminalFileException">Configuration file information failure or current directory failure.</exception>
 		 */
-		public Environment(SCG.IEnumerable<string> arguments, SIO.TextReader streamIn, SIO.TextWriter streamOut, SIO.TextWriter streamError): this(arguments) {
+		public Environment(SCG.IEnumerable<string> arguments, SIO.TextReader streamIn, SIO.TextWriter streamOut, SIO.TextWriter streamError) : this(arguments) {
 			StreamIn = streamIn;
 			StreamOut = streamOut;
 			StreamError = streamError;

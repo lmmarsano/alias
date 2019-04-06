@@ -1,5 +1,5 @@
-#nullable enable
 using S = System;
+using SDC = System.Diagnostics.CodeAnalysis;
 using SIO = System.IO;
 using STT = System.Threading.Tasks;
 using System.Linq;
@@ -14,9 +14,8 @@ namespace Alias.ConfigurationData {
 		Application-wide configuration including bindings from alias names to command entries.
 	</summary>
 	*/
-#pragma warning disable CS0659 // overrides Object.Equals(object o) but does not override Object.GetHashCode()
+	[SDC.SuppressMessage("Compile", "CS0659", Justification = "Need equality.")]
 	public class Configuration: S.IEquatable<Configuration> {
-#pragma warning restore CS0659
 		/**
 		<summary>
 			The configuration's bindings between alias names and command entries.
@@ -24,18 +23,18 @@ namespace Alias.ConfigurationData {
 		<value>An association of <c cref='Name'>names</c> with their <c cref='CommandEntry'>command entries</c>.</value>
 		*/
 		[NJ.JsonProperty("binding")]
-		public Binding Binding { get; }
+		public BindingDictionary Binding { get; }
 		/**
 		<summary>
 			Initialize an application <c cref='Configuration'>Configuration</c>.
 		</summary>
 		<param name="binding">An association of <c cref='Name'>names</c> with their <c cref='CommandEntry'>command entries</c>.</param>
 		*/
-		public Configuration(Binding binding) {
+		public Configuration(BindingDictionary binding) {
 			Binding = binding.Where
-			(x => !( string.IsNullOrWhiteSpace(x.Key)
-			      || string.IsNullOrWhiteSpace(x.Value.Command)
-			       )
+			(x => !(string.IsNullOrWhiteSpace(x.Key)
+						|| string.IsNullOrWhiteSpace(x.Value.Command)
+						 )
 			).ToBinding(x => x.Key.Trim(), x => x.Value);
 		}
 		/**
@@ -62,7 +61,7 @@ namespace Alias.ConfigurationData {
 		 */
 		public static async STT.Task<Configuration?> DeserializeAsync(SIO.TextReader reader) {
 			using var jsonReader = new NJ.JsonTextReader(reader);
-			return FromJsonLinq(await NJL.JToken.ReadFromAsync(jsonReader, Converter.JsonLoadSettings));
+			return FromJsonLinq(await NJL.JToken.ReadFromAsync(jsonReader, Converter.JsonLoadSettings).ConfigureAwait(false));
 		}
 		/**
 		 * <summary>
@@ -86,7 +85,7 @@ namespace Alias.ConfigurationData {
 		// FIXME when NewtonSoft provides JsonSerializer.SerializeAsync
 		async STT.Task SerializeAsync(SIO.TextWriter writer) {
 			using var jsonWriter = Converter.ToJsonWriter(writer);
-			await NJL.JToken.FromObject(this).WriteToAsync(jsonWriter);
+			await NJL.JToken.FromObject(this).WriteToAsync(jsonWriter).ConfigureAwait(false);
 		}
 		/**
 		 * <summary>

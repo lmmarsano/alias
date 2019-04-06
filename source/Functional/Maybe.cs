@@ -1,7 +1,7 @@
-﻿#nullable enable
-using System.Collections;
 using S = System;
+using SC = System.Collections;
 using SCG = System.Collections.Generic;
+using SDC = System.Diagnostics.CodeAnalysis;
 
 namespace Functional {
 	/**
@@ -11,12 +11,14 @@ namespace Functional {
 	 * <typeparam name="T">The optional value’s type.</typeparam>
 	 * <remarks>Modeled after <a href='http://hackage.haskell.org/package/base-4.12.0.0/docs/Prelude.html#t:Maybe'>Haskell data type</a>.</remarks>
 	 */
-#pragma warning disable CS0660, CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode() Object.Equals(object o)
-	public abstract class Maybe<T>: S.IEquatable<Maybe<T>>, SCG.IEnumerable<T> where T: object {
-#pragma warning restore CS0661, CS0660
+	[ SDC.SuppressMessage("Compiler", "CS0660", Justification = "Need an equality relation.")
+	, SDC.SuppressMessage("Compiler", "CS0661", Justification = "Need an equality relation.")
+	]
+	public abstract class Maybe<T>: S.IEquatable<Maybe<T>>, SCG.IEnumerable<T> where T : object {
 		public static implicit operator Maybe<T>(T value) => new Just<T>(value);
-		public static implicit operator Maybe<T>(Nothing _) => Nothing<T>.Value;
-		public static bool operator ==(Maybe<T> a, Maybe<T> b) => object.Equals(a, b);
+		[SDC.SuppressMessage("Build", "CA1801", Justification = "Unit type.")]
+		public static implicit operator Maybe<T>(Nothing value) => Nothing<T>.Value;
+		public static bool operator ==(Maybe<T> a, Maybe<T> b) => Equals(a, b);
 		public static bool operator !=(Maybe<T> a, Maybe<T> b) => !(a == b);
 		/**
 		 * <summary>
@@ -26,7 +28,7 @@ namespace Functional {
 		 * <typeparam name="TResult">Type returned by <paramref name="selector"/>.</typeparam>
 		 * <returns>A <see cref="Maybe{TResult}"/> whose optional element is any input element’s transform image.</returns>
 		 */
-		public abstract Maybe<TResult> Select<TResult>(S.Func<T, TResult> selector) where TResult: object;
+		public abstract Maybe<TResult> Select<TResult>(S.Func<T, TResult> selector) where TResult : object;
 		/**
 		 * <summary>
 		 * Project and flatten the optional element.
@@ -35,7 +37,7 @@ namespace Functional {
 		 * <typeparam name="TResult">Type of the optional element returned by <paramref name="selector"/>.</typeparam>
 		 * <returns>A <see cref="Maybe{TResult}"/> whose optional element is any returned from the transform function.</returns>
 		 */
-		public abstract Maybe<TResult> SelectMany<TResult>(S.Func<T, Maybe<TResult>> selector) where TResult: object;
+		public abstract Maybe<TResult> SelectMany<TResult>(S.Func<T, Maybe<TResult>> selector) where TResult : object;
 		/**
 		 * <summary>
 		 * Filters a <see cref='Maybe{T}'/> of values based on a predicate.
@@ -52,7 +54,7 @@ namespace Functional {
 		 * <typeparam name="TResult">Next internal type.</typeparam>
 		 * <returns>Next value or <see cref='Nothing{TResult}'/>.</returns>
 		 */
-		public abstract Maybe<TResult> Combine<TResult>(Maybe<TResult> next) where TResult: object;
+		public abstract Maybe<TResult> Combine<TResult>(Maybe<TResult> next) where TResult : object;
 		/**
 		 * <summary>
 		 * Extract the optional value or a default alternative.
@@ -88,7 +90,7 @@ namespace Functional {
 		 */
 		public abstract TResult Reduce<TResult>(S.Func<TResult> alternative, S.Func<T, TResult> map);
 		public abstract SCG.IEnumerator<T> GetEnumerator();
-		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+		SC.IEnumerator SC.IEnumerable.GetEnumerator() => GetEnumerator();
 		/**
 		 * <summary>
 		 * Filter values of <see cref="Maybe{TResult}"/> based on a specified type.
@@ -96,7 +98,7 @@ namespace Functional {
 		 * <typeparam name="TResult">Type to filter on.</typeparam>
 		 * <returns>A <see cref="Maybe{TResult}"/> that contains the values from input of type <typeparamref name="TResult"/>.</returns>
 		 */
-		public abstract Maybe<TResult> OfType<TResult>() where TResult: object;
+		public abstract Maybe<TResult> OfType<TResult>() where TResult : object;
 		/**
 		 * <summary>
 		 * Equality relation.
@@ -111,7 +113,7 @@ namespace Functional {
 	 * A present value.
 	 * </summary>
 	 */
-	public sealed class Just<T>: Maybe<T>, S.IEquatable<Just<T>> where T: object {
+	public sealed class Just<T>: Maybe<T>, S.IEquatable<Just<T>> where T : object {
 		public static implicit operator Just<T>(T value) => new Just<T>(value);
 		public static implicit operator T(Just<T> just) => just.Value;
 		public static bool operator ==(Just<T> a, Just<T> b) => a.Equals(b);
@@ -153,7 +155,7 @@ namespace Functional {
 		 : Nothing.Value;
 		// T is non-nullable
 		public bool Equals(Just<T> other)
-		=> object.ReferenceEquals(this, other)
+		=> ReferenceEquals(this, other)
 		|| Value.Equals(other.Value);
 		public override bool Equals(Maybe<T> other) => Equals((object)other);
 		public override bool Equals(object obj)
@@ -167,18 +169,21 @@ namespace Functional {
 	 * An absent value.
 	 * </summary>
 	 */
-	public sealed class Nothing<T>: Maybe<T>, S.IEquatable<Nothing<T>> where T: object {
+	public sealed class Nothing<T>: Maybe<T>, S.IEquatable<Nothing<T>> where T : object {
 		/**
 		 * <summary>
 		 * Only instance of <see cref="Nothing{T}"/>.
 		 * </summary>
 		 * <value><see cref="Nothing{T}"/> instance.</value>
 		 */
+		[SDC.SuppressMessage("Design", "CA1000", Justification = "Singleton.")]
 		public static Nothing<T> Value { get; } = new Nothing<T>();
 		Nothing() {}
 		public void Deconstruct() {}
-		public static implicit operator Nothing<T>(Nothing _) => Nothing<T>.Value;
-		public static implicit operator Nothing(Nothing<T> _) => Nothing.Value;
+		[SDC.SuppressMessage("Build", "CA1801", Justification = "Unit type.")]
+		public static implicit operator Nothing<T>(Nothing value) => Nothing<T>.Value;
+		[SDC.SuppressMessage("Build", "CA1801", Justification = "Unit type.")]
+		public static implicit operator Nothing(Nothing<T> value) => Nothing.Value;
 		public override SCG.IEnumerator<T> GetEnumerator() {
 			yield break;
 		}
@@ -196,7 +201,7 @@ namespace Functional {
 		public override TResult Reduce<TResult>(S.Func<TResult> alternative, S.Func<T, TResult> map) => alternative();
 		public override Maybe<TResult> OfType<TResult>() => Nothing.Value;
 		public bool Equals(Nothing<T> other) => true;
-		public override bool Equals(Maybe<T> other) => Equals((object) other);
+		public override bool Equals(Maybe<T> other) => Equals((object)other);
 		public override bool Equals(object obj) => Nothing.Value.Equals(obj);
 		public override int GetHashCode() => 0;
 		public override string ToString() => $"Nothing<{typeof(T)}>";
@@ -215,6 +220,7 @@ namespace Functional {
 		 */
 		public static Nothing Value { get; } = new Nothing();
 		Nothing() {}
+		[SDC.SuppressMessage("Performance", "CA1822", Justification = "Not equivalent.")]
 		public void Deconstruct() {}
 		/**
 		 * <summary>

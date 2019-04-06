@@ -6,21 +6,21 @@ namespace Functional.Test {
 	public class ResultTest {
 		public static TheoryData<string, Result<bool>> ToStringData { get; }
 		= new TheoryData<string, Result<bool>>
-		  { {$"Error<{typeof(bool)}>({new System.Exception()})", ErrorBool}
+		  { {$"Error<{typeof(bool)}>({new S.Exception()})", ErrorBool}
 		  , {$"Ok<{typeof(bool)}>(True)", OkBool(true)}
 		  };
 		public static TheoryData<S.Type, Result<bool>> SelectErrorData { get; }
 		= new TheoryData<S.Type, Result<bool>>
 		  { {typeof(Ok<bool>), OkBool(false)}
-			, {typeof(Error<bool>), ErrorBool}
-			};
+		  , {typeof(Error<bool>), ErrorBool}
+		  };
 		public static TheoryData<S.Type, Result<bool>, bool> WhereData { get; }
 		= new TheoryData<S.Type, Result<bool>, bool>
 		  { {typeof(Ok<bool>), OkBool(false), true}
-			, {typeof(Error<bool>), OkBool(false), false}
-			, {typeof(Error<bool>), ErrorBool, true}
-			, {typeof(Error<bool>), ErrorBool, false}
-			};
+		  , {typeof(Error<bool>), OkBool(false), false}
+		  , {typeof(Error<bool>), ErrorBool, true}
+		  , {typeof(Error<bool>), ErrorBool, false}
+		  };
 		public static TheoryData<S.Type, Result<bool>> CombineData { get; }
 		= new TheoryData<S.Type, Result<bool>>
 		  { {typeof(Ok<bool>), Factory.Result(0).Combine(OkBool(true))}
@@ -29,7 +29,7 @@ namespace Functional.Test {
 		  };
 		static Result<bool> OkBool(bool value) => value;
 		static Result<bool> ErrorBool => new S.Exception();
-		static S.Type ErrorType<T>(Result<T> result) where T: object => ((Error<T>)result).Value.GetType();
+		static S.Type ErrorType<T>(Result<T> result) where T : object => ((Error<T>)result).Value.GetType();
 		[Theory]
 		[MemberData(nameof(ToStringData))]
 		public void ToStringTest(string expected, Result<bool> sut) => Assert.Equal(expected, sut.ToString());
@@ -42,7 +42,7 @@ namespace Functional.Test {
 		public void InfersOk() {
 			Result<bool> result = true;
 			Assert.True
-			(  result is Ok<bool> {Value: bool value}
+			(result is Ok<bool> { Value: bool value }
 			&& value
 			);
 		}
@@ -64,7 +64,7 @@ namespace Functional.Test {
 		[Fact]
 		public void OkToTask() => Assert.True(OkBool(true).ToTask.Result);
 		[Fact]
-		public void ErrorToTask() => Assert.Single<S.Exception>(ErrorBool.ToTask.Exception.InnerExceptions);
+		public void ErrorToTask() => Assert.Single(ErrorBool.ToTask.Exception.InnerExceptions);
 		[Fact]
 		public void OkReduceTest() {
 			Assert.True(OkBool(true).Reduce(false));

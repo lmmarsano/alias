@@ -1,9 +1,7 @@
-﻿using SCG = System.Collections.Generic;
+using SCG = System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using F = Functional;
-using AT = Alias.Test;
-using CL = CommandLine;
 using CommandLine;
 
 namespace Alias.Test {
@@ -23,10 +21,11 @@ namespace Alias.Test {
 		  , { @"reset", new[] { @"reset" } }
 		  , { @"restore", new[] { @"restore" } }
 		  };
-		[Theory]
-		[MemberData(nameof(ParseSucceedsData))]
+		[ Theory
+		, MemberData(nameof(ParseSucceedsData))
+		]
 		public void ParseSucceeds(string unparse, Arguments arguments) {
-			Assert.Equal(unparse, CL.Parser.Default.FormatCommandLine(AT.Utility.FromOk(Parse(arguments))));
+			Assert.Equal(unparse, Parser.Default.FormatCommandLine(Utility.FromOk(Parse(arguments))));
 		}
 		public static TheoryData<Arguments> ParsePassesData { get; }
 		= new TheoryData<Arguments>
@@ -36,8 +35,9 @@ namespace Alias.Test {
 		  , new string[] { @"version" }
 		  , new string[] { @"--version" }
 		  };
-		[Theory]
-		[MemberData(nameof(ParsePassesData))]
+		[ Theory
+		, MemberData(nameof(ParsePassesData))
+		]
 		public void ParsePasses(Arguments arguments) {
 			var parse = Parse(arguments);
 			Assert.IsType<F.Ok<Option.AbstractOption>>(parse);
@@ -51,12 +51,13 @@ namespace Alias.Test {
 		  , new [] {@"set", @"name"}
 		  , new [] {@"unset"}
 		  };
-		[Theory]
-		[MemberData(nameof(ParseFailsData))]
+		[ Theory
+		, MemberData(nameof(ParseFailsData))
+		]
 		public void ParseFails(Arguments arguments) {
 			var parse = Parse(arguments);
 			Assert.IsType<F.Error<Option.AbstractOption>>(parse);
-			Assert.IsType<UnparsableOptionException>(AT.Utility.FromError(parse));
+			Assert.IsType<UnparsableOptionException>(Utility.FromError(parse));
 		}
 		[Fact]
 		public void ParseEmptyTest() {

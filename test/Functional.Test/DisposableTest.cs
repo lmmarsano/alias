@@ -1,4 +1,5 @@
 using S = System;
+using SDC = System.Diagnostics.CodeAnalysis;
 using Xunit;
 
 namespace Functional.Test {
@@ -7,7 +8,7 @@ namespace Functional.Test {
 	}
 	class FakeDisposable: S.IDisposable {
 		public DisposalState DisposalState { get; }
-		public FakeDisposable(): this(new DisposalState()) {}
+		public FakeDisposable() : this(new DisposalState()) {}
 		public FakeDisposable(DisposalState disposalState) {
 			DisposalState = disposalState;
 		}
@@ -15,6 +16,7 @@ namespace Functional.Test {
 			Dispose(true);
 			S.GC.SuppressFinalize(this);
 		}
+		[SDC.SuppressMessage("Build", "CA1801", Justification = "Formal.")]
 		public void Dispose(bool disposing)
 		=> DisposalState.IsDisposed = true;
 	}

@@ -9,11 +9,11 @@ using AC = Alias.ConfigurationData;
 namespace Alias {
 	/**
 	 * <summary>
-	 * Operations associated with each <see cref='Option.AbstractOption'/> implementation.
+	 * Operations associated with each <see cref='AO.AbstractOption'/> implementation.
 	 * </summary>
 	 */
 	class OperationFileSystem: Operation {
-		public OperationFileSystem(IEnvironment environment, AC.Configuration configuration): base(environment, configuration) {}
+		public OperationFileSystem(IEnvironment environment, AC.Configuration configuration) : base(environment, configuration) {}
 		public override F.Result<STT.Task<ExitCode>> Reset(AO.Reset options) {
 			throw new S.NotImplementedException();
 			return base.Reset(options);
@@ -29,17 +29,17 @@ namespace Alias {
 			throw new S.NotImplementedException();
 			return base.Set(options)
 			.SelectMany
-			 ( serializeTask => {
-			   	return Effect.CopyFile
-			   	 ( Environment.ApplicationFile
-			   	 , SIO.Path.Join(Environment.ApplicationDirectory, options.Name)
-			   	 )
-			   	.Select
-			   	 ( copyTask
-			   	   => STT.Task.WhenAll(new [] {copyTask, serializeTask})
-			   	      .CombineAsync(serializeTask)
-			   	 );
-			 });
+			(serializeTask
+			 => Effect.CopyFile
+			    ( Environment.ApplicationFile
+			    , SIO.Path.Join(Environment.ApplicationDirectory, options.Name)
+			    )
+			    .Select
+			    (copyTask
+			     => STT.Task.WhenAll(new[] { copyTask, serializeTask })
+			        .CombineAsync(serializeTask)
+			    )
+			);
 		}
 
 		public override F.Result<STT.Task<ExitCode>> Unset(AO.Unset options) {

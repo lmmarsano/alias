@@ -1,4 +1,3 @@
-using S = System;
 using Xunit;
 using AC = Alias.ConfigurationData;
 
@@ -12,10 +11,10 @@ namespace Alias.Test.Fixture {
 		  , (null, @"{ ""binding"" : { ""name"": {} } }")
 		  , (null, @"{ ""binding"" : { ""name"": { ""command"": null } } }")
 		  , (null, @"{ ""binding"" : { ""name"": { ""command"": null, ""arguments"": null } } }")
-		  , ( new AC.Configuration(new AC.Binding(1) {{"name", new AC.CommandEntry("value", null)}})
+		  , ( new AC.Configuration(new AC.BindingDictionary(1) {{"name", new AC.CommandEntry("value", null)}})
 		    , @"{ ""binding"" : { ""name"": { ""command"": ""value"" } } }"
 		    )
-		  , ( new AC.Configuration(new AC.Binding(1) {{"name", new AC.CommandEntry("command", "arguments")}})
+		  , ( new AC.Configuration(new AC.BindingDictionary(1) {{"name", new AC.CommandEntry("command",   "arguments")}})
 		    , @"{ ""binding"" : { ""name"": { ""command"": ""command"", ""arguments"": ""arguments"" } } }"
 		    )
 		  };

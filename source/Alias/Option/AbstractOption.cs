@@ -1,11 +1,13 @@
 using STT = System.Threading.Tasks;
+using SDC = System.Diagnostics.CodeAnalysis;
 using F = Functional;
 
 namespace Alias.Option {
-#pragma warning disable CS0660, CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode() Object.Equals(object o)
+	[ SDC.SuppressMessage("Compiler", "CS0660", Justification = "Need an equality relation.")
+	, SDC.SuppressMessage("Compiler", "CS0661", Justification = "Need an equality relation.")
+	]
 	abstract class AbstractOption {
-#pragma warning restore CS0660, CS0661
-		public static bool operator ==(AbstractOption a, AbstractOption b) => object.Equals(a, b);
+		public static bool operator ==(AbstractOption a, AbstractOption b) => Equals(a, b);
 		public static bool operator !=(AbstractOption a, AbstractOption b) => !(a == b);
 		/**
 		 * <summary>
@@ -13,7 +15,7 @@ namespace Alias.Option {
 		 * </summary>
 		 * <value>Result of validation: the options or error.</value>
 		 */
-		public virtual F.Result<AbstractOption> Validation => F.Factory.Result<AbstractOption>(this);
+		public virtual F.Result<AbstractOption> Validation => F.Factory.Result(this);
 		/**
 		 * <summary>
 		 * Execute command given by options.

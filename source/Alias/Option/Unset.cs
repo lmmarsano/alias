@@ -1,4 +1,4 @@
-﻿using S = System;
+using S = System;
 using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
 using CL = CommandLine;
@@ -50,7 +50,7 @@ namespace Alias.Option {
 		=> obj is Unset value
 		&& Equals(value);
 		/// <inheritdoc/>
-		public override int GetHashCode() => Name.GetHashCode();
+		public override int GetHashCode() => Name.GetHashCode(S.StringComparison.Ordinal);
 		/// <inheritdoc/>
 		public override F.Result<STT.Task<ExitCode>> Operate(IOperation operation) => operation.Unset(this);
 	}

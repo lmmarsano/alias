@@ -5,21 +5,26 @@ using NJL = Newtonsoft.Json.Linq;
 
 namespace Alias.Test {
 	public class JsonPrunerTests {
-		[Theory]
-		[InlineData("null", "null")]
-		[InlineData("{}", "{}")]
-		[InlineData("[]", "[]")]
-		[InlineData("[{}]", "[]")]
-		[InlineData(@"{""name"": null}", "{}")]
-		[InlineData(@"{""name"": []}", "{}")]
-		[InlineData(@"{""name"": """"}", @"{""name"": """"}")]
-		[InlineData(@"{""name"": 0}", @"{""name"": 0}")]
+		public static TheoryData<string, string> PrunedJsonData { get; }
+		= new TheoryData<string, string>
+		  { { "null", "null" }
+		  , { "{}", "{}" }
+		  , { "[]", "[]" }
+		  , { "[{}]", "[]" }
+		  , { @"{""name"": null}", "{}" }
+		  , { @"{""name"": []}", "{}" }
+		  , { @"{""name"": """"}", @"{""name"": """"}" }
+		  , { @"{""name"": 0}", @"{""name"": 0}" }
+		  };
+		[ Theory
+		, MemberData(nameof(PrunedJsonData))
+		]
 		public void PrunedJsonEquals(string before, string after)
-		=> Assert.True(
-		   	NJL.JToken.DeepEquals
-		   	( AC.JsonPruner.Transform(NJL.JToken.Parse(before))
-		   	, NJL.JToken.Parse(after)
-		   	)
+		=> Assert.True
+		   ( NJL.JToken.DeepEquals
+		     ( AC.JsonPruner.Transform(NJL.JToken.Parse(before))
+		     , NJL.JToken.Parse(after)
+		     )
 		   );
 	}
 }

@@ -1,17 +1,18 @@
-#nullable enable
 using S = System;
-using SCG = System.Collections.Generic;
+using SDC = System.Diagnostics.CodeAnalysis;
 using Xunit;
 using System.Linq;
 using M = Moq;
 using ATF = Alias.Test.Fixture;
-using Argument = System.String;
 
 namespace Alias.Test {
-	public class OperationFileSystemTests : S.IDisposable {
+	public class OperationFileSystemTests: S.IDisposable {
 		readonly M.Mock<IEffect> _mockEffect;
+		[SDC.SuppressMessage("Build", "CA2213", Justification = "Disposed by iterator.")]
 		readonly ATF.FakeFile _fakeApp;
+		[SDC.SuppressMessage("Build", "CA2213", Justification = "Disposed by iterator.")]
 		readonly ATF.FakeTextFile _fakeConf;
+		[SDC.SuppressMessage("Build", "CA2213", Justification = "Disposed by iterator.")]
 		readonly ATF.FakeEnvironment _fakeEnv;
 		readonly M.Mock<IEnvironment> _mockEnv;
 		public OperationFileSystemTests() {
@@ -27,7 +28,7 @@ namespace Alias.Test {
 		}
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				foreach (var item in new S.IDisposable[] {_fakeApp, _fakeConf, _fakeEnv}) {
+				foreach (var item in new S.IDisposable[] { _fakeApp, _fakeConf, _fakeEnv }) {
 					item.Dispose();
 				}
 			}

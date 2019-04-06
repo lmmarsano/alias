@@ -1,6 +1,7 @@
-﻿using S = System;
+using S = System;
 using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
+using SDC = System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using CL = CommandLine;
 using CLT = CommandLine.Text;
@@ -46,7 +47,7 @@ namespace Alias.Option {
 		public static SCG.IEnumerable<CLT.Example> Example { get; }
 		= new CLT.Example[]
 		  { new CLT.Example(@"Set mklink.exe as an alias to mklink built into cmd", new Set(@"mklink.exe", @"cmd", new [] {@"/c", @"mklink"}))
-			};
+		  };
 		/**
 		 * <summary>
 		 * Arguments as nullable, space separated argument string as the serializer requires.
@@ -58,15 +59,16 @@ namespace Alias.Option {
 		 ? string.Join(' ', Arguments.Select(Utility.SafeQuote))
 		 : null;
 		/// <inheritdoc/>
+		[SDC.SuppressMessage("Usage", "CA2208:Instantiate argument exceptions correctly", Justification = "Refers to constructor.")]
 		public override F.Result<AbstractOption> Validation
 		=> Utility.ValidateFileName(Name)
 		   .SelectError(InvalidOptionException.InvalidAliasName(nameof(Unset), nameof(Name), Name))
 		   .Combine
-		    ( Utility.ValidatePath(Command)
+		    (Utility.ValidatePath(Command)
 		      .SelectError
-		       ( error
-		         => new InvalidOptionException
-		            (nameof(Set), nameof(Command), Command, @"Invalid alias command.", error)
+		       (error
+		        => new InvalidOptionException
+		           (nameof(Set), nameof(Command), Command, @"Invalid alias command.", error)
 		       )
 		    )
 		   .Combine(F.Factory.Result<AbstractOption>(this));

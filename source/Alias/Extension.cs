@@ -18,9 +18,9 @@ namespace Alias {
 		=> @this switch
 		   { S.AggregateException aggregate
 		     => STT.Task.WhenAll
-		        ( aggregate.Flatten().InnerExceptions
-		          .OfType<ITerminalException>()
-		          .Select(error => error.DisplayMessage(maybeEnvironment, maybeConfiguration))
+		        (aggregate.Flatten().InnerExceptions
+		        .OfType<ITerminalException>()
+		        .Select(error => error.DisplayMessage(maybeEnvironment, maybeConfiguration))
 		        )
 		   , ITerminalException exception => exception.DisplayMessage(maybeEnvironment, maybeConfiguration)
 		   , _ => STT.Task.CompletedTask
@@ -35,7 +35,7 @@ namespace Alias {
 		 * <returns>Possible task with mapped errors/failures.</returns>
 		 */
 		public static F.Result<STT.Task<T>> SelectErrorNested<T>(this F.Result<STT.Task<T>> @this, S.Func<S.Exception, S.Exception> errorMap)
-		where T: object
+		where T : object
 		=> @this.SelectError(errorMap).Select(task => task.SelectErrorAsync(errorMap));
 		/**
 		 * <summary>
@@ -57,7 +57,7 @@ namespace Alias {
 		 * <returns>The successful task or alternative mapped from error/fault.</returns>
 		 */
 		public static STT.Task<T> ReduceNested<T>(this F.Result<STT.Task<T>> @this, S.Func<S.Exception, STT.Task<T>> alternative)
-		where T: object
+		where T : object
 		=> @this.Reduce(alternative).CatchAsync(alternative);
 		/**
 		 * <summary>
@@ -113,8 +113,8 @@ namespace Alias {
 		 * <typeparam name="T">Sequence item type.</typeparam>
 		 * <returns>A binding.</returns>
 		 */
-		public static AC.Binding ToBinding<T>(this SCG.IEnumerable<T> @this, S.Func<T, Name> nameSelector, S.Func<T, AC.CommandEntry> commandEntrySelector) {
-			var binding = new AC.Binding();
+		public static AC.BindingDictionary ToBinding<T>(this SCG.IEnumerable<T> @this, S.Func<T, Name> nameSelector, S.Func<T, AC.CommandEntry> commandEntrySelector) {
+			var binding = new AC.BindingDictionary();
 			foreach (var item in @this) {
 				binding.Add(nameSelector(item), commandEntrySelector(item));
 			}

@@ -1,4 +1,4 @@
-﻿using S = System;
+using S = System;
 using STT = System.Threading.Tasks;
 using SRC = System.Runtime.CompilerServices;
 using F = Functional;
@@ -7,17 +7,16 @@ using AC = Alias.ConfigurationData;
 using AO = Alias.Option;
 
 [assembly: SRC.InternalsVisibleTo("DynamicProxyGenAssembly2")
-				 , SRC.InternalsVisibleTo("Alias.Test")
+         , SRC.InternalsVisibleTo("Alias.Test")
 ]
 namespace Alias {
-	public enum ExitCode
-	{ Success
+	public enum ExitCode {
+		Success
 	, Error
 	}
 	class Program {
-		static async STT.Task<int> Main(string[] args) {
-			 return (int)await Entry(() => new Environment(args));
-		}
+		static async STT.Task<int> Main(string[] args)
+		=> (int)await Entry(() => new Environment(args)).ConfigureAwait(false);
 		/**
 		 * <summary>
 		 * <para>
@@ -60,13 +59,13 @@ namespace Alias {
 		static S.Func<STT.Task<F.Maybe<AC.Configuration>>, STT.Task<ExitCode>> WithMaybeConfiguration(IEnvironment environment)
 		=> taskMaybeConfiguration
 		=> taskMaybeConfiguration.SelectManyAsync
-		    ( maybeConfiguration
-		      => ( maybeConfiguration is F.Just<AC.Configuration>(var configuration)
-		         ? WithConfiguration(environment, configuration)
-		         : WithoutConfiguration(environment)
-		         )
-		         .ReduceNested(ErrorRenderMap(F.Factory.Maybe(environment), maybeConfiguration))
-		    );
+		   (maybeConfiguration
+		    => (maybeConfiguration is F.Just<AC.Configuration>(var configuration)
+		       ? WithConfiguration(environment, configuration)
+		       : WithoutConfiguration(environment)
+		       )
+		       .ReduceNested(ErrorRenderMap(F.Factory.Maybe(environment), maybeConfiguration))
+		   );
 		static S.Func<S.Exception, STT.Task<ExitCode>> ErrorRenderMap(F.Maybe<IEnvironment> maybeEnvironment, F.Maybe<AC.Configuration> maybeConfiguration)
 		=> error
 		=> error.DisplayMessage(maybeEnvironment, maybeConfiguration)
@@ -74,7 +73,7 @@ namespace Alias {
 		static F.Result<STT.Task<ExitCode>> WithoutConfiguration(IEnvironment environment)
 		=> new CommandLine(environment.StreamError).Parse(environment.Arguments)
 		   .SelectMany
-		    (option => option.Operate(new Operation(environment, new AC.Configuration(new AC.Binding()))));
+		   (option => option.Operate(new Operation(environment, new AC.Configuration(new AC.BindingDictionary()))));
 		/**
 		 * <summary>
 		 * Attempt to lookup program name from configuration and run found associated command.
@@ -86,13 +85,13 @@ namespace Alias {
 		 */
 		static F.Result<STT.Task<ExitCode>> WithConfiguration(IEnvironment environment, AC.Configuration configuration)
 		=> F.Factory.Try
-		    (() => AO.External.Parse(configuration, environment.ApplicationName))
+		   (() => AO.External.Parse(configuration, environment.ApplicationName))
 		   .SelectMany
-		    (maybeExternal
-		     => maybeExternal is F.Just<AO.External>(var external)
-		      ? F.Factory.Result<AO.AbstractOption>(external)
-		      : new CommandLine(environment.StreamError).Parse(environment.Arguments)
-		    )
+		   (maybeExternal
+		    => maybeExternal is F.Just<AO.External>(var external)
+		     ? F.Factory.Result<AO.AbstractOption>(external)
+		     : new CommandLine(environment.StreamError).Parse(environment.Arguments)
+		   )
 		   .SelectMany(option => option.Operate(new Operation(environment, configuration)));
 	}
 }

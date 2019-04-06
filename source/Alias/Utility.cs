@@ -68,15 +68,14 @@ namespace Alias {
 		=> fileName
 		   .ToResult(() => new S.ArgumentNullException(nameof(fileName), @"Null file name."))
 		   .Where
-		   	( fileName => !(string.IsNullOrWhiteSpace(fileName) || IllegalFileNames.Contains(fileName))
-		   	, fileName => new S.ArgumentException(@"Invalid file name.", nameof(fileName))
-		   	)
+		   ( fileName => !(string.IsNullOrWhiteSpace(fileName) || IllegalFileNames.Contains(fileName))
+		   , fileName => new S.ArgumentException(@"Invalid file name.", nameof(fileName))
+		   )
 		   .Combine(F.Factory.Try(() => SIO.Path.GetFileName(fileName)))
 		   .Where
-		   	( name => name == fileName
-		   	, fileName => new S.ArgumentException(@"Invalid file name.", nameof(fileName))
-		   	)
-		   ;
+		   ( name => name == fileName
+		   , fileName => new S.ArgumentException(@"Invalid file name.", nameof(fileName))
+		   );
 		/**
 		 * <summary>
 		 * Quote and escape raw string only if necessary.
@@ -87,7 +86,7 @@ namespace Alias {
 		// escape \ preceding " https://docs.microsoft.com/en-us/dotnet/api/system.environment.getcommandlineargs?view=netframework-4.7.2#remarks
 		public static string SafeQuote(string value) {
 			var partial
-			= value.Contains('"')
+			= value.Contains('"', S.StringComparison.Ordinal)
 			? QuoteRegEx.Replace(value, @"$1$1\""")
 			: value;
 			return partial.Any(char.IsWhiteSpace)
@@ -105,12 +104,12 @@ namespace Alias {
 		 * <returns>True if and only if key-value pairs equal.</returns>
 		 */
 		public static bool Equals<TKey, TValue>(SCG.IDictionary<TKey, TValue> a, SCG.IDictionary<TKey, TValue> b)
-		=> object.ReferenceEquals(a, b)
+		=> ReferenceEquals(a, b)
 		|| a.Count.Equals(b.Count)
 		&& a.All
 		   (element
 		    => b.TryGetValue(element.Key, out var value)
-		    && object.Equals(element.Value, value)
+		    && Equals(element.Value, value)
 		   );
 		/**
 		 * <summary>

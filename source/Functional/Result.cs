@@ -1,7 +1,7 @@
-﻿#nullable enable
-using System.Collections;
 using S = System;
+using SC = System.Collections;
 using SCG = System.Collections.Generic;
+using SDC = System.Diagnostics.CodeAnalysis;
 using STT = System.Threading.Tasks;
 
 namespace Functional {
@@ -10,12 +10,13 @@ namespace Functional {
 	 * Represents a possible value or error.
 	 * </summary>
 	 */
-#pragma warning disable CS0660, CS0661 // Type defines operator == or operator != but does not override Object.GetHashCode() Object.Equals(object o)
-	public abstract class Result<T>: SCG.IEnumerable<T>, S.IEquatable<Result<T>> where T: object {
-#pragma warning restore CS0660, CS0661
+	[ SDC.SuppressMessage("Compiler", "CS0660", Justification = "Need an equality relation.")
+	, SDC.SuppressMessage("Compiler", "CS0661", Justification = "Need an equality relation.")
+	]
+	public abstract class Result<T>: SCG.IEnumerable<T>, S.IEquatable<Result<T>> where T : object {
 		public static implicit operator Result<T>(T value) => new Ok<T>(value);
 		public static implicit operator Result<T>(S.Exception exception) => new Error<T>(exception);
-		public static bool operator ==(Result<T> a, Result<T> b) => object.Equals(a, b);
+		public static bool operator ==(Result<T> a, Result<T> b) => Equals(a, b);
 		public static bool operator !=(Result<T> a, Result<T> b) => !(a == b);
 		/// <summary>Result as task.</summary>
 		public abstract STT.Task<T> ToTask { get; }
@@ -27,7 +28,7 @@ namespace Functional {
 		 * <typeparam name="TResult">The map’s image type.</typeparam>
 		 * <returns>A <see cref="Result{TResult}"/> whose possible element is any input element’s map projection.</returns>
 		 */
-		public abstract Result<TResult> Select<TResult>(S.Func<T, TResult> map) where TResult: object;
+		public abstract Result<TResult> Select<TResult>(S.Func<T, TResult> map) where TResult : object;
 		/**
 		 * <summary>
 		 * Project the possible error.
@@ -44,7 +45,7 @@ namespace Functional {
 		 * <typeparam name="TResult">The map’s possible image type.</typeparam>
 		 * <returns>A <see cref="Result{TResult}"/> whose value is any input element’s map projection.</returns>
 		 */
-		public abstract Result<TResult> SelectMany<TResult>(S.Func<T, Result<TResult>> map) where TResult: object;
+		public abstract Result<TResult> SelectMany<TResult>(S.Func<T, Result<TResult>> map) where TResult : object;
 		/**
 		 * <summary>
 		 * Sequential composition: replace current value, if any, with <paramref name="next"/>.
@@ -53,7 +54,7 @@ namespace Functional {
 		 * <typeparam name="TResult">Next internal type.</typeparam>
 		 * <returns>Next value or <see cref='Error{TResult}'/>.</returns>
 		 */
-		public abstract Result<TResult> Combine<TResult>(Result<TResult> next) where TResult: object;
+		public abstract Result<TResult> Combine<TResult>(Result<TResult> next) where TResult : object;
 		/**
 		 * <summary>
 		 * Filters a <see cref='Result{T}'/> of values based on a predicate.
@@ -95,7 +96,7 @@ namespace Functional {
 		 * <typeparam name="TResult">Type to filter on.</typeparam>
 		 * <returns>A <see cref="Result{TResult}"/> that contains the values from input of type <typeparamref name="TResult"/>.</returns>
 		 */
-		public abstract Result<TResult> OfType<TResult>(S.Func<T, S.Exception> onError) where TResult: object;
+		public abstract Result<TResult> OfType<TResult>(S.Func<T, S.Exception> onError) where TResult : object;
 		/**
 		 * <summary>
 		 * Asynchronously map a possible value to a possible result.
@@ -104,9 +105,9 @@ namespace Functional {
 		 * <typeparam name="TResult">Type of possible result value.</typeparam>
 		 * <returns>A task yielding possible value.</returns>
 		 */
-		public abstract STT.Task<Result<TResult>> TraverseAsync<TResult>(S.Func<T, STT.Task<TResult>> map) where TResult: object;
+		public abstract STT.Task<Result<TResult>> TraverseAsync<TResult>(S.Func<T, STT.Task<TResult>> map) where TResult : object;
 		public abstract SCG.IEnumerator<T> GetEnumerator();
-		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+		SC.IEnumerator SC.IEnumerable.GetEnumerator() => GetEnumerator();
 		public abstract bool Equals(Result<T> other);
 	}
 	/**
@@ -114,7 +115,7 @@ namespace Functional {
 	 * The successful value.
 	 * </summary>
 	 */
-	public sealed class Ok<T>: Result<T>, S.IEquatable<Ok<T>> where T: object {
+	public sealed class Ok<T>: Result<T>, S.IEquatable<Ok<T>> where T : object {
 		public static implicit operator Ok<T>(T value) => new Ok<T>(value);
 		public static implicit operator T(Ok<T> value) => value.Value;
 		public static bool operator ==(Ok<T> a, Ok<T> b) => a.Equals(b);
@@ -151,7 +152,7 @@ namespace Functional {
 		public override T Reduce(T alternative) => Value;
 		public override T Reduce(S.Func<S.Exception, T> alternative) => Value;
 		public bool Equals(Ok<T> other)
-		=> object.ReferenceEquals(this, other)
+		=> ReferenceEquals(this, other)
 		|| Value.Equals(other.Value);
 		public override bool Equals(Result<T> other) => Equals((object)other);
 		public override bool Equals(object obj) => (obj as Ok<T>)?.Equals(this) == true;
@@ -172,7 +173,7 @@ namespace Functional {
 	 * The error.
 	 * </summary>
 	 */
-	public sealed class Error<T>: Result<T>, S.IEquatable<Error<T>> where T: object {
+	public sealed class Error<T>: Result<T>, S.IEquatable<Error<T>> where T : object {
 		public static implicit operator Error<T>(S.Exception value) => new Error<T>(value);
 		public static implicit operator S.Exception(Error<T> value) => value.Value;
 		public static bool operator ==(Error<T> a, Error<T> b) => a.Equals(b);
@@ -206,7 +207,7 @@ namespace Functional {
 		public override T Reduce(T alternative) => alternative;
 		public override T Reduce(S.Func<S.Exception, T> alternative) => alternative(Value);
 		public bool Equals(Error<T> other)
-		=> object.ReferenceEquals(this, other)
+		=> ReferenceEquals(this, other)
 		|| Value.Equals(other.Value);
 		public override bool Equals(Result<T> other) => Equals((object)other);
 		public override bool Equals(object obj) => (obj as Error<T>)?.Equals(this) == true;

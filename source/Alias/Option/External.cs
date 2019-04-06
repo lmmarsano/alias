@@ -68,7 +68,7 @@ namespace Alias.Option {
 		 */
 		public static F.Maybe<External> Parse(AC.Configuration configuration, Command alias)
 		=> configuration.Binding.TryGetValue(alias)
-		   .Select(commandEntry => new External(alias, commandEntry.Command, commandEntry.Arguments.ToMaybe()));
+			 .Select(commandEntry => new External(alias, commandEntry.Command, commandEntry.Arguments.ToMaybe()));
 		/// <inheritdoc/>
 		public override F.Result<STT.Task<ExitCode>> Operate(IOperation operation) => operation.External(this);
 	}

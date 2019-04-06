@@ -15,7 +15,7 @@ namespace Alias.Test {
 		= new TheoryData<string?>
 		  { (string?)null
 		  , @""
-		  , SIO.Path.DirectorySeparatorChar.ToString()
+		  , Utility.DirectorySeparator
 		  , @"."
 		  , @".."
 		  };
@@ -32,20 +32,24 @@ namespace Alias.Test {
 		  { (string?)null
 		  , @""
 		  };
-		[Theory]
-		[MemberData(nameof(ValidateFileNameAcceptsData))]
+		[ Theory
+		, MemberData(nameof(ValidateFileNameAcceptsData))
+		]
 		public void ValidateFileNameAccepts(string fileName)
 		=> Assert.IsType<F.Ok<string>>(A.Utility.ValidateFileName(fileName));
-		[Theory]
-		[MemberData(nameof(ValidateFileNameRejectsData))]
+		[ Theory
+		, MemberData(nameof(ValidateFileNameRejectsData))
+		]
 		public void ValidateFileNameRejects(string fileName)
 		=> Assert.IsType<F.Error<string>>(A.Utility.ValidateFileName(fileName));
-		[Theory]
-		[MemberData(nameof(ValidatePathAcceptsData))]
+		[ Theory
+		, MemberData(nameof(ValidatePathAcceptsData))
+		]
 		public void ValidatePathAccepts(string fileName)
 		=> Assert.IsType<F.Ok<string>>(A.Utility.ValidatePath(fileName));
-		[Theory]
-		[MemberData(nameof(ValidatePathRejectsData))]
+		[ Theory
+		, MemberData(nameof(ValidatePathRejectsData))
+		]
 		public void ValidatePathRejects(string fileName)
 		=> Assert.IsType<F.Error<string>>(A.Utility.ValidatePath(fileName));
 		public static TheoryData<string, string> SafeQuoteData { get; }
@@ -58,8 +62,9 @@ namespace Alias.Test {
 		  , {@""" \\""", @" \"}
 		  , {@"""\ \\""", @"\ \"}
 		  };
-		[Theory]
-		[MemberData(nameof(SafeQuoteData))]
+		[ Theory
+		, MemberData(nameof(SafeQuoteData))
+		]
 		public void SafeQuoteTest(string expected, string input) => Assert.Equal(expected, A.Utility.SafeQuote(input));
 	}
 }
