@@ -113,27 +113,25 @@ namespace Alias {
 		   );
 		/**
 		 * <summary>
-		 * Compile error messages into a string.
+		 * Compile error messages into a sequence.
 		 * </summary>
 		 * <param name="error">An exception.</param>
 		 * <returns>Merged error messages.</returns>
 		 */
-		public static string GetErrorMessage(S.Exception error) {
-			var stringBuilder = new S.Text.StringBuilder();
+		public static SCG.IEnumerable<string> GetErrorMessage(S.Exception error) {
 			var stack = new SCG.Stack<S.Exception>();
 			for (stack.Push(error); stack.Any(); error = stack.Pop()) {
 				if (error is S.AggregateException { InnerExceptions: var aggregate }) {
-					foreach (var item in aggregate) {
+					foreach (var item in aggregate.Reverse()) {
 						stack.Push(item);
 					}
 				} else {
-					stringBuilder.AppendLine(error.Message);
+					yield return error.Message;
 					if (error.InnerException is S.Exception inner) {
 						stack.Push(inner);
 					}
 				}
 			}
-			return stringBuilder.ToString();
 		}
 	}
 }

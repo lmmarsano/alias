@@ -1,6 +1,7 @@
 using S = System;
 using SD = System.Diagnostics;
 using STT = System.Threading.Tasks;
+using static System.Threading.Tasks.TaskExtensions;
 using SCG = System.Collections.Generic;
 using F = Functional;
 using static Functional.Extension;
@@ -10,19 +11,16 @@ using Name = System.String;
 
 namespace Alias {
 	static class Extension {
-		public static STT.Task DisplayMessage(this ITerminalException @this, F.Maybe<IEnvironment> maybeEnvironment, F.Maybe<AC.Configuration> maybeConfiguration)
-		=> @this is S.Exception error
-		 ? Environment.GetErrorStream(maybeEnvironment).WriteAsync(Utility.GetErrorMessage(error))
-		 : STT.Task.CompletedTask;
 		public static STT.Task DisplayMessage(this S.Exception @this, F.Maybe<IEnvironment> maybeEnvironment, F.Maybe<AC.Configuration> maybeConfiguration)
 		=> @this switch
 		   { S.AggregateException aggregate
-		     => STT.Task.WhenAll
-		        (aggregate.Flatten().InnerExceptions
-		        .OfType<ITerminalException>()
-		        .Select(error => error.DisplayMessage(maybeEnvironment, maybeConfiguration))
-		        )
-		   , ITerminalException exception => exception.DisplayMessage(maybeEnvironment, maybeConfiguration)
+		     => aggregate.Flatten().InnerExceptions
+		        .Where(x => x is ITerminalException)
+		        .SelectMany(Utility.GetErrorMessage)
+		        .Traverse(Environment.GetErrorStream(maybeEnvironment).WriteLineAsync)
+		   , ITerminalException exception
+		     => Utility.GetErrorMessage(@this)
+		        .Traverse(Environment.GetErrorStream(maybeEnvironment).WriteLineAsync)
 		   , _ => STT.Task.CompletedTask
 		   };
 		/**
@@ -119,6 +117,16 @@ namespace Alias {
 				binding.Add(nameSelector(item), commandEntrySelector(item));
 			}
 			return binding;
+		}
+		public static STT.Task Traverse<T>(this SCG.IEnumerable<T> @this, S.Func<T, STT.Task> map)
+		=> @this.Aggregate
+		   ( STT.Task.CompletedTask
+		   , (task, item) => task.ContinueWith(_ => map(item)).Unwrap()
+		   );
+		public static async SCG.IAsyncEnumerable<TResult> Traverse<T, TResult>(this SCG.IEnumerable<T> @this, S.Func<T, STT.Task<TResult>> map) {
+			foreach (var item in @this) {
+				yield return await map(item).ConfigureAwait(false);
+			}
 		}
 	}
 }

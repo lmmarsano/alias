@@ -106,7 +106,7 @@ namespace Alias {
 		=> (error)
 		=> new DeserialException(file, $@"Unable to process file: {file.FullName}", error);
 		public STT.Task DisplayMessage(F.Maybe<IEnvironment> maybeEnvironment, F.Maybe<AC.Configuration> maybeConfiguration)
-		=> Environment.GetErrorStream(maybeEnvironment).WriteAsync(Utility.GetErrorMessage(this));
+		=> Utility.GetErrorMessage(this).Traverse(Environment.GetErrorStream(maybeEnvironment).WriteAsync);
 	}
 	/**
 	 * <summary>
