@@ -3,10 +3,9 @@ using SDC = System.Diagnostics.CodeAnalysis;
 using F = Functional;
 
 namespace Alias.Option {
-	[ SDC.SuppressMessage("Compiler", "CS0660", Justification = "Need an equality relation.")
-	, SDC.SuppressMessage("Compiler", "CS0661", Justification = "Need an equality relation.")
-	]
+#pragma warning disable CS0660, CS0661 //'AbstractOption' defines operator == or operator != but does not override Object.Equals(object o) Object.GetHashCode() [Alias]
 	abstract class AbstractOption {
+#pragma warning restore CS0660, CS0661
 		public static bool operator ==(AbstractOption a, AbstractOption b) => Equals(a, b);
 		public static bool operator !=(AbstractOption a, AbstractOption b) => !(a == b);
 		/**

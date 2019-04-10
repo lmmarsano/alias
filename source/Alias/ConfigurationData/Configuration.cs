@@ -14,8 +14,9 @@ namespace Alias.ConfigurationData {
 		Application-wide configuration including bindings from alias names to command entries.
 	</summary>
 	*/
-	[SDC.SuppressMessage("Compile", "CS0659", Justification = "Need equality.")]
+#pragma warning disable CS0659 //'Configuration' overrides Object.Equals(object o) but does not override Object.GetHashCode() [Alias]
 	public class Configuration: S.IEquatable<Configuration> {
+#pragma warning restore CS0659
 		/**
 		<summary>
 			The configuration's bindings between alias names and command entries.

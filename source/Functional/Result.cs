@@ -10,10 +10,9 @@ namespace Functional {
 	 * Represents a possible value or error.
 	 * </summary>
 	 */
-	[ SDC.SuppressMessage("Compiler", "CS0660", Justification = "Need an equality relation.")
-	, SDC.SuppressMessage("Compiler", "CS0661", Justification = "Need an equality relation.")
-	]
+#pragma warning disable CS0660, CS0661 //defines operator == or operator != but does not override Object.Equals(object o) Object.GetHashCode()
 	public abstract class Result<T>: SCG.IEnumerable<T>, S.IEquatable<Result<T>> where T : object {
+#pragma warning restore CS0660, CS0661
 		public static implicit operator Result<T>(T value) => new Ok<T>(value);
 		public static implicit operator Result<T>(S.Exception exception) => new Error<T>(exception);
 		public static bool operator ==(Result<T> a, Result<T> b) => Equals(a, b);

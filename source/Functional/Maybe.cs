@@ -11,10 +11,9 @@ namespace Functional {
 	 * <typeparam name="T">The optional value’s type.</typeparam>
 	 * <remarks>Modeled after <a href='http://hackage.haskell.org/package/base-4.12.0.0/docs/Prelude.html#t:Maybe'>Haskell data type</a>.</remarks>
 	 */
-	[ SDC.SuppressMessage("Compiler", "CS0660", Justification = "Need an equality relation.")
-	, SDC.SuppressMessage("Compiler", "CS0661", Justification = "Need an equality relation.")
-	]
+#pragma warning disable CS0660, CS0661 //defines operator == or operator != but does not override Object.Equals(object o) Object.GetHashCode()
 	public abstract class Maybe<T>: S.IEquatable<Maybe<T>>, SCG.IEnumerable<T> where T : object {
+#pragma warning restore CS0660, CS0661
 		public static implicit operator Maybe<T>(T value) => new Just<T>(value);
 		[SDC.SuppressMessage("Build", "CA1801", Justification = "Unit type.")]
 		public static implicit operator Maybe<T>(Nothing value) => Nothing<T>.Value;

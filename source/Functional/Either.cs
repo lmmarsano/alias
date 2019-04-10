@@ -10,12 +10,11 @@ namespace Functional {
 	 * </summary>
 	 * <remarks>Modeled after <a href='http://hackage.haskell.org/package/base-4.12.0.0/docs/Prelude.html#t:Either'>Haskell data type</a>.</remarks>
 	 */
-	[ SDC.SuppressMessage("Compiler", "CS0660", Justification = "Need an equality relation.")
-	, SDC.SuppressMessage("Compiler", "CS0661", Justification = "Need an equality relation.")
-	]
+#pragma warning disable CS0660, CS0661 //defines operator == or operator != but does not override Object.Equals(object o) Object.GetHashCode()
 	public abstract class Either<TLeft, TRight>: SCG.IEnumerable<TRight>, S.IEquatable<Either<TLeft, TRight>>
 		where TLeft : object
 		where TRight : object {
+#pragma warning restore CS0660, CS0661
 		public static implicit operator Either<TLeft, TRight>(TLeft left) => new Left<TLeft, TRight>(left);
 		public static implicit operator Either<TLeft, TRight>(TRight right) => new Right<TLeft, TRight>(right);
 		public static bool operator ==(Either<TLeft, TRight> a, Either<TLeft, TRight> b) => Equals(a, b);
