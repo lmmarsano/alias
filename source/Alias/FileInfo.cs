@@ -59,9 +59,6 @@ namespace Alias {
 		/// <inheritdoc/>
 		public void MoveTo(string destinationFileName) => _fileInfo.MoveTo(destinationFileName);
 		/// <inheritdoc/>
-		public void MoveTo(string destinationFileName, bool overwrite)
-		=> _fileInfo.MoveTo(destinationFileName, overwrite);
-		/// <inheritdoc/>
 		public SIO.FileStream Open(SIO.FileMode mode, SIO.FileAccess access) => _fileInfo.Open(mode, access);
 		/// <inheritdoc/>
 		public SIO.FileStream Open(SIO.FileMode mode, SIO.FileAccess access, SIO.FileShare share)

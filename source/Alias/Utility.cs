@@ -116,7 +116,7 @@ namespace Alias {
 		 * Compile error messages into a sequence.
 		 * </summary>
 		 * <param name="error">An exception.</param>
-		 * <returns>Merged error messages.</returns>
+		 * <returns>Error message sequence.</returns>
 		 */
 		public static SCG.IEnumerable<string> GetErrorMessage(S.Exception error) {
 			var stack = new SCG.Stack<S.Exception>();

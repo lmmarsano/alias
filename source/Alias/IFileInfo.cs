@@ -170,7 +170,6 @@ namespace Alias {
 		 * <exception cref='S.NotSupportedException'><paramref name="destinationFileName"/> contains a colon (:) in the middle of the string.</exception>
 		 */
 		void MoveTo(string destinationFileName);
-		void MoveTo(string destinationFileName, bool overwrite);
 		/**
 		 * <summary>
 		 * Opens a file in the specified mode with read, write, or read/write access.
