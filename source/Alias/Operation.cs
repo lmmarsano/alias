@@ -1,7 +1,7 @@
 using STT = System.Threading.Tasks;
 using System.Linq;
-using F = Functional;
-using static Functional.Extension;
+using ST = LMMarsano.SumType;
+using static LMMarsano.SumType.Extension;
 using AO = Alias.Option;
 using AC = Alias.ConfigurationData;
 
@@ -27,7 +27,7 @@ namespace Alias {
 		 * <returns>Possible task yielding exit code.</returns>
 		 * <inheritdoc cref='IEffect.WriteConfiguration' select='exception'/>
 		 */
-		F.Result<STT.Task<ExitCode>> WriteConfiguration()
+		ST.Result<STT.Task<ExitCode>> WriteConfiguration()
 		=> Effect.WriteConfiguration(Configuration, Environment.ConfigurationFile)
 		   .Select(task => task.CombineAsync(Utility.TaskExitSuccess));
 		/**
@@ -38,7 +38,7 @@ namespace Alias {
 		 * <returns>Possible task yielding exit code.</returns>
 		 * <exception cref='OperationIOException'>Unable to access file for deletion.</exception>
 		 */
-		public virtual F.Result<STT.Task<ExitCode>> Reset(AO.Reset options)
+		public virtual ST.Result<STT.Task<ExitCode>> Reset(AO.Reset options)
 		=> Effect.DeleteFile(Environment.ConfigurationFile)
 		   .Select(task => task.CombineAsync(Utility.TaskExitSuccess));
 		/**
@@ -48,7 +48,7 @@ namespace Alias {
 		 * <param name="options">Restore options.</param>
 		 * <returns>Possible task yielding exit code.</returns>
 		 */
-		public virtual F.Result<STT.Task<ExitCode>> Restore(AO.Restore options) => Utility.TaskExitSuccess;
+		public virtual ST.Result<STT.Task<ExitCode>> Restore(AO.Restore options) => Utility.TaskExitSuccess;
 		/**
 		 * <summary>
 		 * Set an alias and save configuration.
@@ -57,7 +57,7 @@ namespace Alias {
 		 * <returns>Possible task yielding exit code.</returns>
 		 * <exception cref='SerializerException'>Configuration could not be serialized or written to file.</exception>
 		 */
-		public virtual F.Result<STT.Task<ExitCode>> Set(AO.Set options) {
+		public virtual ST.Result<STT.Task<ExitCode>> Set(AO.Set options) {
 			Configuration.Binding[options.Name]
 			= new AC.CommandEntry
 			  (options.Command
@@ -74,7 +74,7 @@ namespace Alias {
 		 * <exception cref='UnsetOperationException'>Given alias doesn’t exist.</exception>
 		 * <inheritdoc cref='WriteConfiguration' select='exception'/>
 		 */
-		public virtual F.Result<STT.Task<ExitCode>> Unset(AO.Unset options)
+		public virtual ST.Result<STT.Task<ExitCode>> Unset(AO.Unset options)
 		=> Configuration.Binding.Remove(options.Name)
 		 ? WriteConfiguration()
 		 : UnsetOperationException.AliasUndefined(options);
@@ -86,7 +86,7 @@ namespace Alias {
 		 * <returns>Possible task yielding exit code.</returns>
 		 * <exception cref='ListOperationException'>List command fails.</exception>
 		 */
-		public virtual F.Result<STT.Task<ExitCode>> List(AO.List options)
+		public virtual ST.Result<STT.Task<ExitCode>> List(AO.List options)
 		=> ListAsync().SelectErrorAsync(ListOperationException.OutputFailureMap(options));
 		async STT.Task<ExitCode> ListAsync() {
 			foreach (var kvp in Configuration.Binding) {
@@ -102,13 +102,13 @@ namespace Alias {
 		 * <returns>Possible task yielding external command’s exit code.</returns>
 		 * <exception cref='ExternalOperationException'>External command fails to run.</exception>
 		 */
-		public virtual F.Result<STT.Task<ExitCode>> External(AO.External options) {
+		public virtual ST.Result<STT.Task<ExitCode>> External(AO.External options) {
 			var arguments = options.Arguments.Concat(Environment.Arguments.Select(Utility.SafeQuote));
 			// explicit ProcessStartInfo.WorkingDirectory required https://docs.microsoft.com/en-us/dotnet/api/system.diagnostics.processstartinfo.workingdirectory#remarks
 			var maybeArgumentLine
 			= arguments.Any()
-			? F.Factory.Maybe(string.Join(' ', arguments))
-			: F.Nothing.Value;
+			? ST.Factory.Maybe(string.Join(' ', arguments))
+			: ST.Nothing.Value;
 			return Effect.RunCommand(Environment.WorkingDirectory, options.Command, maybeArgumentLine)
 			       .SelectErrorNested(ExternalOperationException.GetRunFailureMap(options, maybeArgumentLine));
 		}

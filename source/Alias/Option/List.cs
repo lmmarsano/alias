@@ -1,7 +1,7 @@
 ﻿using S = System;
 using STT = System.Threading.Tasks;
 using CL = CommandLine;
-using F = Functional;
+using ST = LMMarsano.SumType;
 
 namespace Alias.Option {
 	/**
@@ -32,6 +32,6 @@ namespace Alias.Option {
 		/// <inheritdoc/>
 		public override int GetHashCode() => 0;
 		/// <inheritdoc/>
-		public override F.Result<STT.Task<ExitCode>> Operate(IOperation operation) => operation.List(this);
+		public override ST.Result<STT.Task<ExitCode>> Operate(IOperation operation) => operation.List(this);
 	}
 }

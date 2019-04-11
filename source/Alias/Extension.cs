@@ -3,15 +3,15 @@ using SD = System.Diagnostics;
 using STT = System.Threading.Tasks;
 using static System.Threading.Tasks.TaskExtensions;
 using SCG = System.Collections.Generic;
-using F = Functional;
-using static Functional.Extension;
+using ST = LMMarsano.SumType;
+using static LMMarsano.SumType.Extension;
 using AC = Alias.ConfigurationData;
 using System.Linq;
 using Name = System.String;
 
 namespace Alias {
 	static class Extension {
-		public static STT.Task DisplayMessage(this S.Exception @this, F.Maybe<IEnvironment> maybeEnvironment, F.Maybe<AC.Configuration> maybeConfiguration)
+		public static STT.Task DisplayMessage(this S.Exception @this, ST.Maybe<IEnvironment> maybeEnvironment, ST.Maybe<AC.Configuration> maybeConfiguration)
 		=> @this switch
 		   { S.AggregateException aggregate
 		     => aggregate.Flatten().InnerExceptions
@@ -32,7 +32,7 @@ namespace Alias {
 		 * <typeparam name="T">Type task yields.</typeparam>
 		 * <returns>Possible task with mapped errors/failures.</returns>
 		 */
-		public static F.Result<STT.Task<T>> SelectErrorNested<T>(this F.Result<STT.Task<T>> @this, S.Func<S.Exception, S.Exception> errorMap)
+		public static ST.Result<STT.Task<T>> SelectErrorNested<T>(this ST.Result<STT.Task<T>> @this, S.Func<S.Exception, S.Exception> errorMap)
 		where T : object
 		=> @this.SelectError(errorMap).Select(task => task.SelectErrorAsync(errorMap));
 		/**
@@ -43,7 +43,7 @@ namespace Alias {
 		 * <param name="errorMap">Map for errors and any task failures.</param>
 		 * <returns>Possible task with mapped errors/failures.</returns>
 		 */
-		public static F.Result<STT.Task> SelectErrorNested(this F.Result<STT.Task> @this, S.Func<S.Exception, S.Exception> errorMap)
+		public static ST.Result<STT.Task> SelectErrorNested(this ST.Result<STT.Task> @this, S.Func<S.Exception, S.Exception> errorMap)
 		=> @this.SelectError(errorMap).Select(task => task.SelectErrorAsync(errorMap));
 		/**
 		 * <summary>
@@ -54,7 +54,7 @@ namespace Alias {
 		 * <typeparam name="T">Type task yields.</typeparam>
 		 * <returns>The successful task or alternative mapped from error/fault.</returns>
 		 */
-		public static STT.Task<T> ReduceNested<T>(this F.Result<STT.Task<T>> @this, S.Func<S.Exception, STT.Task<T>> alternative)
+		public static STT.Task<T> ReduceNested<T>(this ST.Result<STT.Task<T>> @this, S.Func<S.Exception, STT.Task<T>> alternative)
 		where T : object
 		=> @this.Reduce(alternative).CatchAsync(alternative);
 		/**
@@ -65,7 +65,7 @@ namespace Alias {
 		 * <param name="alternative">Map from errors/faults to alternative tasks.</param>
 		 * <returns>The successful task or alternative mapped from error/fault.</returns>
 		 */
-		public static STT.Task ReduceNested(this F.Result<STT.Task> @this, S.Func<S.Exception, STT.Task> alternative)
+		public static STT.Task ReduceNested(this ST.Result<STT.Task> @this, S.Func<S.Exception, STT.Task> alternative)
 		=> @this.Reduce(alternative).CatchAsync(alternative);
 		/**
 		 * <summary>

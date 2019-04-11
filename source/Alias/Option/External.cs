@@ -3,8 +3,8 @@ using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
 using System.Linq;
 using AC = Alias.ConfigurationData;
-using F = Functional;
-using static Functional.Extension;
+using ST = LMMarsano.SumType;
+using static LMMarsano.SumType.Extension;
 using Command = System.String;
 
 namespace Alias.Option {
@@ -64,12 +64,12 @@ namespace Alias.Option {
 		 * </summary>
 		 * <param name="configuration">Application configuration.</param>
 		 * <param name="alias">Alias to lookup.</param>
-		 * <returns><see cref='F.Just{External}'/> options found via lookup, otherwise <see cref='F.Nothing{External}'/>.</returns>
+		 * <returns><see cref='ST.Just{External}'/> options found via lookup, otherwise <see cref='ST.Nothing{External}'/>.</returns>
 		 */
-		public static F.Maybe<External> Parse(AC.Configuration configuration, Command alias)
+		public static ST.Maybe<External> Parse(AC.Configuration configuration, Command alias)
 		=> configuration.Binding.TryGetValue(alias)
 			 .Select(commandEntry => new External(alias, commandEntry.Command, commandEntry.Arguments.ToMaybe()));
 		/// <inheritdoc/>
-		public override F.Result<STT.Task<ExitCode>> Operate(IOperation operation) => operation.External(this);
+		public override ST.Result<STT.Task<ExitCode>> Operate(IOperation operation) => operation.External(this);
 	}
 }

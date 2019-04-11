@@ -1,6 +1,6 @@
 using STT = System.Threading.Tasks;
 using AO = Alias.Option;
-using F = Functional;
+using ST = LMMarsano.SumType;
 
 namespace Alias {
 	/**
@@ -16,7 +16,7 @@ namespace Alias {
 		 * <param name="options">External command.</param>
 		 * <returns>Possible task yielding external command’s exit code.</returns>
 		 */
-		F.Result<STT.Task<ExitCode>> External(AO.External external);
+		ST.Result<STT.Task<ExitCode>> External(AO.External external);
 		/**
 		 * <summary>
 		 * Set an alias and save configuration.
@@ -24,7 +24,7 @@ namespace Alias {
 		 * <param name="options">Set options.</param>
 		 * <returns>Possible task yielding exit code.</returns>
 		 */
-		F.Result<STT.Task<ExitCode>> Set(AO.Set options);
+		ST.Result<STT.Task<ExitCode>> Set(AO.Set options);
 		/**
 		 * <summary>
 		 * Delete configuration.
@@ -32,7 +32,7 @@ namespace Alias {
 		 * <param name="options">Reset options.</param>
 		 * <returns>Possible task yielding exit code.</returns>
 		 */
-		F.Result<STT.Task<ExitCode>> Reset(AO.Reset options);
+		ST.Result<STT.Task<ExitCode>> Reset(AO.Reset options);
 		/**
 		 * <summary>
 		 * Remove an alias and save configuration.
@@ -40,7 +40,7 @@ namespace Alias {
 		 * <param name="options">Unset options.</param>
 		 * <returns>Possible task yielding exit code.</returns>
 		 */
-		F.Result<STT.Task<ExitCode>> Unset(AO.Unset options);
+		ST.Result<STT.Task<ExitCode>> Unset(AO.Unset options);
 		/**
 		 * <summary>
 		 * No operation. Derived classes may extend functionality.
@@ -48,7 +48,7 @@ namespace Alias {
 		 * <param name="options">Restore options.</param>
 		 * <returns>Possible task yielding exit code.</returns>
 		 */
-		F.Result<STT.Task<ExitCode>> Restore(AO.Restore options);
+		ST.Result<STT.Task<ExitCode>> Restore(AO.Restore options);
 		/**
 		 * <summary>
 		 * Print alias assignments as specified by options to <see cref='Environment.StreamOut'/>.
@@ -56,6 +56,6 @@ namespace Alias {
 		 * <param name="options">List specifications.</param>
 		 * <returns>Possible task yielding exit code.</returns>
 		 */
-		F.Result<STT.Task<ExitCode>> List(AO.List options);
+		ST.Result<STT.Task<ExitCode>> List(AO.List options);
 	}
 }

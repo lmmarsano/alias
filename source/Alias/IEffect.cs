@@ -1,5 +1,5 @@
 using STT = System.Threading.Tasks;
-using F = Functional;
+using ST = LMMarsano.SumType;
 using AC = Alias.ConfigurationData;
 using Command = System.String;
 using Arguments = System.String;
@@ -20,7 +20,7 @@ namespace Alias {
 		 * <returns>Task yielding nothing result.</returns>
 		 * <exception cref='OperationIOException'>Unable to access file for deletion.</exception>
 		 */
-		F.Result<STT.Task> DeleteFile(IFileInfo file);
+		ST.Result<STT.Task> DeleteFile(IFileInfo file);
 		/**
 		 * <summary>
 		 * Attempt to retrieve the configuration. If the configuration is missing, yield nothing.
@@ -31,7 +31,7 @@ namespace Alias {
 		 * <exception cref="DeserialException">Processing file into configuration fails.</exception>
 		 * <exception cref='UnhandledCaseException'>An alternative that shouldn’t exist occurred.</exception>
 		 */
-		F.Result<STT.Task<F.Maybe<AC.Configuration>>> TryGetConfiguration(IFileInfo file);
+		ST.Result<STT.Task<ST.Maybe<AC.Configuration>>> TryGetConfiguration(IFileInfo file);
 		/**
 		 * <summary>
 		 * Write configuration to file.
@@ -42,7 +42,7 @@ namespace Alias {
 		 * <exception cref="TerminalFileException">Unable to write configuration to file.</exception>
 		 * <exception cref="SerializerException">Unable to serialize configuration.</exception>
 		 */
-		F.Result<STT.Task> WriteConfiguration(AC.Configuration configuration, IFileInfo file);
+		ST.Result<STT.Task> WriteConfiguration(AC.Configuration configuration, IFileInfo file);
 		/**
 		 * <summary>
 		 * Copy file to destination.
@@ -52,7 +52,7 @@ namespace Alias {
 		 * <returns>Result of task to copy file.</returns>
 		 * <exception cref='OperationIOException'>Unable to read source, create destination, or perform copy.</exception>
 		 */
-		F.Result<STT.Task> CopyFile(IFileInfo file, string destination);
+		ST.Result<STT.Task> CopyFile(IFileInfo file, string destination);
 		/**
 		 * <summary>
 		 * Run command with arguments from working directory.
@@ -62,6 +62,6 @@ namespace Alias {
 		 * <param name="maybeArguments">Optional command arguments.</param>
 		 * <returns>Command’s exit code.</returns>
 		 */
-		F.Result<STT.Task<ExitCode>> RunCommand(WorkingDirectory workingDirectory, Command command, F.Maybe<Arguments> maybeArguments);
+		ST.Result<STT.Task<ExitCode>> RunCommand(WorkingDirectory workingDirectory, Command command, ST.Maybe<Arguments> maybeArguments);
 	}
 }

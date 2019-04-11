@@ -2,8 +2,8 @@ using S = System;
 using SIO = System.IO;
 using SD = System.Diagnostics;
 using STT = System.Threading.Tasks;
-using F = Functional;
-using static Functional.Extension;
+using ST = LMMarsano.SumType;
+using static LMMarsano.SumType.Extension;
 using AC = Alias.ConfigurationData;
 using Command = System.String;
 using Arguments = System.String;
@@ -53,8 +53,8 @@ namespace Alias {
 		 * </exception>
 		 * <exception cref='S.PlatformNotSupportedException'>Method not supported on operating systems without shell support such as Nano Server (.NET Core only).</exception>
 		 */
-		public F.Result<STT.Task<ExitCode>> RunCommand(WorkingDirectory workingDirectory, Command command, F.Maybe<Arguments> maybeArguments)
-		=> maybeArguments is F.Just<Arguments>(var arguments)
+		public ST.Result<STT.Task<ExitCode>> RunCommand(WorkingDirectory workingDirectory, Command command, ST.Maybe<Arguments> maybeArguments)
+		=> maybeArguments is ST.Just<Arguments>(var arguments)
 		 ? RunProcessAsync(new SD.ProcessStartInfo(command, arguments) { WorkingDirectory = workingDirectory })
 		 : RunProcessAsync(new SD.ProcessStartInfo(command) { WorkingDirectory = workingDirectory });
 		/**
@@ -99,14 +99,14 @@ namespace Alias {
 		public static SIO.FileStream GetFileStream(string path, SIO.FileMode mode, SIO.FileAccess access, SIO.FileShare fileShare = SIO.FileShare.Read, SIO.FileOptions fileOptions = SIO.FileOptions.Asynchronous | SIO.FileOptions.SequentialScan)
 		=> new SIO.FileStream(path, mode, access, fileShare, fileStreamBufferSize, fileOptions);
 		/// <inheritdoc/>
-		public F.Result<STT.Task> CopyFile(IFileInfo file, string destination)
-		=> F.Factory.Try
+		public ST.Result<STT.Task> CopyFile(IFileInfo file, string destination)
+		=> ST.Factory.Try
 		   (() => GetFileStream(file.FullName, SIO.FileMode.Open, SIO.FileAccess.Read)
 		   , OperationIOException.ReadErrorMap(file.FullName)
 		   )
 		   .SelectMany
 		    ((SIO.FileStream source)
-		     => F.Factory.Try
+		     => ST.Factory.Try
 		        // file exists exceptions happen regardless of checking with File.Exists due to race conditions & async IO: just catch exceptions that happen
 		        (() => GetFileStream(destination, SIO.FileMode.CreateNew, SIO.FileAccess.Write)
 		        , OperationIOException.CreateErrorMap(destination)
@@ -116,7 +116,7 @@ namespace Alias {
 		        	return error;
 		        })
 		        .SelectMany
-		         ( F.Factory.TryMap
+		         ( ST.Factory.TryMap
 		           ( async (SIO.FileStream destinationStream) => {
 		             	using (source)
 		             	using (destinationStream) {
@@ -128,8 +128,8 @@ namespace Alias {
 		         )
 		    );
 		/// <inheritdoc/>
-		public F.Result<STT.Task> DeleteFile(IFileInfo file)
-		=> F.Factory.Try
+		public ST.Result<STT.Task> DeleteFile(IFileInfo file)
+		=> ST.Factory.Try
 		   ( ()
 		     => GetFileStream(file.FullName, SIO.FileMode.Open, SIO.FileAccess.Write, fileOptions: SIO.FileOptions.Asynchronous | SIO.FileOptions.DeleteOnClose | SIO.FileOptions.SequentialScan)
 		        .DisposeAsync().AsTask()
@@ -138,19 +138,19 @@ namespace Alias {
 		   );
 		/// <inheritdoc/>
 		// TODO replace with async stream when async serialization becomes possible.
-		public F.Result<STT.Task> WriteConfiguration(AC.Configuration configuration, IFileInfo file)
-		=> F.Factory.Try
+		public ST.Result<STT.Task> WriteConfiguration(AC.Configuration configuration, IFileInfo file)
+		=> ST.Factory.Try
 		   (file.CreateStream
 		   , TerminalFileException.WriteErrorMap(file.FullName)
 		   )
 		   .SelectMany
-		   (F.Disposable.UsingMap
+		   (ST.Disposable.UsingMap
 		     ((SIO.Stream stream)
 		      => new SIO.StreamWriter(stream).Using
-		         (F.Factory.TryMap
+		         (ST.Factory.TryMap
 		           ((SIO.StreamWriter textWriter) => {
 		            	configuration.Serialize(textWriter);
-		            	return F.Nothing.Value;
+		            	return ST.Nothing.Value;
 		            }
 		           )
 		         )
@@ -158,10 +158,10 @@ namespace Alias {
 		   )
 		   .Combine<STT.Task>(STT.Task.CompletedTask);
 		/// <inheritdoc/>
-		public F.Result<STT.Task<F.Maybe<AC.Configuration>>> TryGetConfiguration(IFileInfo file)
-		=> F.Factory.Try(() => file.OpenAsync(SIO.FileMode.Open, SIO.FileAccess.Read)) switch
-		{ F.Ok<SIO.Stream>(var fileStream)
-		  => F.Factory.Try
+		public ST.Result<STT.Task<ST.Maybe<AC.Configuration>>> TryGetConfiguration(IFileInfo file)
+		=> ST.Factory.Try(() => file.OpenAsync(SIO.FileMode.Open, SIO.FileAccess.Read)) switch
+		{ ST.Ok<SIO.Stream>(var fileStream)
+		  => ST.Factory.Try
 		     ( () => new SIO.StreamReader(fileStream)
 		     , error => {
 		       	fileStream.Dispose();
@@ -173,13 +173,13 @@ namespace Alias {
 		      => Deserialize(fileStream, textReader)
 		         .SelectErrorAsync(DeserialException.FailureMap(file))
 		     )
-		   , F.Error<SIO.Stream>(var error)
+		   , ST.Error<SIO.Stream>(var error)
 		     => error is SIO.FileNotFoundException _
-		      ? F.Factory.Result(STT.Task.FromResult((F.Maybe<AC.Configuration>)F.Nothing.Value))
+		      ? ST.Factory.Result(STT.Task.FromResult((ST.Maybe<AC.Configuration>)ST.Nothing.Value))
 		      : TerminalFileException.ReadErrorMap(file.FullName, error)
 		      , _ => UnhandledCaseException.Error
 		};
-		static async STT.Task<F.Maybe<AC.Configuration>> Deserialize(SIO.Stream fileStream, SIO.TextReader textReader) {
+		static async STT.Task<ST.Maybe<AC.Configuration>> Deserialize(SIO.Stream fileStream, SIO.TextReader textReader) {
 			using (fileStream)
 			using (textReader)
 				return (await AC.Configuration.DeserializeAsync(textReader).ConfigureAwait(false)).ToMaybe();

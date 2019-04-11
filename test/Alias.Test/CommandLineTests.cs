@@ -1,13 +1,13 @@
 using SCG = System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using F = Functional;
+using ST = LMMarsano.SumType;
 using CommandLine;
 
 namespace Alias.Test {
 	using Arguments = SCG.IEnumerable<string>;
 	public class CommandLineTests {
-		static F.Result<Option.AbstractOption> Parse(Arguments arguments)
+		static ST.Result<Option.AbstractOption> Parse(Arguments arguments)
 		=> new CommandLine(null).Parse(arguments);
 		public static TheoryData<string, Arguments> ParseSucceedsData { get; }
 		= new TheoryData<string, Arguments>
@@ -40,7 +40,7 @@ namespace Alias.Test {
 		]
 		public void ParsePasses(Arguments arguments) {
 			var parse = Parse(arguments);
-			Assert.IsType<F.Ok<Option.AbstractOption>>(parse);
+			Assert.IsType<ST.Ok<Option.AbstractOption>>(parse);
 		}
 		public static TheoryData<Arguments> ParseFailsData { get; }
 		= new TheoryData<Arguments>
@@ -56,13 +56,13 @@ namespace Alias.Test {
 		]
 		public void ParseFails(Arguments arguments) {
 			var parse = Parse(arguments);
-			Assert.IsType<F.Error<Option.AbstractOption>>(parse);
+			Assert.IsType<ST.Error<Option.AbstractOption>>(parse);
 			Assert.IsType<UnparsableOptionException>(Utility.FromError(parse));
 		}
 		[Fact]
 		public void ParseEmptyTest() {
 			var parse = Parse(new[] { @"set", @"name", @"", @"" });
-			Assert.IsType<F.Error<Option.AbstractOption>>(parse);
+			Assert.IsType<ST.Error<Option.AbstractOption>>(parse);
 		}
 	}
 }

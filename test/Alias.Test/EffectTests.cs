@@ -6,7 +6,7 @@ using M = Moq;
 using Xunit;
 using ATF = Alias.Test.Fixture;
 using AC = Alias.ConfigurationData;
-using static Functional.Extension;
+using static LMMarsano.SumType.Extension;
 
 namespace Alias.Test {
 	public class EffectTests {

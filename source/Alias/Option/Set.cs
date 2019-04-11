@@ -5,7 +5,7 @@ using SDC = System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using CL = CommandLine;
 using CLT = CommandLine.Text;
-using F = Functional;
+using ST = LMMarsano.SumType;
 using Name = System.String;
 using Command = System.String;
 using Argument = System.String;
@@ -60,7 +60,7 @@ namespace Alias.Option {
 		 : null;
 		/// <inheritdoc/>
 		[SDC.SuppressMessage("Usage", "CA2208:Instantiate argument exceptions correctly", Justification = "Refers to constructor.")]
-		public override F.Result<AbstractOption> Validation
+		public override ST.Result<AbstractOption> Validation
 		=> Utility.ValidateFileName(Name)
 		   .SelectError(InvalidOptionException.InvalidAliasName(nameof(Unset), nameof(Name), Name))
 		   .Combine
@@ -71,7 +71,7 @@ namespace Alias.Option {
 		           (nameof(Set), nameof(Command), Command, @"Invalid alias command.", error)
 		       )
 		    )
-		   .Combine(F.Factory.Result<AbstractOption>(this));
+		   .Combine(ST.Factory.Result<AbstractOption>(this));
 		/**
 		 * <summary>
 		 * Construct parsed options for set verb.
@@ -105,6 +105,6 @@ namespace Alias.Option {
 		public override int GetHashCode() => S.HashCode.Combine(Name, Command, Arguments);
 		/// <inheritdoc/>
 		/// <exception cref='ExternalOperationException'>External command fails to run.</exception>
-		public override F.Result<STT.Task<ExitCode>> Operate(IOperation operation) => operation.Set(this);
+		public override ST.Result<STT.Task<ExitCode>> Operate(IOperation operation) => operation.Set(this);
 	}
 }

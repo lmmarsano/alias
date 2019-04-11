@@ -1,7 +1,7 @@
 using STT = System.Threading.Tasks;
 using Xunit;
 using M = Moq;
-using F = Functional;
+using ST = LMMarsano.SumType;
 using A = Alias;
 using AO = Alias.Option;
 using Name = System.String;
@@ -30,11 +30,11 @@ namespace Alias.Test {
 		, MemberData(nameof(InvalidData))
 		]
 		public void ValidationFails(Name name)
-		=> Assert.IsType<F.Error<AO.AbstractOption>>(new AO.Unset(name).Validation);
+		=> Assert.IsType<ST.Error<AO.AbstractOption>>(new AO.Unset(name).Validation);
 		[ Theory
 		, MemberData(nameof(ValidData))
 		]
 		public void ValidationSucceeds(Name name)
-		=> Assert.IsType<F.Ok<AO.AbstractOption>>(new AO.Unset(name).Validation);
+		=> Assert.IsType<ST.Ok<AO.AbstractOption>>(new AO.Unset(name).Validation);
 	}
 }

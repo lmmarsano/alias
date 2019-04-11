@@ -1,6 +1,6 @@
 using STT = System.Threading.Tasks;
 using SDC = System.Diagnostics.CodeAnalysis;
-using F = Functional;
+using ST = LMMarsano.SumType;
 
 namespace Alias.Option {
 #pragma warning disable CS0660, CS0661 //'AbstractOption' defines operator == or operator != but does not override Object.Equals(object o) Object.GetHashCode() [Alias]
@@ -14,7 +14,7 @@ namespace Alias.Option {
 		 * </summary>
 		 * <value>Result of validation: the options or error.</value>
 		 */
-		public virtual F.Result<AbstractOption> Validation => F.Factory.Result(this);
+		public virtual ST.Result<AbstractOption> Validation => ST.Factory.Result(this);
 		/**
 		 * <summary>
 		 * Execute command given by options.
@@ -22,6 +22,6 @@ namespace Alias.Option {
 		 * <param name="operation">Execution operations.</param>
 		 * <returns>Result of exit code from command or error.</returns>
 		 */
-		public abstract F.Result<STT.Task<ExitCode>> Operate(IOperation operation);
+		public abstract ST.Result<STT.Task<ExitCode>> Operate(IOperation operation);
 	}
 }

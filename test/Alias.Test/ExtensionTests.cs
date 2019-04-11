@@ -3,7 +3,7 @@ using STT = System.Threading.Tasks;
 using System.Linq;
 using Xunit;
 using M = Moq;
-using F = Functional;
+using ST = LMMarsano.SumType;
 using ATF = Alias.Test.Fixture;
 
 namespace Alias.Test {
@@ -28,7 +28,7 @@ namespace Alias.Test {
 			using var fakeFileDisposable = new ATF.FakeFile(string.Empty, string.Empty);
 			var fakeFile = fakeFileDisposable.Mock.Object;
 			using var env = new ATF.FakeEnvironment(fakeFile, Enumerable.Empty<string>(), fakeFile, new M.Mock<IEffect>().Object, string.Empty, string.Empty);
-			await exception.DisplayMessage(F.Factory.Maybe(env.Mock.Object), F.Nothing.Value).ConfigureAwait(false);
+			await exception.DisplayMessage(ST.Factory.Maybe(env.Mock.Object), ST.Nothing.Value).ConfigureAwait(false);
 			Assert.Equal(message, env.StreamError.ToString().Trim());
 		}
 	}

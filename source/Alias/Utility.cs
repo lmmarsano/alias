@@ -3,8 +3,8 @@ using SIO = System.IO;
 using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
 using STRE = System.Text.RegularExpressions;
-using F = Functional;
-using static Functional.Extension;
+using ST = LMMarsano.SumType;
+using static LMMarsano.SumType.Extension;
 using System.Linq;
 
 namespace Alias {
@@ -53,8 +53,8 @@ namespace Alias {
 		 * <exception cref='S.NotSupportedException'><paramref name="path"/> contains an unsupported specifier.</exception>
 		 * <exception cref='SIO.PathTooLongException'>The specified path, file name, or both exceed the system-defined maximum length.</exception>
 		 */
-		public static F.Result<string> ValidatePath(string path)
-		=> F.Factory.Try(() => SIO.Path.GetFullPath(path));
+		public static ST.Result<string> ValidatePath(string path)
+		=> ST.Factory.Try(() => SIO.Path.GetFullPath(path));
 		/**
 		 * <summary>
 		 * Validate file name.
@@ -64,14 +64,14 @@ namespace Alias {
 		 * <exception cref='S.ArgumentNullException'><paramref name="fileName"/> is null.</exception>
 		 * <exception cref='S.ArgumentException'><paramref name="fileName"/> contains invalid characters or is invalid.</exception>
 		 */
-		public static F.Result<string> ValidateFileName(string fileName)
+		public static ST.Result<string> ValidateFileName(string fileName)
 		=> fileName
 		   .ToResult(() => new S.ArgumentNullException(nameof(fileName), @"Null file name."))
 		   .Where
 		   ( fileName => !(string.IsNullOrWhiteSpace(fileName) || IllegalFileNames.Contains(fileName))
 		   , fileName => new S.ArgumentException(@"Invalid file name.", nameof(fileName))
 		   )
-		   .Combine(F.Factory.Try(() => SIO.Path.GetFileName(fileName)))
+		   .Combine(ST.Factory.Try(() => SIO.Path.GetFileName(fileName)))
 		   .Where
 		   ( name => name == fileName
 		   , fileName => new S.ArgumentException(@"Invalid file name.", nameof(fileName))

@@ -1,8 +1,7 @@
-#nullable enable
 using SIO = System.IO;
 using Xunit;
 using A = Alias;
-using F = Functional;
+using ST = LMMarsano.SumType;
 
 namespace Alias.Test {
 	public class UtilityTests {
@@ -36,22 +35,22 @@ namespace Alias.Test {
 		, MemberData(nameof(ValidateFileNameAcceptsData))
 		]
 		public void ValidateFileNameAccepts(string fileName)
-		=> Assert.IsType<F.Ok<string>>(A.Utility.ValidateFileName(fileName));
+		=> Assert.IsType<ST.Ok<string>>(A.Utility.ValidateFileName(fileName));
 		[ Theory
 		, MemberData(nameof(ValidateFileNameRejectsData))
 		]
 		public void ValidateFileNameRejects(string fileName)
-		=> Assert.IsType<F.Error<string>>(A.Utility.ValidateFileName(fileName));
+		=> Assert.IsType<ST.Error<string>>(A.Utility.ValidateFileName(fileName));
 		[ Theory
 		, MemberData(nameof(ValidatePathAcceptsData))
 		]
 		public void ValidatePathAccepts(string fileName)
-		=> Assert.IsType<F.Ok<string>>(A.Utility.ValidatePath(fileName));
+		=> Assert.IsType<ST.Ok<string>>(A.Utility.ValidatePath(fileName));
 		[ Theory
 		, MemberData(nameof(ValidatePathRejectsData))
 		]
 		public void ValidatePathRejects(string fileName)
-		=> Assert.IsType<F.Error<string>>(A.Utility.ValidatePath(fileName));
+		=> Assert.IsType<ST.Error<string>>(A.Utility.ValidatePath(fileName));
 		public static TheoryData<string, string> SafeQuoteData { get; }
 		= new TheoryData<string, string>
 		  { {@""" """, @" "}

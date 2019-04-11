@@ -2,7 +2,7 @@
 using SD = System.Diagnostics;
 using SIO = System.IO;
 using SCG = System.Collections.Generic;
-using F = Functional;
+using ST = LMMarsano.SumType;
 
 namespace Alias {
 	class Environment: IEnvironment {
@@ -87,8 +87,8 @@ namespace Alias {
 		 * <param name="maybeEnvironment">Optional environment.</param>
 		 * <returns>An error output stream.</returns>
 		 */
-		public static SIO.TextWriter GetErrorStream(F.Maybe<IEnvironment> maybeEnvironment)
-		=> maybeEnvironment is F.Just<IEnvironment>(var environment)
+		public static SIO.TextWriter GetErrorStream(ST.Maybe<IEnvironment> maybeEnvironment)
+		=> maybeEnvironment is ST.Just<IEnvironment>(var environment)
 		 ? environment.StreamError
 		 : S.Console.Error;
 	}

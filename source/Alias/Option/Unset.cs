@@ -4,7 +4,7 @@ using STT = System.Threading.Tasks;
 using CL = CommandLine;
 using CLT = CommandLine.Text;
 using Name = System.String;
-using F = Functional;
+using ST = LMMarsano.SumType;
 
 namespace Alias.Option {
 	/**
@@ -22,10 +22,10 @@ namespace Alias.Option {
 		  { new CLT.Example(@"Remove mklink.exe as an alias", new Unset(@"mklink.exe"))
 		  };
 		/// <inheritdoc/>
-		public override F.Result<AbstractOption> Validation
+		public override ST.Result<AbstractOption> Validation
 		=> Utility.ValidateFileName(Name)
 		   .SelectError(InvalidOptionException.InvalidAliasName(nameof(Unset), nameof(Name), Name))
-		   .Combine(F.Factory.Result<AbstractOption>(this))
+		   .Combine(ST.Factory.Result<AbstractOption>(this))
 		   ;
 		/**
 		 * <summary>
@@ -52,6 +52,6 @@ namespace Alias.Option {
 		/// <inheritdoc/>
 		public override int GetHashCode() => Name.GetHashCode(S.StringComparison.Ordinal);
 		/// <inheritdoc/>
-		public override F.Result<STT.Task<ExitCode>> Operate(IOperation operation) => operation.Unset(this);
+		public override ST.Result<STT.Task<ExitCode>> Operate(IOperation operation) => operation.Unset(this);
 	}
 }

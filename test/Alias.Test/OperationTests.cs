@@ -7,7 +7,7 @@ using SSP = System.Security.Permissions;
 using Xunit;
 using System.Linq;
 using M = Moq;
-using F = Functional;
+using ST = LMMarsano.SumType;
 using ATF = Alias.Test.Fixture;
 using A = Alias;
 using AC = Alias.ConfigurationData;
@@ -108,7 +108,7 @@ namespace Alias.Test {
 				Assert.IsType<OperationIOException>(task.Exception.InnerExceptions.Single());
 			});
 		}
-		(IEnvironment, IFileInfo) SetupWrite(AC.Configuration configuration, F.Result<STT.Task> writeOutcome) {
+		(IEnvironment, IFileInfo) SetupWrite(AC.Configuration configuration, ST.Result<STT.Task> writeOutcome) {
 			var environment = _mockEnv.Object;
 			var configurationFile = environment.ConfigurationFile;
 			_mockEffect.Setup(effect => effect.WriteConfiguration(configuration, configurationFile))
@@ -177,14 +177,14 @@ namespace Alias.Test {
 		]
 		public void SetFailure(AC.Configuration configuration, string name, string command, Arguments arguments) {
 			var (environment, configurationFile) = SetupWrite(configuration, new S.Exception());
-			Assert.IsType<F.Error<STT.Task<ExitCode>>>
+			Assert.IsType<ST.Error<STT.Task<ExitCode>>>
 			(new Operation(environment, configuration).Set(new AO.Set(name, command, arguments)));
 		}
-		public static TheoryData<AC.Configuration, string, F.Result<STT.Task>> UnsetErrorData {
+		public static TheoryData<AC.Configuration, string, ST.Result<STT.Task>> UnsetErrorData {
 			get {
 				var absentAlias = @"alias";
 				var error = new S.Exception();
-				return new TheoryData<AC.Configuration, string, F.Result<STT.Task>>
+				return new TheoryData<AC.Configuration, string, ST.Result<STT.Task>>
 				{ {ATF.Sample.EmptyConfiguration, absentAlias, A.Utility.TaskExitSuccess}
 				, {ATF.Sample.EmptyConfiguration, absentAlias, Utility.TaskFaulted}
 				, {ATF.Sample.EmptyConfiguration, absentAlias, error}
@@ -198,9 +198,9 @@ namespace Alias.Test {
 		[ Theory
 		, MemberData(nameof(UnsetErrorData))
 		]
-		public void UnsetError(AC.Configuration configuration, string name, F.Result<STT.Task> writeOutcome) {
+		public void UnsetError(AC.Configuration configuration, string name, ST.Result<STT.Task> writeOutcome) {
 			var (environment, configurationFile) = SetupWrite(configuration, writeOutcome);
-			Assert.IsType<F.Error<STT.Task<ExitCode>>>
+			Assert.IsType<ST.Error<STT.Task<ExitCode>>>
 			(new Operation(environment, configuration).Unset(new AO.Unset(name)));
 		}
 		[Fact]
@@ -220,13 +220,13 @@ namespace Alias.Test {
 			(new Operation(environment, configuration).Unset(new AO.Unset(@"alias0")))
 			.ContinueWith(task => Assert.Equal(STT.TaskStatus.Faulted, task.Status));
 		}
-		void SetupRun(Arguments arguments, F.Result<STT.Task<ExitCode>> runOutcome) {
+		void SetupRun(Arguments arguments, ST.Result<STT.Task<ExitCode>> runOutcome) {
 			_mockEffect
-			.Setup(effect => effect.RunCommand(M.It.IsAny<Directory>(), M.It.IsAny<Command>(), M.It.IsAny<F.Maybe<string>>()))
+			.Setup(effect => effect.RunCommand(M.It.IsAny<Directory>(), M.It.IsAny<Command>(), M.It.IsAny<ST.Maybe<string>>()))
 			.Returns(runOutcome);
 			_mockEnv.Setup(env => env.Arguments).Returns(arguments);
 		}
-		public static TheoryData<F.Maybe<string>, Arguments, string> ExternalSuccessData {
+		public static TheoryData<ST.Maybe<string>, Arguments, string> ExternalSuccessData {
 			get {
 				var alias0 = @"alias0";
 				var alias1 = @"alias1";
@@ -235,8 +235,8 @@ namespace Alias.Test {
 				var single = new[] { @"main" };
 				var spaced = new[] { @"spaced main" };
 				var pair = new[] { @"spaced main", @"main" };
-				return new TheoryData<F.Maybe<string>, Arguments, string>
-				{ {F.Nothing.Value, empty, alias0}
+				return new TheoryData<ST.Maybe<string>, Arguments, string>
+				{ {ST.Nothing.Value, empty, alias0}
 				, {@"main", single, alias0}
 				, {@"""spaced main""", spaced, alias0}
 				, {@"""spaced main"" main", pair, alias0}
@@ -254,14 +254,14 @@ namespace Alias.Test {
 		[ Theory
 		, MemberData(nameof(ExternalSuccessData))
 		]
-		public async STT.Task ExternalSuccess(F.Maybe<string> expected, Arguments arguments, string alias) {
+		public async STT.Task ExternalSuccess(ST.Maybe<string> expected, Arguments arguments, string alias) {
 			SetupRun(arguments, A.Utility.TaskExitSuccess);
 			var environment = _mockEnv.Object;
 			Assert.Equal
 			( ExitCode.Success
 			, await Utility.FromOk
 			  (Operation(environment)
-			  .External(Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration,   alias)))
+			  .External(Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration, alias)))
 			  )
 			  .ConfigureAwait(false)
 			);
@@ -279,9 +279,9 @@ namespace Alias.Test {
 		, SDC.SuppressMessage("Usage", "xUnit1026", Justification = "Deliberate.")
 		, SDC.SuppressMessage("Naming", "CA1707", Justification = "Deliberate.")
 		]
-		public void ExternalError(F.Maybe<string> _, Arguments arguments, string alias) {
+		public void ExternalError(ST.Maybe<string> _, Arguments arguments, string alias) {
 			SetupRun(arguments, new SIO.IOException());
-			Assert.IsType<F.Error<STT.Task<ExitCode>>>
+			Assert.IsType<ST.Error<STT.Task<ExitCode>>>
 			(Operation(_mockEnv.Object)
 			.External(Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration, alias)))
 			);
@@ -289,7 +289,7 @@ namespace Alias.Test {
 		[ Theory
 		, MemberData(nameof(ExternalSuccessData))
 		]
-		public STT.Task ExternalFailure(F.Maybe<string> expected, Arguments arguments, string alias) {
+		public STT.Task ExternalFailure(ST.Maybe<string> expected, Arguments arguments, string alias) {
 			var inner = new SIO.IOException();
 			SetupRun(arguments, STT.Task.FromException<ExitCode>(inner));
 			var option = Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration, alias));

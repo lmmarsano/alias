@@ -5,7 +5,7 @@ using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
 using NJL = Newtonsoft.Json.Linq;
 using AC = Alias.ConfigurationData;
-using F = Functional;
+using ST = LMMarsano.SumType;
 
 namespace Alias {
 	using Alias.Option;
@@ -105,7 +105,7 @@ namespace Alias {
 		public static S.Func<S.Exception, DeserialException> FailureMap(IFileInfo file)
 		=> (error)
 		=> new DeserialException(file, $@"Unable to process file: {file.FullName}", error);
-		public STT.Task DisplayMessage(F.Maybe<IEnvironment> maybeEnvironment, F.Maybe<AC.Configuration> maybeConfiguration)
+		public STT.Task DisplayMessage(ST.Maybe<IEnvironment> maybeEnvironment, ST.Maybe<AC.Configuration> maybeConfiguration)
 		=> Utility.GetErrorMessage(this).Traverse(Environment.GetErrorStream(maybeEnvironment).WriteAsync);
 	}
 	/**
@@ -304,16 +304,16 @@ namespace Alias {
 		 * Invocation arguments line if any.
 		 * </summary>
 		 */
-		public F.Maybe<string> Arguments { get; }
-		public ExternalOperationException(External option, F.Maybe<string> arguments) {
+		public ST.Maybe<string> Arguments { get; }
+		public ExternalOperationException(External option, ST.Maybe<string> arguments) {
 			Option = option;
 			Arguments = arguments;
 		}
-		public ExternalOperationException(External option, F.Maybe<string> arguments, string message) : base(message) {
+		public ExternalOperationException(External option, ST.Maybe<string> arguments, string message) : base(message) {
 			Option = option;
 			Arguments = arguments;
 		}
-		public ExternalOperationException(External option, F.Maybe<string> arguments, string message, S.Exception inner) : base(message, inner) {
+		public ExternalOperationException(External option, ST.Maybe<string> arguments, string message, S.Exception inner) : base(message, inner) {
 			Option = option;
 			Arguments = arguments;
 		}
@@ -325,7 +325,7 @@ namespace Alias {
 		 * <param name="maybeArgumentLine">The argument line if any for command.</param>
 		 * <returns>An exception map from original exception to exception indicating run failure.</returns>
 		 */
-		public static S.Func<S.Exception, ExternalOperationException> GetRunFailureMap(External option, F.Maybe<string> maybeArgumentLine)
+		public static S.Func<S.Exception, ExternalOperationException> GetRunFailureMap(External option, ST.Maybe<string> maybeArgumentLine)
 		=> (inner)
 		=> new ExternalOperationException(option, maybeArgumentLine, @"Unable to run external command.", inner);
 	}

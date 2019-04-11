@@ -4,7 +4,7 @@ using SIO = System.IO;
 using System.Linq;
 using CL = CommandLine;
 using static CommandLine.ParserExtensions;
-using F = Functional;
+using ST = LMMarsano.SumType;
 using AO = Alias.Option;
 
 namespace Alias {
@@ -33,8 +33,8 @@ namespace Alias {
 		 * <exception cref="S.ArgumentNullException"><paramref name="arguments"/> has a null item.</exception>
 		 * <exception cref='UnparsableOptionException'>Unable to parse <paramref name="arguments"/>.</exception>
 		 */
-		public F.Result<AO.AbstractOption> Parse(SCG.IEnumerable<string> arguments)
-		=> F.Factory.Try
+		public ST.Result<AO.AbstractOption> Parse(SCG.IEnumerable<string> arguments)
+		=> ST.Factory.Try
 		   ( ()
 		     => new CL.Parser((with) => with.HelpWriter = HelpWriter)
 		        .ParseArguments<AO.List, AO.Reset, AO.Restore, AO.Set, AO.Unset>(arguments)
@@ -55,7 +55,7 @@ namespace Alias {
 		               )
 		               .Any()
 		          => new AO.Exit(ExitCode.Success).Validation
-		        , _ => F.Factory.Result<AO.AbstractOption>(UnparsableOptionException.Unparsable(arguments))
+		        , _ => ST.Factory.Result<AO.AbstractOption>(UnparsableOptionException.Unparsable(arguments))
 		        }
 		    );
 	}

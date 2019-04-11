@@ -1,5 +1,5 @@
 using STT = System.Threading.Tasks;
-using F = Functional;
+using ST = LMMarsano.SumType;
 
 namespace Alias.Option {
 	/**
@@ -24,7 +24,7 @@ namespace Alias.Option {
 			ExitCode = exitCode;
 		}
 		/// <inheritdoc/>
-		public override F.Result<STT.Task<ExitCode>> Operate(IOperation _)
-		=> F.Factory.Result(STT.Task.FromResult(ExitCode));
+		public override ST.Result<STT.Task<ExitCode>> Operate(IOperation _)
+		=> ST.Factory.Result(STT.Task.FromResult(ExitCode));
 	}
 }

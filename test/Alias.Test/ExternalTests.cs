@@ -4,7 +4,7 @@ using STT = System.Threading.Tasks;
 using System.Linq;
 using Xunit;
 using M = Moq;
-using F = Functional;
+using ST = LMMarsano.SumType;
 using AT = Alias.Test;
 using AC = Alias.ConfigurationData;
 using Command = System.String;
@@ -36,13 +36,13 @@ namespace Alias.Option.Test {
 		public void ParseAcceptsTest(Command expectedCommand, Arguments expectedArguments, uint index) {
 			var alias = $@"alias{index}";
 			var maybeOption = External.Parse(Configuration, alias);
-			Assert.IsType<F.Just<External>>(maybeOption);
+			Assert.IsType<ST.Just<External>>(maybeOption);
 			maybeOption.Select
 			(option => {
 				Assert.Equal(alias, option.Alias);
 				Assert.Equal(expectedCommand, option.Command);
 				Assert.Equal(expectedArguments, option.Arguments);
-				return F.Nothing.Value;
+				return ST.Nothing.Value;
 			}
 			);
 		}
@@ -52,7 +52,7 @@ namespace Alias.Option.Test {
 		, MemberData(nameof(ParseRejectsData))
 		]
 		public void ParseRejectsTest(uint index)
-		=> Assert.IsType<F.Nothing<External>>(External.Parse(Configuration, $@"alias{index}"));
+		=> Assert.IsType<ST.Nothing<External>>(External.Parse(Configuration, $@"alias{index}"));
 		public static TheoryData<uint> OperateData { get; }
 		= new TheoryData<uint> { 1, 2, 3, 4 };
 		[ Theory
@@ -61,8 +61,8 @@ namespace Alias.Option.Test {
 		public async STT.Task OperateTest(uint index) {
 			var mock = new M.Mock<IOperation>();
 			var maybeOption = External.Parse(Configuration, $@"alias{index}");
-			Assert.IsType<F.Just<External>>(maybeOption);
-			var option = ((F.Just<External>)maybeOption).Value;
+			Assert.IsType<ST.Just<External>>(maybeOption);
+			var option = ((ST.Just<External>)maybeOption).Value;
 			mock.Setup(op => op.External(M.It.IsAny<External>()))
 			.Returns(Utility.TaskExitSuccess);
 			Assert.Equal(ExitCode.Success, await AT.Utility.FromOk(option.Operate(mock.Object)).ConfigureAwait(false));

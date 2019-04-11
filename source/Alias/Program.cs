@@ -1,8 +1,8 @@
 using S = System;
 using STT = System.Threading.Tasks;
 using SRC = System.Runtime.CompilerServices;
-using F = Functional;
-using static Functional.Extension;
+using ST = LMMarsano.SumType;
+using static LMMarsano.SumType.Extension;
 using AC = Alias.ConfigurationData;
 using AO = Alias.Option;
 
@@ -49,28 +49,28 @@ namespace Alias {
 		 * <returns>A task yielding an exit code.</returns>
 		 */
 		public static STT.Task<ExitCode> Entry(S.Func<IEnvironment> getEnvironment)
-		=> F.Factory.Try(getEnvironment)
+		=> ST.Factory.Try(getEnvironment)
 		   .Select(WithEnvironment)
-		   .ReduceNested(ErrorRenderMap(F.Nothing.Value, F.Nothing.Value));
+		   .ReduceNested(ErrorRenderMap(ST.Nothing.Value, ST.Nothing.Value));
 		static STT.Task<ExitCode> WithEnvironment(IEnvironment environment)
 		=> environment.Effect.TryGetConfiguration(environment.ConfigurationFile)
 		   .Select(WithMaybeConfiguration(environment))
-		   .ReduceNested(ErrorRenderMap(F.Factory.Maybe(environment), F.Nothing.Value));
-		static S.Func<STT.Task<F.Maybe<AC.Configuration>>, STT.Task<ExitCode>> WithMaybeConfiguration(IEnvironment environment)
+		   .ReduceNested(ErrorRenderMap(ST.Factory.Maybe(environment), ST.Nothing.Value));
+		static S.Func<STT.Task<ST.Maybe<AC.Configuration>>, STT.Task<ExitCode>> WithMaybeConfiguration(IEnvironment environment)
 		=> taskMaybeConfiguration
 		=> taskMaybeConfiguration.SelectManyAsync
 		   (maybeConfiguration
-		    => (maybeConfiguration is F.Just<AC.Configuration>(var configuration)
+		    => (maybeConfiguration is ST.Just<AC.Configuration>(var configuration)
 		       ? WithConfiguration(environment, configuration)
 		       : WithoutConfiguration(environment)
 		       )
-		       .ReduceNested(ErrorRenderMap(F.Factory.Maybe(environment), maybeConfiguration))
+		       .ReduceNested(ErrorRenderMap(ST.Factory.Maybe(environment), maybeConfiguration))
 		   );
-		static S.Func<S.Exception, STT.Task<ExitCode>> ErrorRenderMap(F.Maybe<IEnvironment> maybeEnvironment, F.Maybe<AC.Configuration> maybeConfiguration)
+		static S.Func<S.Exception, STT.Task<ExitCode>> ErrorRenderMap(ST.Maybe<IEnvironment> maybeEnvironment, ST.Maybe<AC.Configuration> maybeConfiguration)
 		=> error
 		=> error.DisplayMessage(maybeEnvironment, maybeConfiguration)
 		   .ContinueWith(task => ExitCode.Error);
-		static F.Result<STT.Task<ExitCode>> WithoutConfiguration(IEnvironment environment)
+		static ST.Result<STT.Task<ExitCode>> WithoutConfiguration(IEnvironment environment)
 		=> new CommandLine(environment.StreamError).Parse(environment.Arguments)
 		   .SelectMany
 		   (option => option.Operate(new Operation(environment, new AC.Configuration(new AC.BindingDictionary()))));
@@ -83,13 +83,13 @@ namespace Alias {
 		 * <param name="configuration">Program configuration.</param>
 		 * <returns>Exit code result: <see cref='Error{ExitCode}'/> case provides any errors.</returns>
 		 */
-		static F.Result<STT.Task<ExitCode>> WithConfiguration(IEnvironment environment, AC.Configuration configuration)
-		=> F.Factory.Try
+		static ST.Result<STT.Task<ExitCode>> WithConfiguration(IEnvironment environment, AC.Configuration configuration)
+		=> ST.Factory.Try
 		   (() => AO.External.Parse(configuration, environment.ApplicationName))
 		   .SelectMany
 		   (maybeExternal
-		    => maybeExternal is F.Just<AO.External>(var external)
-		     ? F.Factory.Result<AO.AbstractOption>(external)
+		    => maybeExternal is ST.Just<AO.External>(var external)
+		     ? ST.Factory.Result<AO.AbstractOption>(external)
 		     : new CommandLine(environment.StreamError).Parse(environment.Arguments)
 		   )
 		   .SelectMany(option => option.Operate(new Operation(environment, configuration)));
