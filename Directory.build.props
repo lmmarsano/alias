@@ -5,5 +5,7 @@
 		<LangVersion>8.0</LangVersion>
 		<NullableContextOptions>enable</NullableContextOptions>
 		<CodeAnalysisRuleSet>..\..\Alias.ruleset</CodeAnalysisRuleSet>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 </Project>
