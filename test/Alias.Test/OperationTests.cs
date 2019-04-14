@@ -8,8 +8,8 @@ using Xunit;
 using System.Linq;
 using M = Moq;
 using ST = LMMarsano.SumType;
-using ATF = Alias.Test.Fixture;
 using A = Alias;
+using ATF = Alias.Test.Fixture;
 using AC = Alias.ConfigurationData;
 using AO = Alias.Option;
 using Directory = System.String;
@@ -49,13 +49,14 @@ namespace Alias.Test {
 			var environment = _mockEnv.Object;
 			Assert.Equal(ExitCode.Success, await Utility.FromOk(Operation(environment).List(new AO.List())).ConfigureAwait(false));
 			Assert.Equal
-			(string.Join
+			( string.Join
 			  ( S.Environment.NewLine
 			  , new[]
 			    { @"alias0 → command"
 			    , @"alias1 → command arguments"
 			    , @"alias2 → command arguments with spaces"
 			    , @"""spaced alias"" → ""spaced command"" arguments"
+			    , @"chained → alias1 chained arguments"
 			    , string.Empty
 			    }
 			  )
@@ -101,7 +102,7 @@ namespace Alias.Test {
 			var environment = _mockEnv.Object;
 			var configurationFile = environment.ConfigurationFile;
 			_mockEffect.Setup(effect => effect.DeleteFile(configurationFile))
-			.Returns(STT.Task.FromException(new OperationIOException(configurationFile.FullName, SSP.FileIOPermissionAccess.AllAccess)));
+			.Returns(STT.Task.FromException(OperationIOException.DeleteErrorMap(configurationFile.FullName)(new S.Exception())));
 			return Utility.FromOk(Operation(environment).Reset(new AO.Reset()))
 			.ContinueWith(task => {
 				Assert.Equal(STT.TaskStatus.Faulted, task.Status);
@@ -126,24 +127,24 @@ namespace Alias.Test {
 				var sameArguments = new[] { @"arguments" };
 				var differentCommand = @"different command";
 				return new TheoryData<AC.Configuration, string, string, Arguments>
-				{ {ATF.Sample.EmptyConfiguration, alias, command, emptyArguments }
-				, {ATF.Sample.EmptyConfiguration, alias, command, mixedArguments }
-				, {ATF.Sample.Configuration, alias, command, emptyArguments }
-				, {ATF.Sample.Configuration, alias, command, mixedArguments }
-				, {ATF.Sample.Configuration, alias0, command, emptyArguments }
-				, {ATF.Sample.Configuration, alias0, command, mixedArguments }
-				, {ATF.Sample.Configuration, alias1, command, emptyArguments }
-				, {ATF.Sample.Configuration, alias1, command, sameArguments }
-				, {ATF.Sample.Configuration, alias1, command, mixedArguments }
-				, {ATF.Sample.EmptyConfiguration, alias, differentCommand, emptyArguments }
-				, {ATF.Sample.EmptyConfiguration, alias, differentCommand, mixedArguments }
-				, {ATF.Sample.Configuration, alias, differentCommand, emptyArguments }
-				, {ATF.Sample.Configuration, alias, differentCommand, mixedArguments }
-				, {ATF.Sample.Configuration, alias0, differentCommand, emptyArguments }
-				, {ATF.Sample.Configuration, alias0, differentCommand, mixedArguments }
-				, {ATF.Sample.Configuration, alias1, differentCommand, emptyArguments }
-				, {ATF.Sample.Configuration, alias1, differentCommand, sameArguments }
-				, {ATF.Sample.Configuration, alias1, differentCommand, mixedArguments }
+				{ {ATF.Sample.EmptyConfiguration, alias, command, emptyArguments}
+				, {ATF.Sample.EmptyConfiguration, alias, command, mixedArguments}
+				, {ATF.Sample.Configuration, alias, command, emptyArguments}
+				, {ATF.Sample.Configuration, alias, command, mixedArguments}
+				, {ATF.Sample.Configuration, alias0, command, emptyArguments}
+				, {ATF.Sample.Configuration, alias0, command, mixedArguments}
+				, {ATF.Sample.Configuration, alias1, command, emptyArguments}
+				, {ATF.Sample.Configuration, alias1, command, sameArguments}
+				, {ATF.Sample.Configuration, alias1, command, mixedArguments}
+				, {ATF.Sample.EmptyConfiguration, alias, differentCommand, emptyArguments}
+				, {ATF.Sample.EmptyConfiguration, alias, differentCommand, mixedArguments}
+				, {ATF.Sample.Configuration, alias, differentCommand, emptyArguments}
+				, {ATF.Sample.Configuration, alias, differentCommand, mixedArguments}
+				, {ATF.Sample.Configuration, alias0, differentCommand, emptyArguments}
+				, {ATF.Sample.Configuration, alias0, differentCommand, mixedArguments}
+				, {ATF.Sample.Configuration, alias1, differentCommand, emptyArguments}
+				, {ATF.Sample.Configuration, alias1, differentCommand, sameArguments}
+				, {ATF.Sample.Configuration, alias1, differentCommand, mixedArguments}
 				};
 			}
 		}
@@ -231,6 +232,7 @@ namespace Alias.Test {
 				var alias0 = @"alias0";
 				var alias1 = @"alias1";
 				var alias2 = @"alias2";
+				var chained = @"chained";
 				var empty = Enumerable.Empty<Argument>();
 				var single = new[] { @"main" };
 				var spaced = new[] { @"spaced main" };
@@ -248,6 +250,10 @@ namespace Alias.Test {
 				, {@"arguments with spaces main", single, alias2}
 				, {@"arguments with spaces ""spaced main""", spaced, alias2}
 				, {@"arguments with spaces ""spaced main"" main", pair, alias2}
+				, {@"arguments chained arguments", empty, chained}
+				, {@"arguments chained arguments main", single, chained}
+				, {@"arguments chained arguments ""spaced main""", spaced, chained}
+				, {@"arguments chained arguments ""spaced main"" main", pair, chained}
 				};
 			}
 		}
@@ -257,19 +263,16 @@ namespace Alias.Test {
 		public async STT.Task ExternalSuccess(ST.Maybe<string> expected, Arguments arguments, string alias) {
 			SetupRun(arguments, A.Utility.TaskExitSuccess);
 			var environment = _mockEnv.Object;
+			var parse = Utility.FromOk(Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration, alias)));
 			Assert.Equal
 			( ExitCode.Success
-			, await Utility.FromOk
-			  (Operation(environment)
-			  .External(Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration, alias)))
-			  )
-			  .ConfigureAwait(false)
+			, await Utility.FromOk(Operation(environment).External(parse)).ConfigureAwait(false)
 			);
 			_mockEffect.Verify
 			(effect
 			 => effect.RunCommand
-			    (environment.WorkingDirectory
-			    , A.Utility.SafeQuote(ATF.Sample.Configuration.Binding[alias].Command)
+			    ( environment.WorkingDirectory
+			    , A.Utility.SafeQuote(parse.Command)
 			    , expected
 			    )
 			);
@@ -283,7 +286,7 @@ namespace Alias.Test {
 			SetupRun(arguments, new SIO.IOException());
 			Assert.IsType<ST.Error<STT.Task<ExitCode>>>
 			(Operation(_mockEnv.Object)
-			.External(Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration, alias)))
+			.External(Utility.FromOk(Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration, alias))))
 			);
 		}
 		[ Theory
@@ -292,7 +295,7 @@ namespace Alias.Test {
 		public STT.Task ExternalFailure(ST.Maybe<string> expected, Arguments arguments, string alias) {
 			var inner = new SIO.IOException();
 			SetupRun(arguments, STT.Task.FromException<ExitCode>(inner));
-			var option = Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration, alias));
+			var option = Utility.FromOk(Utility.FromJust(AO.External.Parse(ATF.Sample.Configuration, alias)));
 			return Utility.FromOk(Operation(_mockEnv.Object).External(option))
 			.ContinueWith
 			(task => {

@@ -57,14 +57,14 @@ namespace Alias.Test {
 		[Fact]
 		void WriteConfigurationWriteError() {
 			using var fakeFile = new ATF.FakeFile(string.Empty, string.Empty);
-			fakeFile.Mock.Setup(file => file.CreateStream()).Throws(new TerminalFileException(string.Empty, SSP.FileIOPermissionAccess.Write));
+			fakeFile.Mock.Setup(file => file.CreateStream()).Throws(TerminalFileException.WriteErrorMap(string.Empty)(new S.Exception()));
 			Assert.IsType<TerminalFileException>(Utility.FromError(_effect.WriteConfiguration(ATF.Sample.Configuration, fakeFile.Mock.Object)));
 		}
 		[Fact]
 		void WriteConfigurationSerializationError() {
 			using var fakeFile = new ATF.FakeFile(string.Empty, string.Empty);
 			var mockConfiguration = new M.Mock<AC.Configuration>(new AC.BindingDictionary());
-			mockConfiguration.Setup(c => c.Serialize(M.It.IsAny<SIO.TextWriter>())).Throws(new SerializerException(string.Empty));
+			mockConfiguration.Setup(c => c.Serialize(M.It.IsAny<SIO.TextWriter>())).Throws(SerializerException.Failure(string.Empty, new S.Exception()));
 			Assert.IsType<SerializerException>(Utility.FromError(_effect.WriteConfiguration(mockConfiguration.Object, fakeFile.Mock.Object)));
 		}
 	}

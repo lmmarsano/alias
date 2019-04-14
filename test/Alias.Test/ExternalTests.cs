@@ -15,44 +15,52 @@ namespace Alias.Option.Test {
 	public class ExternalTests {
 		static AC.Configuration Configuration { get; }
 		= new AC.Configuration
-		  ( new AC.BindingDictionary(5)
-		    { { @"alias0", new AC.CommandEntry(string.Empty, null) }
-		    , { @"alias1", new AC.CommandEntry(@"command", null) }
-		    , { @"alias2", new AC.CommandEntry(@"command", string.Empty) }
-		    , { @"alias3", new AC.CommandEntry(@"command", @"arguments") }
-		    , { @"alias4", new AC.CommandEntry(@"alias3", @"more arguments") }
-		    }
+		  ( new AC.BindingDictionary
+		    ( new SCG.Dictionary<string, AC.CommandEntry>
+		      { { @"alias0", new AC.CommandEntry(string.Empty, null) }
+		      , { @"alias1", new AC.CommandEntry(@"command", null) }
+		      , { @"alias2", new AC.CommandEntry(@"command", string.Empty) }
+		      , { @"alias3", new AC.CommandEntry(@"command", @"arguments") }
+		      , { @"alias4", new AC.CommandEntry(@"alias3", @"more arguments") }
+		      }
+		    )
 		  );
-		public static TheoryData<Command, Arguments, uint> ParseAcceptsData { get; }
+		public static TheoryData<Command, Arguments, uint> ParseSucceedsData { get; }
 		= new TheoryData<Command, Arguments, uint>
 		  { {@"command", Enumerable.Empty<string>(), 1}
 		  , {@"command", Enumerable.Empty<string>(), 2}
 		  , {@"command", new [] {@"arguments"}, 3}
-		  , {@"alias3", new [] {@"more arguments"}, 4}
+		  , {@"command", new [] {@"arguments", @"more arguments"}, 4}
 		  };
 		[ Theory
-		, MemberData(nameof(ParseAcceptsData))
+		, MemberData(nameof(ParseSucceedsData))
 		]
-		public void ParseAcceptsTest(Command expectedCommand, Arguments expectedArguments, uint index) {
+		public void ParseSucceeds(Command expectedCommand, Arguments expectedArguments, uint index) {
 			var alias = $@"alias{index}";
-			var maybeOption = External.Parse(Configuration, alias);
-			Assert.IsType<ST.Just<External>>(maybeOption);
-			maybeOption.Select
-			(option => {
-				Assert.Equal(alias, option.Alias);
-				Assert.Equal(expectedCommand, option.Command);
-				Assert.Equal(expectedArguments, option.Arguments);
-				return ST.Nothing.Value;
-			}
-			);
+			var option = AT.Utility.FromOk(AT.Utility.FromJust(External.Parse(Configuration, alias)));
+			Assert.Equal(alias, option.Alias);
+			Assert.Equal(expectedCommand, option.Command);
+			Assert.Equal(expectedArguments, option.Arguments);
 		}
-		public static TheoryData<uint> ParseRejectsData { get; }
+		public static TheoryData<uint> ParseNothingData { get; }
 		= new TheoryData<uint> { 0, 5 };
 		[ Theory
-		, MemberData(nameof(ParseRejectsData))
+		, MemberData(nameof(ParseNothingData))
 		]
-		public void ParseRejectsTest(uint index)
-		=> Assert.IsType<ST.Nothing<External>>(External.Parse(Configuration, $@"alias{index}"));
+		public void ParseNothing(uint index)
+		=> Assert.IsType<ST.Nothing<ST.Result<External>>>(External.Parse(Configuration, $@"alias{index}"));
+		static AC.Configuration CyclicConfiguration { get; }
+		= new AC.Configuration
+		  ( new AC.BindingDictionary(Configuration.Binding)
+		    {{ @"command", new AC.CommandEntry(@"command", null)}}
+		  );
+		public static TheoryData<Command> ParseErrorData { get; }
+		= new TheoryData<Command> { "command", "alias1", "alias2", "alias3", "alias4" };
+		[ Theory
+		, MemberData(nameof(ParseErrorData))
+		]
+		public void ParseError(Command alias)
+		=> Assert.IsType<CyclicBindingException>(AT.Utility.FromError(AT.Utility.FromJust(External.Parse(CyclicConfiguration, alias))));
 		public static TheoryData<uint> OperateData { get; }
 		= new TheoryData<uint> { 1, 2, 3, 4 };
 		[ Theory
@@ -60,9 +68,8 @@ namespace Alias.Option.Test {
 		]
 		public async STT.Task OperateTest(uint index) {
 			var mock = new M.Mock<IOperation>();
-			var maybeOption = External.Parse(Configuration, $@"alias{index}");
-			Assert.IsType<ST.Just<External>>(maybeOption);
-			var option = ((ST.Just<External>)maybeOption).Value;
+			var maybePossibleOption = External.Parse(Configuration, $@"alias{index}");
+			var option = AT.Utility.FromOk(AT.Utility.FromJust(maybePossibleOption));
 			mock.Setup(op => op.External(M.It.IsAny<External>()))
 			.Returns(Utility.TaskExitSuccess);
 			Assert.Equal(ExitCode.Success, await AT.Utility.FromOk(option.Operate(mock.Object)).ConfigureAwait(false));

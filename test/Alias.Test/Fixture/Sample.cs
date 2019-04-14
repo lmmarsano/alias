@@ -20,6 +20,7 @@ namespace Alias.Test.Fixture {
 		  , (@"alias1", @"command", @"arguments")
 		  , (@"alias2", @"command", @"arguments with spaces")
 		  , (@"spaced alias", @"spaced command", @"arguments")
+		  , (@"chained", @"alias1", @"chained arguments")
 		  };
 		public static AC.Configuration Configuration { get; } = ToConfiguration(ConfigurationParameters);
 		public static AC.Configuration EmptyConfiguration { get; }
