@@ -22,9 +22,9 @@ namespace Alias.Test.Fixture {
 		  , (@"spaced alias", @"spaced command", @"arguments")
 		  , (@"chained", @"alias1", @"chained arguments")
 		  };
-		public static AC.Configuration Configuration { get; } = ToConfiguration(ConfigurationParameters);
-		public static AC.Configuration EmptyConfiguration { get; }
-		= ToConfiguration(Enumerable.Empty<(string, string, string?)>());
+		public static AC.Configuration Configuration => ToConfiguration(ConfigurationParameters);
+		public static AC.Configuration EmptyConfiguration
+		=> ToConfiguration(Enumerable.Empty<(string, string, string?)>());
 		static string NormalizeLineEnd(string input)
 		=> Utility.NormalizeLineEnd(_newLine, input);
 		public static TheoryData<string, AC.Configuration> SerializationData { get; }
