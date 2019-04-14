@@ -3,7 +3,7 @@ using Xunit;
 using AC = Alias.ConfigurationData;
 using NJL = Newtonsoft.Json.Linq;
 
-namespace Alias.Test {
+namespace Alias.ConfigurationData.Test {
 	public class JsonPrunerTests {
 		public static TheoryData<string, string> PrunedJsonData { get; }
 		= new TheoryData<string, string>

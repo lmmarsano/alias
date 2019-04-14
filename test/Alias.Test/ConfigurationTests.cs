@@ -3,15 +3,16 @@ using SIO = System.IO;
 using STT = System.Threading.Tasks;
 using Xunit;
 using ATF = Alias.Test.Fixture;
+using AT = Alias.Test;
 using AC = Alias.ConfigurationData;
 using NJ = Newtonsoft.Json;
 
-namespace Alias.Test {
+namespace Alias.ConfigurationData.Test {
 	public class ConfigurationTests {
 		const string _newline = @"
 ";
 		public static string NormalizeLineEnd(string input)
-		=> Utility.NormalizeLineEnd(_newline, input);
+		=> AT.Utility.NormalizeLineEnd(_newline, input);
 		public static async STT.Task<AC.Configuration?> FromString(string input) {
 			using var reader = new SIO.StringReader(input);
 			return await AC.Configuration.DeserializeAsync(reader).ConfigureAwait(false);

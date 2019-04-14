@@ -5,11 +5,12 @@ using Xunit;
 using M = Moq;
 using ST = LMMarsano.SumType;
 using A = Alias;
+using AT = Alias.Test;
 using AO = Alias.Option;
 using Name = System.String;
 using Command = System.String;
 
-namespace Alias.Test {
+namespace Alias.Option.Test {
 	using Arguments = SCG.IEnumerable<string>;
 	public class SetTests {
 		static Arguments Empty { get; } = Enumerable.Empty<string>();
@@ -17,7 +18,7 @@ namespace Alias.Test {
 		= new TheoryData<Name, Command, Arguments>
 		  { {@"", @"", Empty}
 		  , {@"alias", @"", Empty}
-		  , {Utility.DirectorySeparator, @"command", Empty}
+		  , {AT.Utility.DirectorySeparator, @"command", Empty}
 		  , {@"alias", "\0", Empty}
 		  };
 		public static TheoryData<Name, Command, Arguments> ValidData { get; }
@@ -42,7 +43,7 @@ namespace Alias.Test {
 			var mock = new M.Mock<IOperation>();
 			var option = new AO.Set(name, command, arguments);
 			mock.Setup(op => op.Set(M.It.IsAny<AO.Set>())).Returns(A.Utility.TaskExitSuccess);
-			Assert.Equal(ExitCode.Success, await Utility.FromOk(option.Operate(mock.Object)).ConfigureAwait(false));
+			Assert.Equal(ExitCode.Success, await AT.Utility.FromOk(option.Operate(mock.Object)).ConfigureAwait(false));
 			mock.Verify(op => op.Set(option));
 		}
 		[ Theory
