@@ -32,8 +32,62 @@ namespace Alias.Test {
 			await exception.DisplayMessage(ST.Factory.Maybe(env.Mock.Object)).ConfigureAwait(false);
 			Assert.Equal(message, env.StreamError.ToString().Trim());
 		}
+		[Fact]
+		public async STT.Task SelectErrorNestedOkRan() {
+			var sut = ST.Factory.Result(STT.Task.FromResult(true));
+			Assert.True(await Utility.FromOk(sut.SelectErrorNested(x => x)).ConfigureAwait(false));
+		}
+		[Fact]
+		public STT.Task SelectErrorNestedOkFaulted() {
+			var sut = ST.Factory.Result(Utility.TaskFault<bool>());
+			return Utility.FromOk(sut.SelectErrorNested(x => new S.Exception(@"Replaced")))
+			.ContinueWith(task => {
+				Assert.Equal(@"Replaced", ((S.AggregateException)task.Exception).InnerException.Message);
+			});
+		}
+		[Fact]
+		public void SelectErrorNestedError() {
+			var sut = ST.Factory.Result<STT.Task<bool>>(new S.Exception());
+			Assert.Equal(@"Replaced", Utility.FromError(sut.SelectErrorNested(x => new S.Exception(@"Replaced"))).Message);
+		}
+		public static TheoryData<ST.Result<STT.Task<bool>>, bool> ReduceNestedData { get; }
+		= new TheoryData<ST.Result<STT.Task<bool>>, bool>
+		  { {ST.Factory.Result(STT.Task.FromResult(true)), false}
+		  , {ST.Factory.Result(Utility.TaskFault<bool>()), true}
+		  , {ST.Factory.Result<STT.Task<bool>>(new S.Exception()), true}
+		  };
+		[ Theory
+		, MemberData(nameof(ReduceNestedData))
+		]
+		public STT.Task ReduceNestedTest(ST.Result<STT.Task<bool>> sut, bool alternative)
+		=> sut.ReduceNested(error => STT.Task.FromResult(alternative))
+		   .ContinueWith(task => Assert.True(task.Result));
 		public static TheoryData<int> TraverseData { get; }
 		= new TheoryData<int> { 0, 1, 2 };
+		[ Theory
+		, MemberData(nameof(TraverseData))
+		]
+		public async STT.Task TaskTraverseTest(int n) {
+			var queue = new SCG.Queue<int>(n);
+			var sequence = Enumerable.Range(0, n);
+			await sequence.Traverse(async n => {
+				await STT.Task.Yield();
+				queue.Enqueue(n);
+			}).ConfigureAwait(false);
+			Assert.True(sequence.SequenceEqual(queue));
+		}
+		[ Theory
+		, MemberData(nameof(TraverseData))
+		]
+		public async STT.Task AsyncEnumTraverseTest(int n) {
+			var sequence = Enumerable.Range(0, n);
+			var enumerator = sequence.GetEnumerator();
+			await foreach (var item in sequence.Traverse(STT.Task.FromResult)) {
+				Assert.True(enumerator.MoveNext());
+				Assert.Equal(item, enumerator.Current);
+			}
+			Assert.False(enumerator.MoveNext());
+		}
 		[ Theory
 		, MemberData(nameof(TraverseData))
 		]
