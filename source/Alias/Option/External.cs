@@ -60,15 +60,34 @@ namespace Alias.Option {
 		public override int GetHashCode() => S.HashCode.Combine(Command, Arguments);
 		/**
 		 * <summary>
-		 * Construct external options from <paramref name="configuration"/> lookup via <paramref name="alias"/>.
+		 * Construct external options from command resolution of <paramref name="alias"/> in <paramref name="configuration"/>.
 		 * </summary>
 		 * <param name="configuration">Application configuration.</param>
 		 * <param name="alias">Alias to lookup.</param>
-		 * <returns><see cref='ST.Just{External}'/> options found via lookup, otherwise <see cref='ST.Nothing{External}'/>.</returns>
+		 * <returns>Nothing if alias is unconfigured. Otherwise, optional possibility of external options if alias successfully resolves. Otherwise, <see cref='CyclicBindingException'/> as optional error.</returns>
+		 * <exception cref='CyclicBindingException'>Resolution fails due to a resolution cycle.</exception>
 		 */
-		public static ST.Maybe<External> Parse(AC.Configuration configuration, Command alias)
-		=> configuration.Binding.TryGetValue(alias)
-			 .Select(commandEntry => new External(alias, commandEntry.Command, commandEntry.Arguments.ToMaybe()));
+		public static ST.Maybe<ST.Result<External>> Parse(AC.Configuration configuration, Command alias) {
+			var commandSequence = configuration.Binding.GetResolutionSequence(alias);
+			if (commandSequence.Any()) {
+				var first = commandSequence.First();
+				return commandSequence.Skip(1)
+				.AggregateAcyclically<AC.CommandEntry, (Command Command, Arguments Arguments)>
+				( object.ReferenceEquals
+				, (first.Command, first.Arguments.ToMaybe())
+				, (acc, entry)
+				  => ( entry.Command
+				     , entry.Arguments is null
+				     ? acc.Arguments
+				     : acc.Arguments.Prepend(entry.Arguments)
+				     )
+				)
+				.Select(pair => ST.Factory.Result(new External(alias, pair.Command, pair.Arguments)))
+				.ReduceRight(commandEntry => CyclicBindingException.CommandError(configuration, commandEntry));
+			} else {
+				return ST.Nothing.Value;
+			}
+		}
 		/// <inheritdoc/>
 		public override ST.Result<STT.Task<ExitCode>> Operate(IOperation operation) => operation.External(this);
 	}

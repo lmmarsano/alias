@@ -51,11 +51,11 @@ namespace Alias {
 		public static STT.Task<ExitCode> Entry(S.Func<IEnvironment> getEnvironment)
 		=> ST.Factory.Try(getEnvironment)
 		   .Select(WithEnvironment)
-		   .ReduceNested(ErrorRenderMap(ST.Nothing.Value, ST.Nothing.Value));
+		   .ReduceNested(ErrorRenderMap(ST.Nothing.Value));
 		static STT.Task<ExitCode> WithEnvironment(IEnvironment environment)
 		=> environment.Effect.TryGetConfiguration(environment.ConfigurationFile)
 		   .Select(WithMaybeConfiguration(environment))
-		   .ReduceNested(ErrorRenderMap(ST.Factory.Maybe(environment), ST.Nothing.Value));
+		   .ReduceNested(ErrorRenderMap(ST.Factory.Maybe(environment)));
 		static S.Func<STT.Task<ST.Maybe<AC.Configuration>>, STT.Task<ExitCode>> WithMaybeConfiguration(IEnvironment environment)
 		=> taskMaybeConfiguration
 		=> taskMaybeConfiguration.SelectManyAsync
@@ -64,34 +64,30 @@ namespace Alias {
 		       ? WithConfiguration(environment, configuration)
 		       : WithoutConfiguration(environment)
 		       )
-		       .ReduceNested(ErrorRenderMap(ST.Factory.Maybe(environment), maybeConfiguration))
+		       .ReduceNested(ErrorRenderMap(ST.Factory.Maybe(environment)))
 		   );
-		static S.Func<S.Exception, STT.Task<ExitCode>> ErrorRenderMap(ST.Maybe<IEnvironment> maybeEnvironment, ST.Maybe<AC.Configuration> maybeConfiguration)
+		static S.Func<S.Exception, STT.Task<ExitCode>> ErrorRenderMap(ST.Maybe<IEnvironment> maybeEnvironment)
 		=> error
-		=> error.DisplayMessage(maybeEnvironment, maybeConfiguration)
-		   .ContinueWith(task => ExitCode.Error);
+		=> error.DisplayMessage(maybeEnvironment).ContinueWith(task => ExitCode.Error);
 		static ST.Result<STT.Task<ExitCode>> WithoutConfiguration(IEnvironment environment)
 		=> new CommandLine(environment.StreamError).Parse(environment.Arguments)
 		   .SelectMany
 		   (option => option.Operate(new Operation(environment, new AC.Configuration(new AC.BindingDictionary()))));
 		/**
 		 * <summary>
-		 * Attempt to lookup program name from configuration and run found associated command.
-		 * If name is absent, then attempt to process arguments as an internal command.
+		 * Attempt to process arguments as external command, then as an internal command.
 		 * </summary>
 		 * <param name="environment">Program environment.</param>
 		 * <param name="configuration">Program configuration.</param>
-		 * <returns>Exit code result: <see cref='Error{ExitCode}'/> case provides any errors.</returns>
+		 * <returns>Possible exit code, otherwise errors.</returns>
 		 */
 		static ST.Result<STT.Task<ExitCode>> WithConfiguration(IEnvironment environment, AC.Configuration configuration)
-		=> ST.Factory.Try
-		   (() => AO.External.Parse(configuration, environment.ApplicationName))
-		   .SelectMany
-		   (maybeExternal
-		    => maybeExternal is ST.Just<AO.External>(var external)
-		     ? ST.Factory.Result<AO.AbstractOption>(external)
-		     : new CommandLine(environment.StreamError).Parse(environment.Arguments)
+		=> AO.External.Parse(configuration, environment.ApplicationName)
+		   .Reduce
+		   ( () => new CommandLine(environment.StreamError).Parse(environment.Arguments)
+		   , result => result.OfType<AO.AbstractOption>(value => new S.InvalidCastException($"Unable to cast {nameof(AO.External)} to {nameof(AO.AbstractOption)}."))
 		   )
 		   .SelectMany(option => option.Operate(new Operation(environment, configuration)));
+
 	}
 }

@@ -3,6 +3,7 @@ using SIO = System.IO;
 using SSP = System.Security.Permissions;
 using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
+using static System.Linq.Enumerable;
 using NJL = Newtonsoft.Json.Linq;
 using AC = Alias.ConfigurationData;
 using ST = LMMarsano.SumType;
@@ -23,13 +24,18 @@ namespace Alias {
 	 * Interface for exceptions terminating program.
 	 * </summary>
 	 */
-	interface ITerminalException: IException {}
+	public abstract class TerminalException: S.Exception, IException {
+		protected TerminalException() {}
+		protected TerminalException(string message): base(message) {}
+		protected TerminalException(string message, S.Exception innerException): base(message, innerException) {}
+		public virtual SCG.IEnumerable<string> ErrorMessage => Utility.GetErrorMessage(this);
+	}
 	/**
 	 * <summary>
 	 * Error attempting to access file.
 	 * </summary>
 	 */
-	abstract class FileException: SIO.IOException, ITerminalException {
+	abstract class FileException: TerminalException {
 		/**
 		 * <summary>
 		 * File path triggering IO exception.
@@ -44,15 +50,15 @@ namespace Alias {
 		 * <value>Permission associated with type of IO access.</value>
 		 */
 		public SSP.FileIOPermissionAccess Type { get; }
-		public FileException(string filePath, SSP.FileIOPermissionAccess type) {
+		protected FileException(string filePath, SSP.FileIOPermissionAccess type) {
 			FilePath = filePath;
 			Type = type;
 		}
-		public FileException(string filePath, SSP.FileIOPermissionAccess type, string message) : base(message) {
+		protected FileException(string filePath, SSP.FileIOPermissionAccess type, string message) : base(message) {
 			FilePath = filePath;
 			Type = type;
 		}
-		public FileException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(message, innerException) {
+		protected FileException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(message, innerException) {
 			FilePath = filePath;
 			Type = type;
 		}
@@ -62,7 +68,7 @@ namespace Alias {
 	 * Default switch branches that should never happen.
 	 * </summary>
 	 */
-	class UnhandledCaseException: S.NotImplementedException, ITerminalException {
+	class UnhandledCaseException: TerminalException {
 		UnhandledCaseException(string message) : base(message) {}
 		public static UnhandledCaseException Error { get; }
 		= new UnhandledCaseException(@"Unhandled case encountered: the program cannot continue.");
@@ -72,10 +78,13 @@ namespace Alias {
 	 * Program terminating error attempting to access file.
 	 * </summary>
 	 */
-	class TerminalFileException: FileException, ITerminalException {
-		public TerminalFileException(string filePath, SSP.FileIOPermissionAccess type) : base(filePath, type) {}
-		public TerminalFileException(string filePath, SSP.FileIOPermissionAccess type, string message) : base(filePath, type, message) {}
-		public TerminalFileException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(filePath, type, message, innerException) {}
+	class TerminalFileException: TerminalException {
+		public string FilePath { get; }
+		public SSP.FileIOPermissionAccess Type { get; }
+		TerminalFileException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(message, innerException) {
+			FilePath = filePath;
+			Type = type;
+		}
 		public static TerminalFileException CurrentDirectoryUnavailable(string configurationFilePath, S.Exception error)
 		=> new TerminalFileException(configurationFilePath, SSP.FileIOPermissionAccess.PathDiscovery, @"Current directory unavailable.", error);
 		public static TerminalFileException InaccessiblePath(string path, S.Exception error)
@@ -91,37 +100,23 @@ namespace Alias {
 	 * Error deserializing file.
 	 * </summary>
 	 */
-	class DeserialException: S.InvalidOperationException, ITerminalException {
+	class DeserialException: TerminalException {
 		public IFileInfo File { get; }
-		public DeserialException(IFileInfo file) {
-			File = file;
-		}
-		public DeserialException(IFileInfo file, string message) : base(message) {
-			File = file;
-		}
-		public DeserialException(IFileInfo file, string message, S.Exception innerException) : base(message, innerException) {
+		DeserialException(IFileInfo file, string message, S.Exception innerException) : base(message, innerException) {
 			File = file;
 		}
 		public static S.Func<S.Exception, DeserialException> FailureMap(IFileInfo file)
 		=> (error)
 		=> new DeserialException(file, $@"Unable to process file: {file.FullName}", error);
-		public STT.Task DisplayMessage(ST.Maybe<IEnvironment> maybeEnvironment, ST.Maybe<AC.Configuration> maybeConfiguration)
-		=> Utility.GetErrorMessage(this).Traverse(Environment.GetErrorStream(maybeEnvironment).WriteAsync);
 	}
 	/**
 	 * <summary>
 	 * Error operating serializer.
 	 * </summary>
 	 */
-	class SerializerException: S.InvalidOperationException, ITerminalException {
+	class SerializerException: TerminalException {
 		public string JsonPath { get; }
-		public SerializerException(string jsonPath) {
-			JsonPath = jsonPath;
-		}
-		public SerializerException(string jsonPath, string message) : base(message) {
-			JsonPath = jsonPath;
-		}
-		public SerializerException(string jsonPath, string message, S.Exception innerException) : base(message, innerException) {
+		SerializerException(string jsonPath, string message, S.Exception innerException) : base(message, innerException) {
 			JsonPath = jsonPath;
 		}
 		public static SerializerException Failure(string jsonPath, S.Exception error)
@@ -141,35 +136,12 @@ namespace Alias {
 		/**
 		 * <summary>
 		 * Initializes the exception for <c cref='NJL.JToken'>JSON tokens</c> that cannot be processed.
-		 * Includes <c cref='NJL.JToken'>JSON token</c> causing this exception.
-		 * </summary>
-		 * <param name="jsonToken">The <c cref='NJL.JToken'>JSON token</c> causing the runtime exception.</param>
-		 * <param name="message">Error description.</param>
-		 */
-		public UnhandledJsonTokenException(NJL.JToken jsonToken) {
-			JsonToken = jsonToken;
-		}
-		/**
-		 * <summary>
-		 * Initializes the exception for <c cref='NJL.JToken'>JSON tokens</c> that cannot be processed.
 		 * Includes error message and <c cref='NJL.JToken'>JSON token</c> causing this exception.
 		 * </summary>
 		 * <param name="jsonToken">The <c cref='NJL.JToken'>JSON token</c> causing the runtime exception.</param>
 		 * <param name="message">Error description.</param>
 		 */
-		public UnhandledJsonTokenException(NJL.JToken jsonToken, string message) : base(message) {
-			JsonToken = jsonToken;
-		}
-		/**
-		 * <summary>
-		 * Initializes the exception for <c cref='NJL.JToken'>JSON tokens</c> that cannot be processed.
-		 * Includes error message and references to the inner exception and <c cref='NJL.JToken'>JSON token</c> causing this exception.
-		 * </summary>
-		 * <param name="jsonToken">The <c cref='NJL.JToken'>JSON token</c> causing the runtime exception.</param>
-		 * <param name="message">Error description.</param>
-		 * <param name="innerException">The <c cref='S.Exception'>exception</c> causing this runtime exception.</param>
-		 */
-		public UnhandledJsonTokenException(NJL.JToken jsonToken, string message, S.Exception innerException) : base(message, innerException) {
+		UnhandledJsonTokenException(NJL.JToken jsonToken, string message) : base(message) {
 			JsonToken = jsonToken;
 		}
 		public static UnhandledJsonTokenException GetUnknown(NJL.JToken jToken)
@@ -187,8 +159,6 @@ namespace Alias {
 	 * </summary>
 	 */
 	class OperationIOException: FileException, INonTerminalException {
-		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type) : base(filePath, type) {}
-		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type, string message) : base(filePath, type, message) {}
 		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(filePath, type, message, innerException) {}
 		public static S.Func<S.Exception, OperationIOException> ReadErrorMap(string destination)
 		=> (error)
@@ -208,7 +178,7 @@ namespace Alias {
 	 * Exception for an argument containing invalid data.
 	 * </summary>
 	 */
-	class InvalidOptionException: S.ArgumentException, ITerminalException {
+	class InvalidOptionException: TerminalException {
 		/**
 		 * <summary>
 		 * Invalid value.
@@ -223,16 +193,15 @@ namespace Alias {
 		 * <value>Class or method associated with invalid argument.</value>
 		 */
 		public string Context { get; }
-		public InvalidOptionException(string context, string paramName, string value) : base(null, paramName) {
+		/**
+		 * <summary>
+		 * The name of the parameter that causes this exception.
+		 * </summary>
+		 */
+		public string ParamName { get; }
+		InvalidOptionException(string context, string paramName, string value, string message, S.Exception inner) : base(message, inner) {
 			Context = context;
-			Value = value;
-		}
-		public InvalidOptionException(string context, string paramName, string value, string message) : base(message, paramName) {
-			Context = context;
-			Value = value;
-		}
-		public InvalidOptionException(string context, string paramName, string value, string message, S.Exception inner) : base(message, paramName, inner) {
-			Context = context;
+			ParamName = paramName;
 			Value = value;
 		}
 		/**
@@ -247,13 +216,16 @@ namespace Alias {
 		public static S.Func<S.Exception, InvalidOptionException> InvalidAliasName(string class_, string property, string value)
 		=> (error)
 		=> new InvalidOptionException(class_, property, value, @"Invalid alias name.", error);
+		public static S.Func<S.Exception, InvalidOptionException> InvalidAliasCommand(string class_, string property, string value)
+		=> (error)
+		=> new InvalidOptionException(class_, property, value, @"Invalid alias command.", error);
 	}
 	/**
 	 * <summary>
 	 * Exception for unparsable arguments.
 	 * </summary>
 	 */
-	class UnparsableOptionException: S.Exception, ITerminalException {
+	class UnparsableOptionException: TerminalException {
 		const string _message = @"Unable to parse arguments.";
 		/**
 		 * <summary>
@@ -262,13 +234,10 @@ namespace Alias {
 		 * <value>Command invocation arguments that could not be parsed.</value>
 		 */
 		public Arguments Arguments { get; }
-		public UnparsableOptionException(Arguments arguments) {
+		UnparsableOptionException(Arguments arguments, string message) : base(message) {
 			Arguments = arguments;
 		}
-		public UnparsableOptionException(Arguments arguments, string message) : base(message) {
-			Arguments = arguments;
-		}
-		public UnparsableOptionException(Arguments arguments, string message, S.Exception inner) : base(message, inner) {
+		UnparsableOptionException(Arguments arguments, string message, S.Exception inner) : base(message, inner) {
 			Arguments = arguments;
 		}
 		public static S.Func<S.Exception, UnparsableOptionException> UnparsableMap(Arguments arguments)
@@ -279,42 +248,81 @@ namespace Alias {
 	}
 	/**
 	 * <summary>
+	 * Bindings contain a resolution cycle.
+	 * </summary>
+	 */
+	class CyclicBindingException: TerminalException {
+		/// <inheritdoc/>
+		public override SCG.IEnumerable<string> ErrorMessage
+		=> new []
+		   { Message
+		   , string.Join
+		     ( " → "
+		     , Configuration.Binding.GetResolutionSequence(CyclicEntry.Command)
+		       .TakeWhile(entry => !object.ReferenceEquals(CyclicEntry, entry))
+		       .Select(entry => entry.Command)
+		       .Prepend(CyclicEntry.Command)
+		       .Append(CyclicEntry.Command)
+		     )
+		   , "Try editing the alias configuration to eliminate cycles."
+		   };
+		public AC.Configuration Configuration { get; }
+		/**
+		 * <summary>
+		 * Member of a binding cycle.
+		 * </summary>
+		 */
+		public AC.CommandEntry CyclicEntry { get; }
+		CyclicBindingException(AC.Configuration configuration, AC.CommandEntry cyclicEntry, string message) : base(message) {
+			Configuration = configuration;
+			CyclicEntry = cyclicEntry;
+		}
+		/**
+		 * <summary>
+		 * Create error for unresolvable commands.
+		 * </summary>
+		 * <param name="cyclicEntry">A cycle member.</param>
+		 * <returns>Error for unresolvable commands.</returns>
+		 */
+		public static CyclicBindingException CommandError(AC.Configuration configuration, AC.CommandEntry cyclicEntry)
+		=> new CyclicBindingException(configuration, cyclicEntry, @"Unable to resolve command due to a cycle in alias resolution.");
+	}
+	/**
+	 * <summary>
 	 * Exceptions for failure to perform an option’s operations.
 	 * </summary>
 	 * <typeparam name="T">The option type.</typeparam>
 	 */
-	interface IOperationException<T>: ITerminalException where T : AbstractOption {
+	abstract class OperationException<T>: TerminalException where T : AbstractOption {
 		/**
 		 * <summary>
 		 * The options associated with exception.
 		 * </summary>
 		 */
-		T Option { get; }
+		public T Option { get; }
+		protected OperationException(T option) {
+			Option = option;
+		}
+		protected OperationException(T option, string message): base(message) {
+			Option = option;
+		}
+		protected OperationException(T option, string message, S.Exception innerException): base(message, innerException) {
+			Option = option;
+		}
 	}
 	/**
 	 * <summary>
 	 * Exception for external command failure.
 	 * </summary>
 	 */
-	class ExternalOperationException: S.Exception, IOperationException<External> {
-		/// <inheritdoc/>
-		public External Option { get; }
+	class ExternalOperationException: OperationException<External> {
 		/**
 		 * <summary>
 		 * Invocation arguments line if any.
 		 * </summary>
 		 */
 		public ST.Maybe<string> Arguments { get; }
-		public ExternalOperationException(External option, ST.Maybe<string> arguments) {
-			Option = option;
-			Arguments = arguments;
-		}
-		public ExternalOperationException(External option, ST.Maybe<string> arguments, string message) : base(message) {
-			Option = option;
-			Arguments = arguments;
-		}
-		public ExternalOperationException(External option, ST.Maybe<string> arguments, string message, S.Exception inner) : base(message, inner) {
-			Option = option;
+		ExternalOperationException(External option, ST.Maybe<string> arguments, string message, S.Exception inner): base(option, message, inner) {
 			Arguments = arguments;
 		}
 		/**
@@ -334,18 +342,8 @@ namespace Alias {
 	 * Exception for list command failure.
 	 * </summary>
 	 */
-	class ListOperationException: SIO.IOException, IOperationException<List> {
-		/// <inheritdoc/>
-		public List Option { get; }
-		public ListOperationException(List option) {
-			Option = option;
-		}
-		public ListOperationException(List option, string message) : base(message) {
-			Option = option;
-		}
-		public ListOperationException(List option, string message, S.Exception inner) : base(message, inner) {
-			Option = option;
-		}
+	class ListOperationException: OperationException<List> {
+		ListOperationException(List option, string message, S.Exception inner) : base(option, message, inner) {}
 		/**
 		 * <summary>
 		 * Create an exception map for output failures.
@@ -362,18 +360,8 @@ namespace Alias {
 	 * Exception for unset command failure.
 	 * </summary>
 	 */
-	class UnsetOperationException: S.Exception, IOperationException<Unset> {
-		/// <inheritdoc/>
-		public Unset Option { get; }
-		public UnsetOperationException(Unset option) {
-			Option = option;
-		}
-		public UnsetOperationException(Unset option, string message) : base(message) {
-			Option = option;
-		}
-		public UnsetOperationException(Unset option, string message, S.Exception inner) : base(message, inner) {
-			Option = option;
-		}
+	class UnsetOperationException: OperationException<Unset> {
+		UnsetOperationException(Unset option, string message) : base(option, message) {}
 		/**
 		 * <summary>
 		 * Create an exception for non-existent aliases.

@@ -11,15 +11,24 @@ using Name = System.String;
 
 namespace Alias {
 	static class Extension {
-		public static STT.Task DisplayMessage(this S.Exception @this, ST.Maybe<IEnvironment> maybeEnvironment, ST.Maybe<AC.Configuration> maybeConfiguration)
+		/**
+		 * <summary>
+		 * Output error message to environment.
+		 * </summary>
+		 * <param name="this">Error to output.</param>
+		 * <param name="maybeEnvironment">Optional environment.</param>
+		 * <param name="maybeConfiguration">Optional configuration.</param>
+		 * <returns>Task to output error.</returns>
+		 */
+		public static STT.Task DisplayMessage(this S.Exception @this, ST.Maybe<IEnvironment> maybeEnvironment)
 		=> @this switch
 		   { S.AggregateException aggregate
 		     => aggregate.Flatten().InnerExceptions
-		        .Where(x => x is ITerminalException)
-		        .SelectMany(Utility.GetErrorMessage)
+		        .OfType<TerminalException>()
+		        .SelectMany(error => error.ErrorMessage)
 		        .Traverse(Environment.GetErrorStream(maybeEnvironment).WriteLineAsync)
-		   , ITerminalException exception
-		     => Utility.GetErrorMessage(@this)
+		   , TerminalException exception
+		     => exception.ErrorMessage
 		        .Traverse(Environment.GetErrorStream(maybeEnvironment).WriteLineAsync)
 		   , _ => STT.Task.CompletedTask
 		   };
@@ -118,15 +127,71 @@ namespace Alias {
 			}
 			return binding;
 		}
+		/**
+		 * <summary>
+		 * Map a sequence to a task that performs a sequence of tasks in order.
+		 * </summary>
+		 * <param name="this">A sequence.</param>
+		 * <param name="map">Map from sequence elements to tasks.</param>
+		 * <typeparam name="T">Sequence element type.</typeparam>
+		 * <returns>A task performing the map images sequentially.</returns>
+		 */
 		public static STT.Task Traverse<T>(this SCG.IEnumerable<T> @this, S.Func<T, STT.Task> map)
 		=> @this.Aggregate
 		   ( STT.Task.CompletedTask
 		   , (task, item) => task.ContinueWith(_ => map(item)).Unwrap()
 		   );
+		/**
+		 * <summary>
+		 * Map a sequence to an asynchronous sequence.
+		 * </summary>
+		 * <param name="this">A sequence.</param>
+		 * <param name="map">Map from sequence elements to tasks.</param>
+		 * <typeparam name="T">Sequence element type.</typeparam>
+		 * <typeparam name="TResult"></typeparam>
+		 * <returns>An asynchronous sequence of values yielded by map images.</returns>
+		 */
 		public static async SCG.IAsyncEnumerable<TResult> Traverse<T, TResult>(this SCG.IEnumerable<T> @this, S.Func<T, STT.Task<TResult>> map) {
 			foreach (var item in @this) {
 				yield return await map(item).ConfigureAwait(false);
 			}
+		}
+		/**
+		 * <summary>
+		 * Attempt to fold sequence with cycle detection.
+		 * If a cycle is detected, return an element in the cycle, instead.
+		 * </summary>
+		 * <param name="this">A sequence.</param>
+		 * <param name="isCollision">Predicate for detecting cycles: true if and only if the operands collide.</param>
+		 * <param name="seed">The initial accumulator value.</param>
+		 * <param name="func">An accumulator function to be invoked on each element.</param>
+		 * <typeparam name="TSource">Sequence element type.</typeparam>
+		 * <typeparam name="TAccumulate">Fold result type.</typeparam>
+		 * <returns>Fold result or an element in a cycle.</returns>
+		 */
+		public static ST.Either<TSource, TAccumulate> AggregateAcyclically<TSource, TAccumulate>(this SCG.IEnumerable<TSource> @this, S.Func<TSource, TSource, bool> isCollision, TAccumulate seed, S.Func<TAccumulate, TSource, TAccumulate> func)
+		where TSource: object
+		where TAccumulate: object {
+			var fast = @this.GetEnumerator();
+			var slow = @this.GetEnumerator();
+			if (!fast.MoveNext()) {
+				return seed;
+			}
+			slow.MoveNext();
+			for (seed = func(seed, fast.Current); fast.MoveNext(); seed = func(seed, fast.Current)) {
+				if (isCollision(slow.Current, fast.Current)) {
+					return fast.Current;
+				}
+				seed = func(seed, fast.Current);
+				slow.MoveNext();
+				if (!fast.MoveNext()) {
+					return seed;
+				}
+				if (isCollision(slow.Current, fast.Current)) {
+					return fast.Current;
+				}
+			}
+			return seed;
 		}
 	}
 }

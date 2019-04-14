@@ -1,8 +1,6 @@
 using S = System;
-using SDC = System.Diagnostics.CodeAnalysis;
 using SIO = System.IO;
 using STT = System.Threading.Tasks;
-using System.Linq;
 using NJ = Newtonsoft.Json;
 using NJL = Newtonsoft.Json.Linq;
 using Name = System.String;
@@ -31,12 +29,18 @@ namespace Alias.ConfigurationData {
 		</summary>
 		<param name="binding">An association of <c cref='Name'>names</c> with their <c cref='CommandEntry'>command entries</c>.</param>
 		*/
+		[NJ.JsonConstructor]
 		public Configuration(BindingDictionary binding) {
-			Binding = binding.Where
-			(x => !(string.IsNullOrWhiteSpace(x.Key)
-						|| string.IsNullOrWhiteSpace(x.Value.Command)
-						 )
-			).ToBinding(x => x.Key.Trim(), x => x.Value);
+			Binding = binding;
+		}
+		/**
+		 * <summary>
+		 * Replicate configuration.
+		 * </summary>
+		 * <param name="configuration">Original configuration.</param>
+		 */
+		public Configuration(Configuration configuration) {
+			Binding = new BindingDictionary(configuration.Binding);
 		}
 		/**
 		 * <summary>

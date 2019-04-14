@@ -62,15 +62,11 @@ namespace Alias.Option {
 		[SDC.SuppressMessage("Usage", "CA2208:Instantiate argument exceptions correctly", Justification = "Refers to constructor.")]
 		public override ST.Result<AbstractOption> Validation
 		=> Utility.ValidateFileName(Name)
-		   .SelectError(InvalidOptionException.InvalidAliasName(nameof(Unset), nameof(Name), Name))
+		   .SelectError(InvalidOptionException.InvalidAliasName(nameof(Set), nameof(Name), Name))
 		   .Combine
-		    (Utility.ValidatePath(Command)
-		      .SelectError
-		       (error
-		        => new InvalidOptionException
-		           (nameof(Set), nameof(Command), Command, @"Invalid alias command.", error)
-		       )
-		    )
+		   (Utility.ValidatePath(Command)
+		    .SelectError(InvalidOptionException.InvalidAliasCommand(nameof(Set), nameof(Command), Command))
+		   )
 		   .Combine(ST.Factory.Result<AbstractOption>(this));
 		/**
 		 * <summary>
