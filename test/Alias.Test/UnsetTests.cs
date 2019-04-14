@@ -27,12 +27,7 @@ namespace Alias.Test {
 			mock.Verify(op => op.Unset(option));
 		}
 		[ Theory
-		, MemberData(nameof(InvalidData))
-		]
-		public void ValidationFails(Name name)
-		=> Assert.IsType<ST.Error<AO.AbstractOption>>(new AO.Unset(name).Validation);
-		[ Theory
-		, MemberData(nameof(ValidData))
+		, MemberData(nameof(InvalidData)), MemberData(nameof(ValidData))
 		]
 		public void ValidationSucceeds(Name name)
 		=> Assert.IsType<ST.Ok<AO.AbstractOption>>(new AO.Unset(name).Validation);
