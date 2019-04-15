@@ -281,6 +281,7 @@ namespace Alias.Test {
 		, MemberData(nameof(ExternalSuccessData))
 		, SDC.SuppressMessage("Usage", "xUnit1026", Justification = "Deliberate.")
 		, SDC.SuppressMessage("Naming", "CA1707", Justification = "Deliberate.")
+		, SDC.SuppressMessage("Usage", "CA1801", Justification = "Deliberate.")
 		]
 		public void ExternalError(ST.Maybe<string> _, Arguments arguments, string alias) {
 			SetupRun(arguments, new SIO.IOException());
