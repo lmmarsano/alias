@@ -43,14 +43,6 @@ namespace Alias {
 		   .Select(task => task.CombineAsync(Utility.TaskExitSuccess));
 		/**
 		 * <summary>
-		 * No operation. Derived classes may extend functionality.
-		 * </summary>
-		 * <param name="options">Restore options.</param>
-		 * <returns>Possible task yielding exit code.</returns>
-		 */
-		public virtual ST.Result<STT.Task<ExitCode>> Restore(AO.Restore options) => Utility.TaskExitSuccess;
-		/**
-		 * <summary>
 		 * Set an alias and save configuration.
 		 * </summary>
 		 * <param name="options">Set options.</param>

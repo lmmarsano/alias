@@ -19,7 +19,7 @@ namespace Alias.Test {
 		  , { @"unset name", new[] { @"unset", @"name" } }
 		  , { @"unset ""spaced name""", new[] { @"unset", @"spaced name" } }
 		  , { @"reset", new[] { @"reset" } }
-		  , { @"restore", new[] { @"restore" } }
+		  , { @"list", new[] { @"list" } }
 		  };
 		[ Theory
 		, MemberData(nameof(ParseSucceedsData))

@@ -43,14 +43,6 @@ namespace Alias {
 		ST.Result<STT.Task<ExitCode>> Unset(AO.Unset options);
 		/**
 		 * <summary>
-		 * No operation. Derived classes may extend functionality.
-		 * </summary>
-		 * <param name="options">Restore options.</param>
-		 * <returns>Possible task yielding exit code.</returns>
-		 */
-		ST.Result<STT.Task<ExitCode>> Restore(AO.Restore options);
-		/**
-		 * <summary>
 		 * Print alias assignments as specified by options to <see cref='Environment.StreamOut'/>.
 		 * </summary>
 		 * <param name="options">List specifications.</param>

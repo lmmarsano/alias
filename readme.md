@@ -71,11 +71,6 @@ Remove the alias.
 
 Remove all configured aliases.
 
-## TODO Restore
-> `alias restore`
-
-Recreate links/copies for all configured aliases.
-
 # JSON Reference
 Located in the same directory as the `alias` executable, `alias.conf` is a plain [JSON][json] file with a root object containing the `"binding"` property.
 ```JavaScript

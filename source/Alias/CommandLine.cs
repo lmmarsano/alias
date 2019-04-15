@@ -37,7 +37,7 @@ namespace Alias {
 		=> ST.Factory.Try
 		   ( ()
 		     => new CL.Parser((with) => with.HelpWriter = HelpWriter)
-		        .ParseArguments<AO.List, AO.Reset, AO.Restore, AO.Set, AO.Unset>(arguments)
+		        .ParseArguments<AO.List, AO.Reset, AO.Set, AO.Unset>(arguments)
 		   , UnparsableOptionException.UnparsableMap(arguments)
 		   )
 		   .SelectMany

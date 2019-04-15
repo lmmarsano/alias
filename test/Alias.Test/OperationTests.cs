@@ -80,13 +80,6 @@ namespace Alias.Test {
 			});
 		}
 		[Fact]
-		public async STT.Task RestoreTest() {
-			Assert.Equal
-			( ExitCode.Success
-			, await Utility.FromOk(Operation(_mockEnv.Object).Restore(new AO.Restore())).ConfigureAwait(false)
-			);
-		}
-		[Fact]
 		public async STT.Task ResetSuccess() {
 			var environment = _mockEnv.Object;
 			var configurationFile = environment.ConfigurationFile;

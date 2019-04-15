@@ -23,8 +23,6 @@ ERROR(S):
 
   reset      Remove all aliases.
 
-  restore    Recreate file system for configured aliases.
-
   set        Add or change an alias.
 
   unset      Remove configured alias.
@@ -40,8 +38,6 @@ ERROR(S):
   list       List aliases.
 
   reset      Remove all aliases.
-
-  restore    Recreate file system for configured aliases.
 
   set        Add or change an alias.
 
