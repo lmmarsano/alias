@@ -16,6 +16,8 @@ namespace Alias.Test {
 		  , { @"set ""spaced name"" command", new[] { @"set", @"spaced name", @"command" } }
 		  , { @"set name ""spaced command""", new[] { @"set", @"name", @"spaced command" } }
 		  , { @"set name command ""spaced argument""", new[] { @"set", @"name", @"command", @"spaced argument" } }
+		  , { @"set name command -argument", new[] { @"set", @"name", @"command", @"--", @"-argument" } }
+		  , { @"set name command -- -argument", new[] { @"set", @"name", @"command", @"--", @"--", @"-argument" } }
 		  , { @"unset name", new[] { @"unset", @"name" } }
 		  , { @"unset ""spaced name""", new[] { @"unset", @"spaced name" } }
 		  , { @"reset", new[] { @"reset" } }
@@ -49,6 +51,7 @@ namespace Alias.Test {
 		  , new [] {@"-"}
 		  , new [] {@"set"}
 		  , new [] {@"set", @"name"}
+		  , new [] {@"set", @"name", @"-argument"}
 		  , new [] {@"unset"}
 		  };
 		[ Theory

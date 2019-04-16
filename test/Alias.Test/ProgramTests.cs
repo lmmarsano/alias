@@ -53,6 +53,10 @@ ERROR(S):
 USAGE:
 Set mklink.exe as an alias to mklink built into cmd:
   testhost set mklink.exe cmd /c mklink
+-- disables subsequent option processing:
+  testhost set noprofile.exe powershell.exe -- -NoProfile
+Repeat -- to pass it through:
+  testhost set doubledash.exe cmd /c echo -- --
 
   --help                Display this help screen.
 
