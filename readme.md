@@ -47,13 +47,13 @@ alias set test.exe cmd /c echo
 By convention, this guide assumes the alias application has the unassigned name `alias`, though the user can rename the application to any unassigned name.
 
 ## Run External Command
-In the same directory as the the alias executable, link or copy the executable to `name`, configure `name`, and run
-> name argument*
-
-If *name* is configured
+In the same directory as the the alias executable, link or copy the executable to `name`, configure `name`,
 > `alias set` name command initial-argument*
 
-then this runs the configured command and initial arguments with the additional arguments.
+and run
+> name argument*
+
+If *name* is configured, then this runs the configured command and initial arguments with the additional arguments.
 > command initial-argument* argument*
 
 ## Add/Set Command
@@ -139,12 +139,14 @@ Try it out by running the demo script
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
 .\Demo.ps1
 .\Alias list
-# cowsay.exe
+# alias-set.exe
+# alias-unset.exe
 # mklink.exe
 ```
 and running the generated executables.
 - `mklink.exe` calls the link creation command from the `cmd.exe` environment
-- `cowsay.exe` echos back a cow saying your command arguments
+- `alias-set.exe` calls `alias set` and hardlinks an executable alias
+- `alias-unset.exe` calls `alias unset` and removes the executable alias
 
 # To Do
 Include file system operations to link/copy/remove the alias executable as configuration mode edits `alias.conf`.
