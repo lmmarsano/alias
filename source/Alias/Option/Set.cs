@@ -47,6 +47,8 @@ namespace Alias.Option {
 		public static SCG.IEnumerable<CLT.Example> Example { get; }
 		= new CLT.Example[]
 		  { new CLT.Example(@"Set mklink.exe as an alias to mklink built into cmd", new Set(@"mklink.exe", @"cmd", new [] {@"/c", @"mklink"}))
+			, new CLT.Example(@"-- disables subsequent option processing", new Set(@"noprofile.exe", @"powershell.exe", new [] {@"--", @"-NoProfile"}))
+			, new CLT.Example(@"Repeat -- to pass it through", new Set(@"doubledash.exe", @"cmd", new [] {@"/c", @"echo", @"--", @"--"}))
 		  };
 		/**
 		 * <summary>

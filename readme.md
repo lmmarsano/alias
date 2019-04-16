@@ -60,6 +60,9 @@ then this runs the configured command and initial arguments with the additional 
 > `alias set` name command argument*
 
 Add or change named alias’ configuration.
+To pass `-` prefixed arguments, first include `--` to disable option processing.
+`--` will be excluded from the saved command.
+To save `--`, too, repeat it.
 
 ## Remove Command
 > `alias unset` name

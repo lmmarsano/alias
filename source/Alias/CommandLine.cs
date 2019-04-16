@@ -36,7 +36,10 @@ namespace Alias {
 		public ST.Result<AO.AbstractOption> Parse(SCG.IEnumerable<string> arguments)
 		=> ST.Factory.Try
 		   ( ()
-		     => new CL.Parser((with) => with.HelpWriter = HelpWriter)
+		     => new CL.Parser((with) => {
+		        	with.HelpWriter = HelpWriter;
+		        	with.EnableDashDash = true;
+		        })
 		        .ParseArguments<AO.List, AO.Reset, AO.Set, AO.Unset>(arguments)
 		   , UnparsableOptionException.UnparsableMap(arguments)
 		   )
