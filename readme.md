@@ -22,8 +22,7 @@ Here’s a workaround.
 # Installation
 Save the application to a directory in your `PATH`.
 ```PowerShell
-New-Item -Type Directory -Path $env:USERPROFILE\path
-Set-Location -Path $env:USERPROFILE\path
+New-Item -Type Directory -Path ~\path | Set-Location
 Start-BitsTransfer -Source https://github.com/lmmarsano/alias/releases/latest/download/alias.zip
 Expand-Archive -Path alias.zip
 Remove-Item -Path alias.zip
