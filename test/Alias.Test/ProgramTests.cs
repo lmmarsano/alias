@@ -1,5 +1,5 @@
-#nullable enable
 using S = System;
+using SIO = System.IO;
 using SCG = System.Collections.Generic;
 using STT = System.Threading.Tasks;
 using System.Linq;
@@ -80,7 +80,7 @@ Repeat -- to pass it through:
 		= new TheoryData<ExitCode, string, string, string, string, Arguments>
 		  { { ExitCode.Error, string.Empty, _defaultOutput, _configuration, @"alias", Enumerable.Empty<string>() }
 		  , { ExitCode.Success, string.Empty, _helpOutput, _configuration, @"alias", new [] {@"help"} }
-		  , { ExitCode.Error, string.Empty, NormalizeLineEnd(@"Unable to process file: directory\alias.conf
+		  , { ExitCode.Error, string.Empty, NormalizeLineEnd($@"Unable to process file: {SIO.Path.Join("directory", "alias.conf")}
 Unexpected end of content while loading JObject. Path 'binding', line 1, position 12.
 "), @"{ ""binding"":", @"alias", Enumerable.Empty<string>() }
 		  };
