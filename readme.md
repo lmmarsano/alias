@@ -24,8 +24,8 @@ Save the application to a directory in your `PATH`.
 ```PowerShell
 New-Item -Type Directory -Path ~\path | Set-Location
 Start-BitsTransfer -Source https://github.com/lmmarsano/alias/releases/latest/download/alias-win-x64.zip
-Expand-Archive -Path alias.zip
-Remove-Item -Path alias.zip
+Expand-Archive -Path alias-win-x64.zip
+Remove-Item -Path alias-win-x64.zip
 [System.Environment]::SetEnvironmentVariable(
 	'PATH',
 	(('%USERPROFILE%\path', [System.Environment]::GetEnvironmentVariable('PATH', [System.EnvironmentVariableTarget]::User) -split ';' | Select-Object -Unique -join ';'),
@@ -152,8 +152,8 @@ and running the generated executables.
 # To Do
 Include file system operations to link/copy/remove the alias executable as configuration mode edits `alias.conf`.
 
-[release-linux]: /lmmarsano/alias/releases/latest/download/alias-linux-x64.txz
-[release-osx]: /lmmarsano/alias/releases/latest/download/alias-osx-x64.txz
+[release-linux]: //github.com/lmmarsano/alias/releases/latest/download/alias-linux-x64.txz
+[release-osx]: //github.com/lmmarsano/alias/releases/latest/download/alias-osx-x64.txz
 [dotnet]: https://dotnet.microsoft.com/download/dotnet-core/3.0
 [wsl]: https://docs.microsoft.com/en-us/windows/wsl/about
 [json]: https://www.json.org/
