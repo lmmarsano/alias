@@ -6,7 +6,7 @@ namespace Alias {
 		/// <summary>Path to the application’s parent directory.</summary>
 		string ApplicationDirectory { get; }
 		/**
-		 * <summary>The application’s file name.</summary>
+		 * <summary>The application’s file name without .exe extension (if any).</summary>
 		 */
 		string ApplicationName { get; }
 		/// <summary>Application file information.</summary>

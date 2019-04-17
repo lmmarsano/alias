@@ -29,7 +29,7 @@ function Set-Alias {
 	& $Target set $Alias $Command @Arguments
 	if ($?) {
 		try {
-			[void](New-Item -Verbose:$VerbosePreference -ErrorAction $ErrorActionPreference -Path $LinkPath -ItemType HardLink -Value $Target)
+			[void](New-Item -Verbose:$VerbosePreference -ErrorAction $ErrorActionPreference -Path "$LinkPath.exe" -ItemType HardLink -Value $Target)
 			Write-Verbose -Message ('{0} created' -f $LinkPath)
 		} catch {
 			Write-Verbose -Message ('{0} not created' -f $LinkPath)
@@ -60,7 +60,7 @@ function Remove-Alias {
 	& $Target unset $Alias
 	if ($?) {
 		try {
-			[void](Remove-Item -Verbose:$VerbosePreference -ErrorAction $ErrorActionPreference -Path $LinkPath)
+			[void](Remove-Item -Verbose:$VerbosePreference -ErrorAction $ErrorActionPreference -Path "$LinkPath.exe")
 			Write-Verbose -Message ('{0} removed' -f $LinkPath)
 		} catch {
 			Write-Verbose -Message ('{0} not removed' -f $LinkPath)
@@ -72,7 +72,7 @@ function Remove-Alias {
 Remove-Alias @Arguments
 '@ | Set-Content -Path alias-unset.ps1
 $Alias = Resolve-Path -Path Alias.exe
-& $Alias set alias-set.exe powershell.exe -- -NoProfile -NoLogo -File (Resolve-Path -Path alias-set.ps1)
+& $Alias set alias-set powershell -- -NoProfile -NoLogo -File (Resolve-Path -Path alias-set.ps1)
 $AliasSet = New-Item -ItemType HardLink -Path alias-set.exe -Value Alias.exe
-& $AliasSet alias-unset.exe powershell.exe -- -NoProfile -NoLogo -File (Resolve-Path -Path alias-unset.ps1)
-& $AliasSet mklink.exe cmd /c mklink
+& $AliasSet alias-unset powershell -- -NoProfile -NoLogo -File (Resolve-Path -Path alias-unset.ps1)
+& $AliasSet mklink cmd /c mklink

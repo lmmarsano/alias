@@ -41,12 +41,12 @@ namespace Alias {
 			} catch (S.Exception error) {
 				throw TerminalFileException.CurrentDirectoryUnavailable(ConfigurationFilePath, error);
 			}
-			using (var currentProcess = SD.Process.GetCurrentProcess())
-			using (var mainModule = currentProcess.MainModule) {
+			using (var currentProcess = SD.Process.GetCurrentProcess()) {
+				ApplicationName = currentProcess.ProcessName;
+				using var mainModule = currentProcess.MainModule;
 				// No exceptions should get thrown on a process necessarily running to execute this code.
 				ApplicationFile = GetFileInfo(mainModule.FileName);
 			}
-			ApplicationName = ApplicationFile.Name;
 			ApplicationDirectory = ApplicationFile.DirectoryName;
 			ConfigurationFilePath = SIO.Path.Combine(ApplicationDirectory, _configurationFileName);
 			ConfigurationFile = GetFileInfo(ConfigurationFilePath);

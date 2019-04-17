@@ -37,7 +37,7 @@ Remove-Item -Path alias.zip
 In a directory containing the `alias` executable
 ```PowerShell
 New-Item -Type HardLink -Name test.exe -Value alias.exe
-alias set test.exe cmd /c echo
+alias set test cmd /c echo
 .\test hello world
 # hello world
 ```
@@ -46,7 +46,7 @@ alias set test.exe cmd /c echo
 By convention, this guide assumes the alias application has the unassigned name `alias`, though the user can rename the application to any unassigned name.
 
 ## Run External Command
-In the same directory as the the alias executable, link or copy the executable to `name`, configure `name`,
+In the same directory as the the alias executable, link or copy the executable to *name* (*name*`.exe` on Windows), configure *name*,
 > `alias set` name command initial-argument*
 
 and run
@@ -129,7 +129,7 @@ code source\Alias
 An executable is built under `source\Alias\bin\Debug\netcoreapp3.0`.
 ```PowerShell
 Set-Location -Path source\Alias\bin\Debug\netcoreapp3.0
-.\Alias.exe
+.\Alias
 ```
 
 # Demo
@@ -138,9 +138,9 @@ Try it out by running the demo script
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
 .\Demo.ps1
 .\Alias list
-# alias-set.exe
-# alias-unset.exe
-# mklink.exe
+# alias-set
+# alias-unset
+# mklink
 ```
 and running the generated executables.
 - `mklink.exe` calls the link creation command from the `cmd.exe` environment
