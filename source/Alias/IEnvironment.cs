@@ -43,18 +43,18 @@ namespace Alias {
 		 */
 		SIO.TextWriter StreamError { get; }
 		/**
-		 * <summary>
-		 * An effect instance.
-		 * </summary>
-		 * <value>An instance providing methods producing effects.</value>
-		 */
-		/**
 		 * <summary>Path to the configuration file.</summary>
 		 * <value>The configuration file path, which normally shares parent directory with the application.</value>
 		 */
 		string ConfigurationFilePath { get; }
 		/// <summary>Configuration file information.</summary>
 		IFileInfo ConfigurationFile { get; }
+		/**
+		 * <summary>
+		 * An effect instance.
+		 * </summary>
+		 * <value>An instance providing methods producing effects.</value>
+		 */
 		IEffect Effect { get; }
 	}
 }

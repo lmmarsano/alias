@@ -42,7 +42,7 @@ namespace Alias.ConfigurationData {
 		/// <inheritdoc/>
 		public override string ToString()
 		=> Utility.SafeQuote(Command)
-		 + (string.IsNullOrWhiteSpace(Arguments)
+		 + ( string.IsNullOrWhiteSpace(Arguments)
 			 ? string.Empty
 			 : @" " + Arguments
 			 );

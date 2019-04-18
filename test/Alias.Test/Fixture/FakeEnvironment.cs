@@ -18,7 +18,7 @@ namespace Alias.Test.Fixture {
 			Mock.Setup(env => env.StreamOut).Returns(StreamOut);
 			Mock.Setup(env => env.StreamError).Returns(StreamError);
 		}
-		public FakeEnvironment(IFileInfo applicationFile, Arguments arguments, IFileInfo configurationFile, IEffect effect, Path workingDirectory, string input) : this(input) {
+		public FakeEnvironment(IFileInfo applicationFile, Arguments arguments, IFileInfo configurationFile, IEffect effect, Path workingDirectory, string input): this(input) {
 			Mock.Setup(env => env.Arguments).Returns(arguments);
 			Mock.Setup(env => env.ApplicationFile).Returns(applicationFile);
 			Mock.Setup(env => env.ApplicationName).Returns(applicationFile.Name);

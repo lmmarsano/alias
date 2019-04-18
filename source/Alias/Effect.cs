@@ -101,14 +101,14 @@ namespace Alias {
 		/// <inheritdoc/>
 		public ST.Result<STT.Task> CopyFile(IFileInfo file, string destination)
 		=> ST.Factory.Try
-		   (() => GetFileStream(file.FullName, SIO.FileMode.Open, SIO.FileAccess.Read)
+		   ( () => GetFileStream(file.FullName, SIO.FileMode.Open, SIO.FileAccess.Read)
 		   , OperationIOException.ReadErrorMap(file.FullName)
 		   )
 		   .SelectMany
 		    ((SIO.FileStream source)
 		     => ST.Factory.Try
 		        // file exists exceptions happen regardless of checking with File.Exists due to race conditions & async IO: just catch exceptions that happen
-		        (() => GetFileStream(destination, SIO.FileMode.CreateNew, SIO.FileAccess.Write)
+		        ( () => GetFileStream(destination, SIO.FileMode.CreateNew, SIO.FileAccess.Write)
 		        , OperationIOException.CreateErrorMap(destination)
 		        )
 		        .Catch(error => {
@@ -116,16 +116,16 @@ namespace Alias {
 		        	return error;
 		        })
 		        .SelectMany
-		         ( ST.Factory.TryMap
-		           ( async (SIO.FileStream destinationStream) => {
-		             	using (source)
-		             	using (destinationStream) {
-		             		await source.CopyToAsync(destinationStream).ConfigureAwait(false);
-		             	}
-		             }
-		           , OperationIOException.CopyErrorMap(destination)
-		           )
-		         )
+		        ( ST.Factory.TryMap
+		          ( async (SIO.FileStream destinationStream) => {
+		            	using (source)
+		            	using (destinationStream) {
+		            		await source.CopyToAsync(destinationStream).ConfigureAwait(false);
+		            	}
+		            }
+		          , OperationIOException.CopyErrorMap(destination)
+		          )
+		        )
 		    );
 		/// <inheritdoc/>
 		public ST.Result<STT.Task> DeleteFile(IFileInfo file)
@@ -140,7 +140,7 @@ namespace Alias {
 		// TODO replace with async stream when async serialization becomes possible.
 		public ST.Result<STT.Task> WriteConfiguration(AC.Configuration configuration, IFileInfo file)
 		=> ST.Factory.Try
-		   (file.CreateStream
+		   ( file.CreateStream
 		   , TerminalFileException.WriteErrorMap(file.FullName)
 		   )
 		   .SelectMany

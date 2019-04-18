@@ -11,29 +11,29 @@ namespace Alias.Test {
 		public static string DirectorySeparator { get; }
 		= SIO.Path.DirectorySeparatorChar.ToString(SG.CultureInfo.InvariantCulture);
 		public static T FromJust<T>(this ST.Maybe<T> @this)
-		where T : object {
+		where T: object {
 			Assert.IsType<ST.Just<T>>(@this);
 			return ((ST.Just<T>)@this).Value;
 		}
 		public static T FromOk<T>(this ST.Result<T> @this)
-		where T : object {
+		where T: object {
 			Assert.IsType<ST.Ok<T>>(@this);
 			return ((ST.Ok<T>)@this).Value;
 		}
 		public static S.Exception FromError<T>(this ST.Result<T> @this)
-		where T : object {
+		where T: object {
 			Assert.IsType<ST.Error<T>>(@this);
 			return ((ST.Error<T>)@this).Value;
 		}
 		public static TRight FromRight<TLeft, TRight>(this ST.Either<TLeft, TRight> @this)
-		where TLeft : object
-		where TRight : object {
+		where TLeft: object
+		where TRight: object {
 			Assert.IsType<ST.Right<TLeft, TRight>>(@this);
 			return ((ST.Right<TLeft, TRight>)@this).Value;
 		}
 		public static TLeft FromLeft<TLeft, TRight>(this ST.Either<TLeft, TRight> @this)
-		where TLeft : object
-		where TRight : object {
+		where TLeft: object
+		where TRight: object {
 			Assert.IsType<ST.Left<TLeft, TRight>>(@this);
 			return ((ST.Left<TLeft, TRight>)@this).Value;
 		}

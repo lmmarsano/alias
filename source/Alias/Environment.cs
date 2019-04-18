@@ -60,7 +60,7 @@ namespace Alias {
 		 * <param name="streamError">Error stream.</param>
 		 * <exception cref="TerminalFileException">Configuration file information failure or current directory failure.</exception>
 		 */
-		public Environment(SCG.IEnumerable<string> arguments, SIO.TextReader streamIn, SIO.TextWriter streamOut, SIO.TextWriter streamError) : this(arguments) {
+		public Environment(SCG.IEnumerable<string> arguments, SIO.TextReader streamIn, SIO.TextWriter streamOut, SIO.TextWriter streamError): this(arguments) {
 			StreamIn = streamIn;
 			StreamOut = streamOut;
 			StreamError = streamError;

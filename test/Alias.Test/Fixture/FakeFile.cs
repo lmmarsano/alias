@@ -27,7 +27,7 @@ namespace Alias.Test.Fixture {
 			Mock.Setup(fileInfo => fileInfo.OpenAsync(M.It.IsAny<SIO.FileMode>(), M.It.IsAny<SIO.FileAccess>(), M.It.IsAny<SIO.FileShare>())).Returns(() => new FakeStream(MemoryStream));
 			Mock.Setup(fileInfo => fileInfo.CreateStream()).Returns(() => new FakeStream(MemoryStream));
 		}
-		public FakeFile(string name, string directoryName, byte[] bytes) : this(name, directoryName) {
+		public FakeFile(string name, string directoryName, byte[] bytes): this(name, directoryName) {
 			MemoryStream.Write(bytes, 0, bytes.Length);
 		}
 		private bool allowDisposal = true;

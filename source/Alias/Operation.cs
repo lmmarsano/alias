@@ -52,7 +52,7 @@ namespace Alias {
 		public virtual ST.Result<STT.Task<ExitCode>> Set(AO.Set options) {
 			Configuration.Binding[options.Name]
 			= new AC.CommandEntry
-			  (options.Command
+			  ( options.Command
 			  , options.ArgumentString
 			  );
 			return WriteConfiguration();

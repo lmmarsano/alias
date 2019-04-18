@@ -42,7 +42,7 @@ namespace Alias {
 		 * <returns>Possible task with mapped errors/failures.</returns>
 		 */
 		public static ST.Result<STT.Task<T>> SelectErrorNested<T>(this ST.Result<STT.Task<T>> @this, S.Func<S.Exception, S.Exception> errorMap)
-		where T : object
+		where T: object
 		=> @this.SelectError(errorMap).Select(task => task.SelectErrorAsync(errorMap));
 		/**
 		 * <summary>
@@ -64,7 +64,7 @@ namespace Alias {
 		 * <returns>The successful task or alternative mapped from error/fault.</returns>
 		 */
 		public static STT.Task<T> ReduceNested<T>(this ST.Result<STT.Task<T>> @this, S.Func<S.Exception, STT.Task<T>> alternative)
-		where T : object
+		where T: object
 		=> @this.Reduce(alternative).CatchAsync(alternative);
 		/**
 		 * <summary>
@@ -104,7 +104,7 @@ namespace Alias {
 		 * <returns>Started task.</returns>
 		 */
 		public static T StartAsync<T>(this T @this)
-		where T : STT.Task {
+		where T: STT.Task {
 			if (@this.Status == STT.TaskStatus.Created) {
 				@this.Start();
 			}

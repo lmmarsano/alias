@@ -54,11 +54,11 @@ namespace Alias {
 			FilePath = filePath;
 			Type = type;
 		}
-		protected FileException(string filePath, SSP.FileIOPermissionAccess type, string message) : base(message) {
+		protected FileException(string filePath, SSP.FileIOPermissionAccess type, string message): base(message) {
 			FilePath = filePath;
 			Type = type;
 		}
-		protected FileException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(message, innerException) {
+		protected FileException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException): base(message, innerException) {
 			FilePath = filePath;
 			Type = type;
 		}
@@ -69,7 +69,7 @@ namespace Alias {
 	 * </summary>
 	 */
 	class UnhandledCaseException: TerminalException {
-		UnhandledCaseException(string message) : base(message) {}
+		UnhandledCaseException(string message): base(message) {}
 		public static UnhandledCaseException Error { get; }
 		= new UnhandledCaseException(@"Unhandled case encountered: the program cannot continue.");
 	}
@@ -81,7 +81,7 @@ namespace Alias {
 	class TerminalFileException: TerminalException {
 		public string FilePath { get; }
 		public SSP.FileIOPermissionAccess Type { get; }
-		TerminalFileException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(message, innerException) {
+		TerminalFileException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException): base(message, innerException) {
 			FilePath = filePath;
 			Type = type;
 		}
@@ -102,7 +102,7 @@ namespace Alias {
 	 */
 	class DeserialException: TerminalException {
 		public IFileInfo File { get; }
-		DeserialException(IFileInfo file, string message, S.Exception innerException) : base(message, innerException) {
+		DeserialException(IFileInfo file, string message, S.Exception innerException): base(message, innerException) {
 			File = file;
 		}
 		public static S.Func<S.Exception, DeserialException> FailureMap(IFileInfo file)
@@ -116,7 +116,7 @@ namespace Alias {
 	 */
 	class SerializerException: TerminalException {
 		public string JsonPath { get; }
-		SerializerException(string jsonPath, string message, S.Exception innerException) : base(message, innerException) {
+		SerializerException(string jsonPath, string message, S.Exception innerException): base(message, innerException) {
 			JsonPath = jsonPath;
 		}
 		public static SerializerException Failure(string jsonPath, S.Exception error)
@@ -141,7 +141,7 @@ namespace Alias {
 		 * <param name="jsonToken">The <c cref='NJL.JToken'>JSON token</c> causing the runtime exception.</param>
 		 * <param name="message">Error description.</param>
 		 */
-		UnhandledJsonTokenException(NJL.JToken jsonToken, string message) : base(message) {
+		UnhandledJsonTokenException(NJL.JToken jsonToken, string message): base(message) {
 			JsonToken = jsonToken;
 		}
 		public static UnhandledJsonTokenException GetUnknown(NJL.JToken jToken)
@@ -159,7 +159,7 @@ namespace Alias {
 	 * </summary>
 	 */
 	class OperationIOException: FileException, INonTerminalException {
-		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException) : base(filePath, type, message, innerException) {}
+		public OperationIOException(string filePath, SSP.FileIOPermissionAccess type, string message, S.Exception innerException): base(filePath, type, message, innerException) {}
 		public static S.Func<S.Exception, OperationIOException> ReadErrorMap(string destination)
 		=> (error)
 		=> new OperationIOException(destination, SSP.FileIOPermissionAccess.Read, "Unable to open file for reading.", error);
@@ -199,7 +199,7 @@ namespace Alias {
 		 * </summary>
 		 */
 		public string ParamName { get; }
-		InvalidOptionException(string context, string paramName, string value, string message, S.Exception inner) : base(message, inner) {
+		InvalidOptionException(string context, string paramName, string value, string message, S.Exception inner): base(message, inner) {
 			Context = context;
 			ParamName = paramName;
 			Value = value;
@@ -234,10 +234,10 @@ namespace Alias {
 		 * <value>Command invocation arguments that could not be parsed.</value>
 		 */
 		public Arguments Arguments { get; }
-		UnparsableOptionException(Arguments arguments, string message) : base(message) {
+		UnparsableOptionException(Arguments arguments, string message): base(message) {
 			Arguments = arguments;
 		}
-		UnparsableOptionException(Arguments arguments, string message, S.Exception inner) : base(message, inner) {
+		UnparsableOptionException(Arguments arguments, string message, S.Exception inner): base(message, inner) {
 			Arguments = arguments;
 		}
 		public static S.Func<S.Exception, UnparsableOptionException> UnparsableMap(Arguments arguments)
@@ -273,7 +273,7 @@ namespace Alias {
 		 * </summary>
 		 */
 		public AC.CommandEntry CyclicEntry { get; }
-		CyclicBindingException(AC.Configuration configuration, AC.CommandEntry cyclicEntry, string message) : base(message) {
+		CyclicBindingException(AC.Configuration configuration, AC.CommandEntry cyclicEntry, string message): base(message) {
 			Configuration = configuration;
 			CyclicEntry = cyclicEntry;
 		}
@@ -293,7 +293,7 @@ namespace Alias {
 	 * </summary>
 	 * <typeparam name="T">The option type.</typeparam>
 	 */
-	abstract class OperationException<T>: TerminalException where T : AbstractOption {
+	abstract class OperationException<T>: TerminalException where T: AbstractOption {
 		/**
 		 * <summary>
 		 * The options associated with exception.
@@ -343,7 +343,7 @@ namespace Alias {
 	 * </summary>
 	 */
 	class ListOperationException: OperationException<List> {
-		ListOperationException(List option, string message, S.Exception inner) : base(option, message, inner) {}
+		ListOperationException(List option, string message, S.Exception inner): base(option, message, inner) {}
 		/**
 		 * <summary>
 		 * Create an exception map for output failures.
@@ -361,7 +361,7 @@ namespace Alias {
 	 * </summary>
 	 */
 	class UnsetOperationException: OperationException<Unset> {
-		UnsetOperationException(Unset option, string message) : base(option, message) {}
+		UnsetOperationException(Unset option, string message): base(option, message) {}
 		/**
 		 * <summary>
 		 * Create an exception for non-existent aliases.
