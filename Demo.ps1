@@ -16,7 +16,7 @@ function Set-Alias {
 		[string]
 		$Command,
 		# Command arguments
-		[Parameter(Mandatory = $true, ValueFromRemainingArguments = $true)]
+		[Parameter(ValueFromRemainingArguments = $true)]
 		[string[]]
 		$Arguments
 	)
