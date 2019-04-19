@@ -24,7 +24,7 @@ namespace Alias {
 	 * Interface for exceptions terminating program.
 	 * </summary>
 	 */
-	public abstract class TerminalException: S.Exception, IException {
+	abstract class TerminalException: S.Exception, IException {
 		protected TerminalException() {}
 		protected TerminalException(string message): base(message) {}
 		protected TerminalException(string message, S.Exception innerException): base(message, innerException) {}
