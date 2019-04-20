@@ -1,6 +1,8 @@
 Set-StrictMode -Version Latest
 dotnet build (Join-Path -Path source -ChildPath Alias) -o Demo
 Set-Location -Path Demo
+'@"%~dp0Alias.exe" set %* && mklink /h "%~dp0%1.exe" "%~dp0Alias.exe" 2>NUL >NUL' | Set-Content -Path alias-set.cmd
+'@"%~dp0Alias.exe" unset %* && del "%~dp0%1.exe" 2>NUL >NUL' | Set-Content -Path alias-unset.cmd
 @'
 Set-StrictMode -Version Latest
 $ErrorActionPreference=[System.Management.Automation.ActionPreference]::Stop
