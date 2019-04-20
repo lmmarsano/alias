@@ -1,3 +1,4 @@
+[![Build Status](https://dev.azure.com/lmmarsano/alias/_apis/build/status/alias-CI?branchName=develop)](https://dev.azure.com/lmmarsano/alias/_build/latest?definitionId=2&branchName=develop)
 # Alias
 Custom commands: make an executable for any command.
 

@@ -1,0 +1,23 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - develop
+pr:
+  autoCancel: true
+variables:
+  BuildConfiguration: Release
+  Version: 3.0.100-preview4-011223
+jobs:
+- template: azure-test.yml
+  parameters:
+    name: Hosted Windows 2019 with VS2019
+    version: $(Version)
+- template: azure-test.yml
+  parameters:
+    name: Hosted Ubuntu 1604
+    version: $(Version)
+- template: azure-test.yml
+  parameters:
+    name: Hosted macOS
+    version: $(Version)

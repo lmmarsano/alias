@@ -1,0 +1,18 @@
+parameters:
+  name: ''
+  version: ''
+
+jobs:
+- job:
+  displayName: ${{ parameters.name }}
+  pool:
+    name: ${{ parameters.name }}
+  steps:
+  - task: UseDotNet@2
+    displayName: Use .NET Core
+    inputs:
+      version: ${{ parameters.version }}
+  - task: DotNetCoreCLI@2
+    displayName: Test
+    inputs:
+      command: test
